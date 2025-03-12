@@ -4,29 +4,29 @@ import { MenuItem, MenuItemType } from './types';
 // constant
 
 const other: MenuItem = {
-  id: 'agencies-crud-category-clientele',
+  id: 'agencies-crud-category-users',
   type: MenuItemType.Group,
-  title: 'Clientela',
+  title: 'Usuarios',
   children: [
     {
-      id: 'clients',
-      title: 'Clientes',
+      id: 'usuarios',
+      title: 'Usuarios',
       type: MenuItemType.Collapse,
       icon: IconUsers,
       breadcrumbs: false,
       children: [
         {
-          id: 'list-clients',
-          title: 'Lista de clientes',
+          id: 'list-users',
+          title: 'Lista de usuarios',
           type: MenuItemType.Item,
-          url: '/clients',
+          url: '/users',
           breadcrumbs: false,
         },
         {
-          id: 'create-clients',
-          title: 'Crear cliente',
+          id: 'create-users',
+          title: 'Crear usuario',
           type: MenuItemType.Item,
-          url: '/clients/create',
+          url: '/users/create',
           breadcrumbs: false,
         }
       ]

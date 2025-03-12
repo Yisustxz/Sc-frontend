@@ -10,31 +10,31 @@ import { FunctionComponent, useCallback, useState } from 'react';
 import { PaginateData } from 'services/types';
 import { IconEdit, IconTrash } from '@tabler/icons';
 import { useNavigate } from 'react-router';
-import deleteClient from 'services/clients/delete-client';
+import deleteUser from 'services/users/delete-user';
 import DialogDelete from 'components/dialogDelete';
 
 const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, fetchItems }) => {
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
     const [open, setOpen] = useState<boolean>(false)
-    const [clientDni, setClientDni] = useState<string>('')
+    const [userDni, setUserDni] = useState<string>('')
 
-    const handleOpen = useCallback((clientDni: string) => {
+    const handleOpen = useCallback((userDni: string) => {
         setOpen(true);
-        setClientDni(clientDni);
+        setUserDni(userDni);
     }, []);
 
     const handleClose = useCallback(() => {
         setOpen(false);
-        setClientDni('');
+        setUserDni('');
     }, []);
 
-    const onDelete = useCallback(async (clientDni: string) => {
+    const onDelete = useCallback(async (userDni: string) => {
         try {
             dispatch(setIsLoading(true));
-            await deleteClient(clientDni!);
-            //navigate('/clients');
-            dispatch(setSuccessMessage(`Cliente eliminado correctamente`));
+            await deleteUser(userDni!);
+            //navigate('/Users');
+            dispatch(setSuccessMessage(`Usuario eliminado correctamente`));
         } catch (error) {
             if (error instanceof BackendError) {
                 dispatch(setErrorMessage(error.getMessage()));
@@ -50,17 +50,16 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
         <div className={className}>
             <DynamicTable
                 headers={[
-                    { columnLabel: 'Cedula', fieldName: 'clientDni', cellAlignment: 'left' },
+                    { columnLabel: 'Cedula', fieldName: 'userDni', cellAlignment: 'left' },
                     { columnLabel: 'Nombre', fieldName: 'name', cellAlignment: 'left' },
                     { columnLabel: 'Correo electrónico', fieldName: 'email', cellAlignment: 'left' },
-                    { columnLabel: 'Teléfono principal', fieldName: 'mainPhone', cellAlignment: 'left' },
-                    { columnLabel: 'Teléfono secundario', fieldName: 'secondaryPhone', cellAlignment: 'left' }
+                    { columnLabel: 'Rol', fieldName: 'role', cellAlignment: 'left' },
                 ]}
                 rows={items} components={[
                     (row: User) =>
                         <Button
                             color="primary"
-                            onClick={() => { navigate('/clients/edit/' + row.userDni) }}
+                            onClick={() => { navigate('/users/edit/' + row.userDni) }}
                             startIcon={<IconEdit />}
                         >
                             Editar
@@ -77,7 +76,7 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
             />
             <DialogDelete
                 handleClose={handleClose}
-                onDelete={() => { onDelete(clientDni) }}
+                onDelete={() => { onDelete(userDni) }}
                 open={open}
             />
 
