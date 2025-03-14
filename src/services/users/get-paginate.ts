@@ -26,4 +26,4 @@ export default async function getPaginate(body: PaginateBody): Promise<UsersPagi
   }
 }
 
-type ClientsPaginated = PaginatedResponse<User>;
+type UsersPaginated = PaginatedResponse<User>;

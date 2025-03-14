@@ -26,7 +26,7 @@ const EditUser: FunctionComponent<Props> = ({className}) => {
       setErrors({});
       setStatus({});
       setSubmitting(true);
-      await EditUser(userDni!, values);
+     // await EditUser(userDni!, values);
       navigate('/users');
       dispatch(setSuccessMessage(`Usuario ${values.name} editado correctamente`));
     } catch (error) {

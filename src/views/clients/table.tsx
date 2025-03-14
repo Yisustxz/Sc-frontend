@@ -12,6 +12,7 @@ import { IconEdit, IconTrash } from '@tabler/icons';
 import { useNavigate } from 'react-router';
 import deleteClient from 'services/clients/delete-client';
 import DialogDelete from 'components/dialogDelete';
+import { Client } from 'core/clients/types';
 
 const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, fetchItems }) => {
     const navigate = useNavigate();
@@ -96,7 +97,7 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
 }
 
 interface Prop {
-    items: User[];
+    items: Client[];
     paginate: PaginateData;
     className?: string;
     onChange: (page: number) => void;

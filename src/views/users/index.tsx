@@ -1,4 +1,4 @@
-import { FunctionComponent, useCallback } from 'react';
+import { FunctionComponent, useCallback, useState } from 'react';
 import MainCard from 'components/cards/MainCard';
 import Table from './table';
 import usePaginate from './use-paginate';
@@ -6,10 +6,18 @@ import { useNavigate } from 'react-router';
 import { styled } from 'styled-components';
 import { Button, Typography } from '@mui/material';
 import { IconCirclePlus } from '@tabler/icons';
+import { User } from 'core/users/types';
 
 const UsersPage: FunctionComponent<Props> = ({ className }) => {
   const navigate = useNavigate();
-  const { users, paginate, setPage, fetchUsers } = usePaginate();
+  const [paginate, setPaginate] = useState({
+    total: 11,
+    page: 1,
+    perPage: 10,
+    pages: 2
+  })
+  //const { users, paginate, setPage, fetchUsers } = usePaginate();
+  const [users, setUsers] = useState<User[]>([])
 
   const goToCreate = useCallback(() => {
     navigate('/users/create');
@@ -29,7 +37,13 @@ const UsersPage: FunctionComponent<Props> = ({ className }) => {
         </Button>
       </div>
     }>
-      <Table items={users} paginate={paginate} onChange={setPage} fetchItems={fetchUsers}/>
+      <Table 
+      items={users} 
+      paginate={paginate} 
+      onChange={(page: number) => setPaginate((prev) => ({ ...prev, page }))}
+      //onChange={setPage} 
+      //fetchItems={fetchUsers}/>
+      fetchItems={() => {}}/>
     </MainCard>
   );
 };

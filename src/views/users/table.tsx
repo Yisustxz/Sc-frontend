@@ -32,7 +32,7 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
     const onDelete = useCallback(async (userDni: string) => {
         try {
             dispatch(setIsLoading(true));
-            await deleteUser(userDni!);
+          //  await deleteUser(userDni!);
             //navigate('/Users');
             dispatch(setSuccessMessage(`Usuario eliminado correctamente`));
         } catch (error) {
