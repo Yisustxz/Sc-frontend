@@ -6,6 +6,12 @@ import Clients from 'views/clients'
 import CreateClient from 'views/clients/create'
 import EditClient from 'views/clients/edit'
 
+import RepresentativesPage from 'views/representatives'
+import CreateRepresentative from 'views/representatives/create'
+
+import EmployeesPage from 'views/employees'
+import CreateEmployee from 'views/employees/create'
+
 const GeneralRoutes: RouteObject[] = [
   //aqui se van a añadir las rutas de cada modulo
 
@@ -21,6 +27,24 @@ const GeneralRoutes: RouteObject[] = [
   {
     path: 'clients/edit/:id',
     element: <EditClient />
+  },
+  //Representantes
+  {
+    path: 'representatives',
+    element: <RepresentativesPage />
+  },
+  {
+    path: 'representatives/create',
+    element: <CreateRepresentative />
+  },
+  //Empleados
+  {
+    path: 'employees',
+    element: <EmployeesPage />
+  },
+  {
+    path: 'employees/create',
+    element: <CreateEmployee />
   }
 ]
 

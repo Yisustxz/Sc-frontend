@@ -6,7 +6,7 @@ import { MenuItem, MenuItemType } from './types';
 const other: MenuItem = {
   id: 'agencies-crud-category-clientele',
   type: MenuItemType.Group,
-  title: 'Clientela',
+  title: 'Usuarios',
   children: [
     {
       id: 'clients',
@@ -30,8 +30,53 @@ const other: MenuItem = {
           breadcrumbs: false,
         }
       ]
+    },
+    {
+      id: 'representatives',
+      title: 'Representantes',
+      type: MenuItemType.Collapse,
+      icon: IconUsers,
+      breadcrumbs: false,
+      children: [
+        {
+          id: 'list-representatives',
+          title: 'Lista de representantes',
+          type: MenuItemType.Item,
+          url: '/representatives',
+          breadcrumbs: false,
+        },
+        {
+          id: 'create-representatives',
+          title: 'Crear representante',
+          type: MenuItemType.Item,
+          url: '/representatives/create',
+          breadcrumbs: false,
+        }
+      ]
+    },
+    {
+      id: 'employees',
+      title: 'Empleados',
+      type: MenuItemType.Collapse,
+      icon: IconUsers,
+      breadcrumbs: false,
+      children: [
+        {
+          id: 'list-employees',
+          title: 'Lista de empleados',
+          type: MenuItemType.Item,
+          url: '/employees',
+          breadcrumbs: false,
+        },
+        {
+          id: 'create-employees',
+          title: 'Crear empleado',
+          type: MenuItemType.Item,
+          url: '/employees/create',
+          breadcrumbs: false,
+        }
+      ]
     }
   ]
-};
-
+}
 export default other;
