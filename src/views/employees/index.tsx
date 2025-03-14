@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router'
 import { styled } from 'styled-components'
 import { Button, Typography } from '@mui/material'
 import { IconCirclePlus } from '@tabler/icons'
+import { Employees, EmployeeRole } from 'core/employees/types'
 
 const EmployeesPage = ({ className }: Props) => {
   const navigate = useNavigate()
@@ -73,24 +74,6 @@ interface Props {
   className?: string
 }
 
-// Enum for employee roles
-export enum EmployeeRole {
-  administrative = 'Administrativo',
-  professor = 'Profesor',
-  director = 'Director',
-  coordinator = 'Coordinador'
-}
-
-// Interface for Employees
-export interface Employees {
-  employeeDni: string
-  name: string
-  lastName: string
-  email: string
-  address: string
-  phone: string
-  role: EmployeeRole
-}
 export default styled(EmployeesPage)`
   width: 100%;
   display: flex;
