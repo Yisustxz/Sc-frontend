@@ -1,7 +1,8 @@
-export interface students {
-  representativeDni: string;
+export interface Students {
+  studentDni: string;
   name: string;
-  email: string;
+  lastName: string,
+  phone: string,
   address: string;
-  createdAt: string;
+  birthdate: string
 }

@@ -12,6 +12,9 @@ import CreateRepresentative from 'views/representatives/create'
 import EmployeesPage from 'views/employees'
 import CreateEmployee from 'views/employees/create'
 
+import StudentsPage from 'views/students'
+import CreateStudent from 'views/students/create'
+
 const GeneralRoutes: RouteObject[] = [
   //aqui se van a añadir las rutas de cada modulo
 
@@ -45,6 +48,15 @@ const GeneralRoutes: RouteObject[] = [
   {
     path: 'employees/create',
     element: <CreateEmployee />
+  },
+  //estudiantes
+  {
+    path: 'students',
+    element: <StudentsPage />
+  },
+  {
+    path: 'students/create',
+    element: <CreateStudent />
   }
 ]
 
