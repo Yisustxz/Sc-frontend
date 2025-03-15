@@ -11,6 +11,10 @@ import CreateRepresentative from 'views/representatives/create'
 
 import EmployeesPage from 'views/employees'
 import CreateEmployee from 'views/employees/create'
+//Users
+import Users from 'views/users'
+import CreateUser from 'views/users/create'
+import EditUser from 'views/users/edit'
 
 const GeneralRoutes: RouteObject[] = [
   //aqui se van a añadir las rutas de cada modulo
@@ -45,6 +49,19 @@ const GeneralRoutes: RouteObject[] = [
   {
     path: 'employees/create',
     element: <CreateEmployee />
+  },
+  //Usuarios
+  {
+    path: 'users',
+    element: <Users />
+  },
+  {
+    path: 'users/create',
+    element: <CreateUser />
+  },
+  {
+    path: 'users/edit/:id',
+    element: <EditUser />
   }
 ]
 

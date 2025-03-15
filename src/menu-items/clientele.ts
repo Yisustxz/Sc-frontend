@@ -1,5 +1,5 @@
 // assets
-import { IconUsers, IconCalendarEvent, IconCar, IconReceipt2, IconCreditCard, IconWallet, IconListCheck } from '@tabler/icons';
+import { IconUsers } from '@tabler/icons';
 import { MenuItem, MenuItemType } from './types';
 // constant
 
