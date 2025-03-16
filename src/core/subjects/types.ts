@@ -1,5 +1,5 @@
 export interface Subject {
-  subjectId: number;
+  id: string;
   name: string;
   grade: string;
   teacher: string;

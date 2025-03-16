@@ -7,7 +7,7 @@ import store from 'store';
 
 const URL = `${API_BASE_URL}/subjects`;
 
-export default async function editSubject(id: number, body: SubjectPayload): Promise<Subject> {
+export default async function editSubject(id: string, body: SubjectPayload): Promise<Subject> {
   try {
     const response = await axios.put<Subject>(
         `${URL}/${id}`, body, {

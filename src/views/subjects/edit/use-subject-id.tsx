@@ -5,13 +5,13 @@ export default function useSubjectId() {
   const navigate = useNavigate();
   const params = useParams();
 
-  const [subjectId, setSubjectId] = useState<number | null>(null);
+  const [subjectId, setSubjectId] = useState<string | null>(null);
   useEffect(() => {
     if (!params.id || isNaN(params.id as any)) {
       navigate('/subjects');
     }
 
-    setSubjectId(params.id as unknown as number);
+    setSubjectId(params.id as unknown as string);
   }, [navigate, params.id]);
 
   return subjectId;

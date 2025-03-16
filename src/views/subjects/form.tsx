@@ -67,7 +67,7 @@ const Form: FunctionComponent<Props> = ({
                 <FormControl className='field-form' fullWidth>
                   <TextField
                     id='name'
-                    label='Nombre del cliente'
+                    label='Nombre de la asignatura'
                     variant='outlined'
                     onBlur={handleBlur}
                     onChange={handleChange}
@@ -143,11 +143,11 @@ interface Props {
 }
 
 export type FormValues = {
-  subjectId: number
+  id: string
   name: string
   grade: string
   teacher: string
-  weeklyHours: string
+  weeklyHours: number
   subjectType: string
   submit: string | null
 }

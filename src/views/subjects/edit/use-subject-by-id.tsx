@@ -6,11 +6,11 @@ import { useAppDispatch } from '../../../store/index';
 import { Subject } from 'core/subjects/types';
 import getSubject from 'services/subjects/get-subject';
 
-export default function useSubjectById(subjectId: number | null) {
+export default function useSubjectById(subjectId: string | null) {
   const dispatch = useAppDispatch();
   const [subject, setSubject] = useState<Subject | null>(null);
 
-  const fetchSubject = useCallback(async (subjectId: number) => {
+  const fetchSubject = useCallback(async (subjectId: string) => {
     try {
       dispatch(setIsLoading(true));
       const response = await getSubject(subjectId);

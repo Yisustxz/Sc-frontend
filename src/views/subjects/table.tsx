@@ -1,6 +1,6 @@
 import { Button, Pagination } from '@mui/material';
 import DynamicTable from 'components/DynamicTable';
-import { Client } from 'core/clients/types';
+import { Subject } from 'core/subjects/types';
 import styled from 'styled-components';
 // Own
 import { useAppDispatch } from 'store/index';
@@ -10,31 +10,31 @@ import { FunctionComponent, useCallback, useState } from 'react';
 import { PaginateData } from 'services/types';
 import { IconEdit, IconTrash } from '@tabler/icons';
 import { useNavigate } from 'react-router';
-import deleteClient from 'services/clients/delete-client';
+import deleteSubject from 'services/subjects/delete-subject';
 import DialogDelete from 'components/dialogDelete';
 
 const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, fetchItems }) => {
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
     const [open, setOpen] = useState<boolean>(false)
-    const [clientDni, setClientDni] = useState<string>('')
+    const [subjectId, setSubjectId] = useState<string>('')
 
-    const handleOpen = useCallback((clientDni: string) => {
+    const handleOpen = useCallback((subjectId: string) => {
         setOpen(true);
-        setClientDni(clientDni);
+        setSubjectId(subjectId);
     }, []);
 
     const handleClose = useCallback(() => {
         setOpen(false);
-        setClientDni('');
+        setSubjectId('');
     }, []);
 
-    const onDelete = useCallback(async (clientDni: string) => {
+    const onDelete = useCallback(async (subjectId: string) => {
         try {
             dispatch(setIsLoading(true));
-            await deleteClient(clientDni!);
-            //navigate('/clients');
-            dispatch(setSuccessMessage(`Cliente eliminado correctamente`));
+            await deleteSubject(subjectId!);
+            //navigate('/subjects');
+            dispatch(setSuccessMessage(`Asignatura eliminada correctamente`));
         } catch (error) {
             if (error instanceof BackendError) {
                 dispatch(setErrorMessage(error.getMessage()));
@@ -50,25 +50,25 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
         <div className={className}>
             <DynamicTable
                 headers={[
-                    { columnLabel: 'Cedula', fieldName: 'clientDni', cellAlignment: 'left' },
                     { columnLabel: 'Nombre', fieldName: 'name', cellAlignment: 'left' },
-                    { columnLabel: 'Correo electrónico', fieldName: 'email', cellAlignment: 'left' },
-                    { columnLabel: 'Teléfono principal', fieldName: 'mainPhone', cellAlignment: 'left' },
-                    { columnLabel: 'Teléfono secundario', fieldName: 'secondaryPhone', cellAlignment: 'left' }
+                    { columnLabel: 'grado', fieldName: 'grade', cellAlignment: 'left' },
+                    { columnLabel: 'profesor', fieldName: 'teacher', cellAlignment: 'left' },
+                    { columnLabel: 'horas semanales', fieldName: 'weeklyHours', cellAlignment: 'left' },
+                    { columnLabel: 'tipo de asignatura', fieldName: 'subjectType', cellAlignment: 'left' },
                 ]}
                 rows={items} components={[
-                    (row: Client) =>
+                    (row: Subject) =>
                         <Button
                             color="primary"
-                            onClick={() => { navigate('/clients/edit/'+row.clientDni) }}
+                            onClick={() => { navigate('/subjects/edit/'+row.id) }}
                             startIcon={<IconEdit />}
                         >
                             Editar
                         </Button>,
-                    (row: Client) =>
+                    (row: Subject) =>
                         <Button 
                             color="secondary" 
-                            onClick={ () => handleOpen(row.clientDni) }
+                            onClick={ () => handleOpen(row.id) }
                             startIcon={<IconTrash />}
                         >
                             Eliminar
@@ -77,30 +77,30 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
             />
             <DialogDelete 
                 handleClose={handleClose} 
-                onDelete={() => { onDelete(clientDni) }} 
+                onDelete={() => { onDelete(subjectId) }} 
                 open={open}
             />
 
             <div className={'paginator-container'}>
-              <Pagination
-                  count={paginate.pages}
-                  page={paginate.page}
-                  variant="outlined"
-                  shape="rounded"
-                  color="primary"
-                  onChange={(event, page) => { onChange(page) }}
-              />
-          </div>
+                <Pagination
+                    count={paginate.pages}
+                    page={paginate.page}
+                    variant="outlined"
+                    shape="rounded"
+                    color="primary"
+                    onChange={(event, page) => { onChange(page) }}
+                />
+            </div>
         </div>
     );
 }
 
 interface Prop {
-  items: Client[];
-  paginate: PaginateData;
-  className?: string;
-  onChange: (page: number) => void;
-  fetchItems: () => void;
+    items: Subject[];
+    paginate: PaginateData;
+    className?: string;
+    onChange: (page: number) => void;
+    fetchItems: () => void;
 }
 
 export default styled(Table)`
