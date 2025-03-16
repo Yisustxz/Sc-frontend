@@ -1,7 +1,5 @@
 // project imports
 import { RouteObject } from 'react-router'
-import CreateSubject from 'services/subjects/create-subject'
-import EditSubject from 'services/subjects/edit-subject'
 
 //Clients
 import Clients from 'views/clients'
