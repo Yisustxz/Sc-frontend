@@ -53,6 +53,8 @@ const CreateSubject: FunctionComponent<Props> = ({className}) => {
           name: '',
           grade: '',
           teacher: '',
+          weeklyHours: '',
+          subjectType: '',
           submit: null
         }}
         title={'Crear asignatura'}

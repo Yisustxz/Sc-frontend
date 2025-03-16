@@ -21,7 +21,7 @@ const Form: FunctionComponent<Props> = ({
     ? {
         subjectId: Yup.string()
           .max(8)
-          .required('La cedula del subjecte es requerida')
+          .required('El id de la asignatura es requerido')
       }
     : {}
 
@@ -45,7 +45,10 @@ const Form: FunctionComponent<Props> = ({
             .required('El profesor de la asignatura es requerido'),
           weeklyHours: Yup.number()
             .max(11)
-            .required('Las horas semanales de la asignatura son requeridas')
+            .required('Las horas semanales de la asignatura son requeridas'),
+          subjectType: Yup.string()
+            .max(11)
+            .required('El tipo de asignatura es requerido')
         })}
         onSubmit={onSubmit as any}
       >
@@ -61,21 +64,6 @@ const Form: FunctionComponent<Props> = ({
           <form noValidate onSubmit={handleSubmit}>
             <MainCard className={'form-data'} title={title}>
               <div className='form-grid'>
-                {isCreated && (
-                  <FormControl className='field-form' fullWidth>
-                    <TextField
-                      id='clientDni'
-                      label='Cédula'
-                      variant='outlined'
-                      onBlur={handleBlur}
-                      onChange={handleChange}
-                      value={values.clientDni}
-                      helperText={touched.clientDni ? errors.clientDni : ''}
-                      error={touched.clientDni && !!errors.clientDni}
-                      name='clientDni'
-                    />
-                  </FormControl>
-                )}
                 <FormControl className='field-form' fullWidth>
                   <TextField
                     id='name'
@@ -91,43 +79,41 @@ const Form: FunctionComponent<Props> = ({
                 </FormControl>
                 <FormControl className='field-form' fullWidth>
                   <TextField
-                    id='email'
-                    label='Correo electrónico'
+                    id='grade'
+                    label='Grado'
                     variant='outlined'
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    value={values.email}
-                    helperText={touched.email ? errors.email : ''}
-                    error={touched.email && !!errors.email}
-                    name='email'
+                    value={values.grade}
+                    helperText={touched.grade ? errors.grade : ''}
+                    error={touched.grade && !!errors.grade}
+                    name='grade'
                   />
                 </FormControl>
                 <FormControl className='field-form' fullWidth>
                   <TextField
-                    id='mainPhone'
-                    label='Teléfono principal'
+                    id='teacher'
+                    label='Profesor'
                     variant='outlined'
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    value={values.mainPhone}
-                    helperText={touched.mainPhone ? errors.mainPhone : ''}
-                    error={touched.mainPhone && !!errors.mainPhone}
-                    name='mainPhone'
+                    value={values.teacher}
+                    helperText={touched.teacher ? errors.teacher : ''}
+                    error={touched.teacher && !!errors.teacher}
+                    name='teacher'
                   />
                 </FormControl>
                 <FormControl className='field-form' fullWidth>
                   <TextField
-                    id='secondaryPhone'
-                    label='Teléfono secundario'
+                    id='weeklyHours'
+                    label='Horas semanales'
                     variant='outlined'
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    value={values.secondaryPhone}
-                    helperText={
-                      touched.secondaryPhone ? errors.secondaryPhone : ''
-                    }
-                    error={touched.secondaryPhone && !!errors.secondaryPhone}
-                    name='secondaryPhone'
+                    value={values.weeklyHours}
+                    helperText={touched.weeklyHours ? errors.weeklyHours : ''}
+                    error={touched.weeklyHours && !!errors.weeklyHours}
+                    name='weeklyHours'
                   />
                 </FormControl>
               </div>
@@ -157,11 +143,12 @@ interface Props {
 }
 
 export type FormValues = {
-  clientDni: string
+  subjectId: number
   name: string
-  email: string
-  mainPhone: string
-  secondaryPhone: string
+  grade: string
+  teacher: string
+  weeklyHours: string
+  subjectType: string
   submit: string | null
 }
 
