@@ -15,6 +15,8 @@ import { PaginateData } from 'services/types'
 import { IconEdit, IconTrash } from '@tabler/icons'
 import { useNavigate } from 'react-router'
 import DialogDelete from 'components/dialogDelete'
+import { id } from 'date-fns/locale'
+import deleteStudent from 'services/students/delete-student'
 
 const Table: FunctionComponent<Prop> = ({
   items,
@@ -26,23 +28,24 @@ const Table: FunctionComponent<Prop> = ({
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const [open, setOpen] = useState<boolean>(false)
-  const [studentDni, setstudentDni] = useState<string>('')
+  const [studentId, setStudentId] = useState<number>(0)
 
-  const handleOpen = useCallback((studentDni: string) => {
+  const handleOpen = useCallback((id: number) => {
     setOpen(true)
-    setstudentDni(studentDni)
+    setStudentId(id)
   }, [])
 
   const handleClose = useCallback(() => {
     setOpen(false)
-    setstudentDni('')
+    setStudentId(0)
   }, [])
 
   const onDelete = useCallback(
-    async (studentDni: string) => {
+    async (studentId: number) => {
       try {
         dispatch(setIsLoading(true))
-        dispatch(setSuccessMessage(`Representante eliminado correctamente`))
+        await deleteStudent(studentId!)
+        dispatch(setSuccessMessage(`Alumno eliminado correctamente`))
       } catch (error) {
         if (error instanceof BackendError) {
           dispatch(setErrorMessage(error.getMessage()))
@@ -57,8 +60,12 @@ const Table: FunctionComponent<Prop> = ({
   )
 
   const formattedItems = items.map((item) => ({
-    ...item,
-    fullName: `${item.name} ${item.lastName}`
+    id: item.id,
+    studentCi: item.persona?.ci ?? '',
+    fullName: `${item.persona?.nombre ?? ''} ${item.persona?.apellido ?? ''}`,
+    telefono: item.persona?.telefono ?? '',
+    direccion: item.persona?.direccion ?? '',
+    fechaNacimiento: item.persona?.fechaNacimiento ?? ''
   }))
 
   return (
@@ -67,7 +74,7 @@ const Table: FunctionComponent<Prop> = ({
         headers={[
           {
             columnLabel: 'Cedula',
-            fieldName: 'studentDni',
+            fieldName: 'studentCi',
             cellAlignment: 'left'
           },
           {
@@ -77,17 +84,17 @@ const Table: FunctionComponent<Prop> = ({
           },
           {
             columnLabel: 'Teléfono',
-            fieldName: 'phone',
+            fieldName: 'telefono',
             cellAlignment: 'left'
           },
           {
             columnLabel: 'Dirección',
-            fieldName: 'address',
+            fieldName: 'direccion',
             cellAlignment: 'left'
           },
           {
             columnLabel: 'Fecha de nacimiento',
-            fieldName: 'birthdate',
+            fieldName: 'fechaNacimiento',
             cellAlignment: 'left'
           }
         ]}
@@ -97,7 +104,7 @@ const Table: FunctionComponent<Prop> = ({
             <Button
               color='primary'
               onClick={() => {
-                navigate('/students/edit/' + row.studentDni)
+                navigate('/students/edit/' + row.id)
               }}
               startIcon={<IconEdit />}
             >
@@ -107,7 +114,7 @@ const Table: FunctionComponent<Prop> = ({
           (row: Students) => (
             <Button
               color='secondary'
-              onClick={() => handleOpen(row.studentDni)}
+              onClick={() => handleOpen(row.id)}
               startIcon={<IconTrash />}
             >
               Eliminar
@@ -118,14 +125,14 @@ const Table: FunctionComponent<Prop> = ({
       <DialogDelete
         handleClose={handleClose}
         onDelete={() => {
-          onDelete(studentDni)
+          onDelete(studentId)
         }}
         open={open}
       />
 
       <div className={'paginator-container'}>
         <Pagination
-          count={paginate.pages}
+          count={paginate.totalPages}
           page={paginate.page}
           variant='outlined'
           shape='rounded'

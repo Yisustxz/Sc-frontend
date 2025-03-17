@@ -1,8 +1,10 @@
 export interface Students {
-  studentDni: string;
-  name: string;
-  lastName: string,
-  phone: string,
-  address: string;
-  birthdate: string
+  persona: any;
+  id: number,
+  ci: string;
+  nombre: string;
+  apellido: string,
+  telefono: string,
+  direccion: string;
+  fechaNacimiento: string
 }

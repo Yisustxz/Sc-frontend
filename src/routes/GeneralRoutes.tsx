@@ -14,6 +14,7 @@ import CreateEmployee from 'views/employees/create'
 
 import StudentsPage from 'views/students'
 import CreateStudent from 'views/students/create'
+import EditStudent from 'views/students/edit'
 
 const GeneralRoutes: RouteObject[] = [
   //aqui se van a añadir las rutas de cada modulo
@@ -57,6 +58,10 @@ const GeneralRoutes: RouteObject[] = [
   {
     path: 'students/create',
     element: <CreateStudent />
+  },
+  {
+    path: 'students/edit/:id',
+    element: <EditStudent />
   }
 ]
 

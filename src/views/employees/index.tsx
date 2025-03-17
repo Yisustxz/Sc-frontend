@@ -10,10 +10,10 @@ const EmployeesPage = ({ className }: Props) => {
   const navigate = useNavigate()
   const [employees, setEmployees] = useState<Employees[]>([])
   const [paginate, setPaginate] = useState({
-    total: 11,
+    totalItems: 11,
     page: 1,
     perPage: 10,
-    pages: 2
+    totalPages: 2
   })
 
   // Function to get a random role

@@ -130,7 +130,7 @@ const Table: FunctionComponent<Prop> = ({
 
       <div className={'paginator-container'}>
         <Pagination
-          count={paginate.pages}
+          count={paginate.totalPages}
           page={paginate.page}
           variant='outlined'
           shape='rounded'

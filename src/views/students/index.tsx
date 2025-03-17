@@ -5,31 +5,11 @@ import { useNavigate } from 'react-router'
 import { styled } from 'styled-components'
 import { Button, Typography } from '@mui/material'
 import { IconCirclePlus } from '@tabler/icons'
-import { Students } from 'core/students/types'
+import usePaginate from './use-paginate'
 
 const StudentsPage = ({ className }: Props) => {
   const navigate = useNavigate()
-  const [students, setStudents] = useState<Students[]>([])
-  const [paginate, setPaginate] = useState({
-    total: 11,
-    page: 1,
-    perPage: 10,
-    pages: 2
-  })
-
-  useEffect(() => {
-    // Generating dummy students
-    const dummyStudents: Students[] = Array.from({ length: 10 }, (_, i) => ({
-      studentDni: `200${i + 1}`,
-      name: `Alumno ${i + 1}`,
-      lastName: `Apellido ${i + 1}`,
-      phone: `555-00${i + 1}`,
-      address: `Dirección ${i + 1}`,
-      birthdate: `200${i + 1}-0${i + 1}-0${i + 1}`
-    }))
-    setStudents(dummyStudents)
-  }, [])
-
+  const { Students, paginate, setPage, fetchStudents } = usePaginate()
   const goToCreate = useCallback(() => {
     navigate('/students/create')
   }, [navigate])
@@ -54,10 +34,10 @@ const StudentsPage = ({ className }: Props) => {
       }
     >
       <Table
-        items={students}
+        items={Students}
         paginate={paginate}
-        onChange={(page: number) => setPaginate((prev) => ({ ...prev, page }))}
-        fetchItems={() => {}}
+        onChange={setPage}
+        fetchItems={fetchStudents}
       />
     </MainCard>
   )
