@@ -17,11 +17,11 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
     const [open, setOpen] = useState<boolean>(false)
-    const [userDni, setUserDni] = useState<string>('')
+    const [id, setUserDni] = useState<string>('')
 
-    const handleOpen = useCallback((userDni: string) => {
+    const handleOpen = useCallback((id: string) => {
         setOpen(true);
-        setUserDni(userDni);
+        setUserDni(id);
     }, []);
 
     const handleClose = useCallback(() => {
@@ -29,10 +29,10 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
         setUserDni('');
     }, []);
 
-    const onDelete = useCallback(async (userDni: string) => {
+    const onDelete = useCallback(async (id: string) => {
         try {
             dispatch(setIsLoading(true));
-          //  await deleteUser(userDni!);
+          //  await deleteUser(id!);
             //navigate('/Users');
             dispatch(setSuccessMessage(`Usuario eliminado correctamente`));
         } catch (error) {
@@ -50,7 +50,7 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
         <div className={className}>
             <DynamicTable
                 headers={[
-                    { columnLabel: 'Cedula', fieldName: 'userDni', cellAlignment: 'left' },
+                    { columnLabel: 'Cedula', fieldName: 'id', cellAlignment: 'left' },
                     { columnLabel: 'Nombre', fieldName: 'name', cellAlignment: 'left' },
                     { columnLabel: 'Correo electrónico', fieldName: 'email', cellAlignment: 'left' },
                     { columnLabel: 'Rol', fieldName: 'role', cellAlignment: 'left' },
@@ -59,7 +59,7 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
                     (row: User) =>
                         <Button
                             color="primary"
-                            onClick={() => { navigate('/users/edit/' + row.userDni) }}
+                            onClick={() => { navigate('/users/edit/' + row.id) }}
                             startIcon={<IconEdit />}
                         >
                             Editar
@@ -67,7 +67,7 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
                     (row: User) =>
                         <Button
                             color="secondary"
-                            onClick={() => handleOpen(row.userDni)}
+                            onClick={() => handleOpen(row.id)}
                             startIcon={<IconTrash />}
                         >
                             Eliminar
@@ -76,7 +76,7 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
             />
             <DialogDelete
                 handleClose={handleClose}
-                onDelete={() => { onDelete(userDni) }}
+                onDelete={() => { onDelete(id) }}
                 open={open}
             />
 

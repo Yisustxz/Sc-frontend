@@ -61,7 +61,7 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
                     (row: User) =>
                         <Button
                             color="primary"
-                            onClick={() => { navigate('/clients/edit/' + row.userDni) }}
+                            onClick={() => { navigate('/clients/edit/' + row.id) }}
                             startIcon={<IconEdit />}
                         >
                             Editar
@@ -69,7 +69,7 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
                     (row: User) =>
                         <Button
                             color="secondary"
-                            onClick={() => handleOpen(row.userDni)}
+                            onClick={() => handleOpen(row.id)}
                             startIcon={<IconTrash />}
                         >
                             Eliminar

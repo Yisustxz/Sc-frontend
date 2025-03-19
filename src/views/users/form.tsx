@@ -5,6 +5,7 @@ import { Formik, FormikHelpers } from 'formik'
 import MainCard from 'components/cards/MainCard'
 import { Button, FormControl, FormHelperText, TextField } from '@mui/material'
 import styled from 'styled-components'
+import SelectField from 'components/SelectField'
 
 const USE_AUTOCOMPLETES = false
 
@@ -19,7 +20,7 @@ const Form: FunctionComponent<Props> = ({
 
   const extraValidations: any = isCreated
     ? {
-        userDni: Yup.string()
+        id: Yup.string()
           .max(8)
           .required('La cedula del usuario es requerida')
       }
@@ -58,21 +59,6 @@ const Form: FunctionComponent<Props> = ({
           <form noValidate onSubmit={handleSubmit}>
             <MainCard className={'form-data'} title={title}>
               <div className='form-grid'>
-                {isCreated && (
-                  <FormControl className='field-form' fullWidth>
-                    <TextField
-                      id='userDni'
-                      label='Cédula'
-                      variant='outlined'
-                      onBlur={handleBlur}
-                      onChange={handleChange}
-                      value={values.userDni}
-                      helperText={touched.userDni ? errors.userDni : ''}
-                      error={touched.userDni && !!errors.userDni}
-                      name='userDni'
-                    />
-                  </FormControl>
-                )}
                 <FormControl className='field-form' fullWidth>
                   <TextField
                     id='name'
@@ -86,6 +72,21 @@ const Form: FunctionComponent<Props> = ({
                     name='name'
                   />
                 </FormControl>
+                <SelectField
+                    fullWidth={true}
+                    className="field-form"        
+                    options={[
+                      { label: 'profesor', value: 'nya',},
+                      { label: 'empleado', value: 'nya'}
+                      ]}
+                    helperText={touched.role ? errors.role : ""}
+                    label='Rol'
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.role}
+                    error={touched.role && !!errors.role}
+                    name='role'
+                  />
                 <FormControl className='field-form' fullWidth>
                   <TextField
                     id='email'
@@ -101,15 +102,28 @@ const Form: FunctionComponent<Props> = ({
                 </FormControl>
                 <FormControl className='field-form' fullWidth>
                   <TextField
-                    id='role'
-                    label='Rol'
+                    id='password'
+                    label='Contraseña'
                     variant='outlined'
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    value={values.role}
-                    helperText={touched.role ? errors.role : ''}
-                    error={touched.role && !!errors.role}
-                    name='mainPhone'
+                    value={values.password}
+                    helperText={touched.password ? errors.password : ''}
+                    error={touched.password && !!errors.password}
+                    name='password'
+                  />
+                </FormControl>
+                <FormControl className='field-form' fullWidth>
+                  <TextField
+                    id='password'
+                    label='Confirme contraseña'
+                    variant='outlined'
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.password}
+                    helperText={touched.password ? errors.password : ''}
+                    error={touched.password && !!errors.password}
+                    name='password'
                   />
                 </FormControl>
               </div>
@@ -139,7 +153,7 @@ interface Props {
 }
 
 export type FormValues = {
-  userDni: string
+  id: string
   name: string
   email: string
   role: string

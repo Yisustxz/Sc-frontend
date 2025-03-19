@@ -23,4 +23,4 @@ export default async function createUser(body: UserPayload): Promise<User> {
   }
 }
 
-export type UserPayload = Omit<User, 'userDni' | 'createdAt'>;
+export type UserPayload = Omit<User, 'id' | 'createdAt'>;

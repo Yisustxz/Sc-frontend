@@ -1,6 +1,6 @@
 
 export interface User {
-  userDni: string;
+  id: string;
   name: string;
   email: string;
   role: string;
