@@ -5,6 +5,7 @@ import { Formik, FormikHelpers } from 'formik'
 import MainCard from 'components/cards/MainCard'
 import { Button, FormControl, FormHelperText, TextField } from '@mui/material'
 import styled from 'styled-components'
+import SelectField from 'components/SelectField'
 
 const USE_AUTOCOMPLETES = false
 
@@ -77,32 +78,53 @@ const Form: FunctionComponent<Props> = ({
                     name='name'
                   />
                 </FormControl>
-                <FormControl className='field-form' fullWidth>
-                  <TextField
+                <SelectField
+                    fullWidth={true}
+                    className="field-form"        
+                    options={[
+                      { label: '1er grado', value: 'nya' },]}
+                    helperText={touched.grade ? errors.grade : ""}
                     id='grade'
                     label='Grado'
                     variant='outlined'
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    value={values.grade}
-                    helperText={touched.grade ? errors.grade : ''}
                     error={touched.grade && !!errors.grade}
                     name='grade'
+                    value={values.grade}
                   />
-                </FormControl>
-                <FormControl className='field-form' fullWidth>
-                  <TextField
+                  <SelectField
+                    fullWidth={true}
+                    className="field-form"        
+                    options={[
+                      { label: 'guayaba', value: 'nya' },]}
+                    helperText={touched.teacher ? errors.teacher : ""}
                     id='teacher'
                     label='Profesor'
                     variant='outlined'
                     onBlur={handleBlur}
                     onChange={handleChange}
                     value={values.teacher}
-                    helperText={touched.teacher ? errors.teacher : ''}
                     error={touched.teacher && !!errors.teacher}
                     name='teacher'
                   />
-                </FormControl>
+                   <SelectField
+                    fullWidth={true}
+                    className="field-form"        
+                    options={[
+                      { label: 'cualitativa', value: 'nya',},
+                       { label: 'cuantitativa', value: 'nya'}
+                      ]}
+                    helperText={touched.subjectType ? errors.subjectType : ""}
+                    id='subjectType'
+                    label='Tipo de asignatura'
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    variant='outlined'
+                    value={values.subjectType}
+                    error={touched.subjectType && !!errors.subjectType}
+                    name='subjectType'
+                  />
                 <FormControl className='field-form' fullWidth>
                   <TextField
                     id='weeklyHours'
@@ -147,7 +169,7 @@ export type FormValues = {
   name: string
   grade: string
   teacher: string
-  weeklyHours: number
+  weeklyHours: number | null
   subjectType: string
   submit: string | null
 }

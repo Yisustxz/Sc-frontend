@@ -28,7 +28,7 @@ export default function useSubjectsOptions(): SelectOption[] {
   }, [fetchSubjects]);
 
   return subjects.map(subject => ({
-    label: (subject.id+' -- '+subject.name),
+    label: subject.name,
     value: subject.id,
   }));
 }

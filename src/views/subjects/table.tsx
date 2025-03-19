@@ -44,7 +44,7 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
             handleClose();
             fetchItems();
         }
-      }, [dispatch, fetchItems, handleClose]);
+    }, [dispatch, fetchItems, handleClose]);
 
     return (
         <div className={className}>

@@ -53,7 +53,7 @@ const CreateSubject: FunctionComponent<Props> = ({className}) => {
           name: '',
           grade: '',
           teacher: '',
-          weeklyHours: 0,
+          weeklyHours: null,
           subjectType: '',
           submit: null
         }}
