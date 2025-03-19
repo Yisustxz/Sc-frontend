@@ -52,6 +52,8 @@ const CreateUser: FunctionComponent<Props> = ({className}) => {
           name: '',
           email: '',
           role: '',
+          password: '',
+          confirmPassword: '',
           submit: null
         }}
         title={'Crear usuario'}

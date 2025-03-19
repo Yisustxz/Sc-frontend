@@ -18,14 +18,6 @@ const Form: FunctionComponent<Props> = ({
 }) => {
   const isCreated = !isUpdate
 
-  const extraValidations: any = isCreated
-    ? {
-        id: Yup.string()
-          .max(8)
-          .required('La cedula del usuario es requerida')
-      }
-    : {}
-
   return (
     <div className={className}>
       <Formik
@@ -34,7 +26,6 @@ const Form: FunctionComponent<Props> = ({
         validateOnMount={false}
         initialValues={initialValues}
         validationSchema={Yup.object().shape({
-          ...extraValidations,
           name: Yup.string()
             .max(30)
             .required('El nombre del usuario es requerido'),
@@ -43,7 +34,15 @@ const Form: FunctionComponent<Props> = ({
             .required('El correo electrónico del usuario es requerido'),
           role: Yup.string()
             .max(11)
-            .required('El rol del usuario es requerido')
+            .required('El rol del usuario es requerido'),
+          password: Yup.string()
+            .max(30)
+            .required('La contraseña del usuario es requerida'),
+          confirmPassword: Yup.string()
+            .max(30)
+            .required('La confirmación de la contraseña del usuario es requerida')
+            .oneOf([Yup.ref('password'), null], 'Las contraseñas deben coincidir'),
+          submit: Yup.string().nullable()
         })}
         onSubmit={onSubmit as any}
       >
@@ -62,7 +61,7 @@ const Form: FunctionComponent<Props> = ({
                 <FormControl className='field-form' fullWidth>
                   <TextField
                     id='name'
-                    label='Nombre del cliente'
+                    label='Nombre del usuario'
                     variant='outlined'
                     onBlur={handleBlur}
                     onChange={handleChange}
@@ -115,15 +114,15 @@ const Form: FunctionComponent<Props> = ({
                 </FormControl>
                 <FormControl className='field-form' fullWidth>
                   <TextField
-                    id='password'
+                    id='confirmPassword'
                     label='Confirme contraseña'
                     variant='outlined'
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    value={values.password}
-                    helperText={touched.password ? errors.password : ''}
-                    error={touched.password && !!errors.password}
-                    name='password'
+                    value={values.confirmPassword}
+                    helperText={touched.confirmPassword ? errors.confirmPassword : ''}
+                    error={touched.confirmPassword && !!errors.confirmPassword}
+                    name='confirmPassword'
                   />
                 </FormControl>
               </div>
@@ -157,6 +156,8 @@ export type FormValues = {
   name: string
   email: string
   role: string
+  password: string,
+  confirmPassword: string,
   submit: string | null
 }
 

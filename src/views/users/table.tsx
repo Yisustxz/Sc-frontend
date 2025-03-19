@@ -50,7 +50,7 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
         <div className={className}>
             <DynamicTable
                 headers={[
-                    { columnLabel: 'Cedula', fieldName: 'id', cellAlignment: 'left' },
+                    { columnLabel: 'Id', fieldName: 'id', cellAlignment: 'left' },
                     { columnLabel: 'Nombre', fieldName: 'name', cellAlignment: 'left' },
                     { columnLabel: 'Correo electrónico', fieldName: 'email', cellAlignment: 'left' },
                     { columnLabel: 'Rol', fieldName: 'role', cellAlignment: 'left' },
