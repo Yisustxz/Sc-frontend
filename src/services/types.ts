@@ -9,10 +9,10 @@ export interface BackendErrorItem {
 }
 
 export interface PaginateData {
-  total: number;
+  totalItems: number;
   page: number;
   perPage: number;
-  pages: number;
+  totalPages: number;
 }
 
 export interface PaginatedResponse<T> {

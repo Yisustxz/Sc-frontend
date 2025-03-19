@@ -1,5 +1,5 @@
 // assets
-import { IconUsers, IconCalendarEvent, IconCar, IconReceipt2, IconCreditCard, IconWallet, IconListCheck } from '@tabler/icons';
+import { IconUsers } from '@tabler/icons';
 import { MenuItem, MenuItemType } from './types';
 // constant
 
@@ -73,6 +73,29 @@ const other: MenuItem = {
           title: 'Crear empleado',
           type: MenuItemType.Item,
           url: '/employees/create',
+          breadcrumbs: false,
+        }
+      ]
+    },
+    {
+      id: "students",
+      title: "Estudiantes",
+      type: MenuItemType.Collapse,
+      icon: IconUsers,
+      breadcrumbs: false,
+      children: [
+        {
+          id: 'list-students',
+          title: 'Lista de Alumnos',
+          type: MenuItemType.Item,
+          url: '/students',
+          breadcrumbs: false,
+        },
+        {
+          id: 'create-students',
+          title: 'Crear Alumnos',
+          type: MenuItemType.Item,
+          url: '/students/create',
           breadcrumbs: false,
         }
       ]
