@@ -10,10 +10,10 @@ const RepresentativesPage = ({ className }: Props) => {
   const navigate = useNavigate()
   const [representatives, setRepresentatives] = useState<Representative[]>([])
   const [paginate, setPaginate] = useState({
-    total: 11,
+    totalItems: 11,
     page: 1,
     perPage: 10,
-    pages: 2
+    totalPages: 2
   })
 
   useEffect(() => {

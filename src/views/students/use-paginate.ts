@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 // Own
-import { Client } from 'core/clients/types';
-import getPaginate from 'services/clients/get-paginate';
+import { Students } from 'core/students/types';
+import getPaginate from 'services/students/get-paginate';
 import { PaginateData } from 'services/types';
 import { useAppDispatch } from 'store';
 import { setIsLoading, setErrorMessage } from 'store/customizationSlice';
@@ -10,7 +10,7 @@ import BackendError from 'exceptions/backend-error';
 export default function usePaginate() {
   const dispatch = useAppDispatch();
   const [page, setPage] = useState(1);
-  const [clients, setClients] = useState<Client[]>([]);
+  const [Students, setStudents] = useState<Students[]>([]);
   const [paginate, setPaginate] = useState<PaginateData>({
     totalItems: 0,
     page: 1,
@@ -18,11 +18,11 @@ export default function usePaginate() {
     totalPages: 0,
   });
 
-  const fetchClients = useCallback(async () => {
+  const fetchStudents = useCallback(async () => {
     try {
       dispatch(setIsLoading(true));
       const response = await getPaginate({ page, size: paginate.perPage });
-      setClients(response.items);
+      setStudents(response.items);
       setPaginate(response.paginate);
     } catch (error) {
       if (error instanceof BackendError)
@@ -33,8 +33,8 @@ export default function usePaginate() {
   }, [dispatch, page, paginate.perPage]);
 
   useEffect(() => {
-    fetchClients();
-  }, [fetchClients]);
+    fetchStudents();
+  }, [fetchStudents]);
 
-  return { clients, paginate, setPage, fetchClients };
+  return { Students, paginate, setPage, fetchStudents };
 }

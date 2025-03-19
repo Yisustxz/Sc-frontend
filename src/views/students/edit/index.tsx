@@ -3,21 +3,26 @@ import { FunctionComponent, useCallback } from 'react'
 import MainCard from 'components/cards/MainCard'
 import { Typography } from '@mui/material'
 import styled from 'styled-components'
-import BackendError from 'exceptions/backend-error'
-import createStudent from 'services/students/create-student'
 import { useNavigate } from 'react-router'
+//own
+import BackendError from 'exceptions/backend-error'
+import { useAppDispatch } from '../../../store/index'
 import {
-  setErrorMessage,
   setIsLoading,
-  setSuccessMessage
+  setSuccessMessage,
+  setErrorMessage
 } from 'store/customizationSlice'
-import { useAppDispatch } from '../../store/index'
-import Form, { FormValues } from './form'
+import Form, { FormValues } from '../form'
+import editStudent from 'services/students/edit-student'
+import useStudentById from './use-student-by-id'
+import useStudentId from './use-student-id'
 import { FormikHelpers } from 'formik'
 
-const CreateStudent: FunctionComponent<Props> = ({ className }) => {
+const EditStudent: FunctionComponent<Props> = ({ className }) => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
+  const studentId = useStudentId()
+  const student = useStudentById(studentId)
 
   const onSubmit = useCallback(
     async (
@@ -29,10 +34,12 @@ const CreateStudent: FunctionComponent<Props> = ({ className }) => {
         setErrors({})
         setStatus({})
         setSubmitting(true)
-        await createStudent(values)
+        await editStudent(studentId!, values)
         navigate('/students')
         dispatch(
-          setSuccessMessage(`Alumno ${values.fullName} creado correctamente`)
+          setSuccessMessage(
+            `Alumno ${values.nombre} ${values.apellido} editado correctamente`
+          )
         )
       } catch (error) {
         if (error instanceof BackendError) {
@@ -48,30 +55,32 @@ const CreateStudent: FunctionComponent<Props> = ({ className }) => {
         setSubmitting(false)
       }
     },
-    [dispatch, navigate]
+    [studentId, navigate, dispatch]
   )
 
   return (
     <div className={className}>
       <MainCard>
         <Typography variant='h3' component='h3'>
-          Alumnos
+          Clientes
         </Typography>
       </MainCard>
-
-      <Form
-        initialValues={{
-          ci: '',
-          nombre: '',
-          apellido: '',
-          telefono: '',
-          direccion: '',
-          fechaNacimiento: '',
-          submit: null
-        }}
-        title={'Crear Alumno'}
-        onSubmit={onSubmit}
-      />
+      {student && (
+        <Form
+          isUpdate={true}
+          initialValues={{
+            ci: student.ci,
+            nombre: student.nombre,
+            apellido: student.apellido,
+            telefono: student.telefono,
+            direccion: student.direccion,
+            fechaNacimiento: student.fechaNacimiento,
+            submit: null
+          }}
+          title={'Editar Alumno'}
+          onSubmit={onSubmit}
+        />
+      )}
     </div>
   )
 }
@@ -80,7 +89,7 @@ interface Props {
   className?: string
 }
 
-export default styled(CreateStudent)`
+export default styled(EditStudent)`
   display: flex;
   flex-direction: column;
 
