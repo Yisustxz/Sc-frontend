@@ -26,20 +26,20 @@ const Table: FunctionComponent<Prop> = ({
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const [open, setOpen] = useState<boolean>(false)
-  const [representativeDni, setRepresentativeDni] = useState<string>('')
+  const [representativeId, setRepresentativeId] = useState<number>(0)
 
-  const handleOpen = useCallback((representativeDni: string) => {
+  const handleOpen = useCallback((id: number) => {
     setOpen(true)
-    setRepresentativeDni(representativeDni)
+    setRepresentativeId(id)
   }, [])
 
   const handleClose = useCallback(() => {
     setOpen(false)
-    setRepresentativeDni('')
+    setRepresentativeId(0)
   }, [])
 
   const onDelete = useCallback(
-    async (representativeDni: string) => {
+    async (representativeid: number) => {
       try {
         dispatch(setIsLoading(true))
         dispatch(setSuccessMessage(`Representante eliminado correctamente`))
@@ -56,8 +56,12 @@ const Table: FunctionComponent<Prop> = ({
     [dispatch, fetchItems, handleClose]
   )
   const formattedItems = items.map((item) => ({
-    ...item,
-    fullName: `${item.name} ${item.lastName}`
+    id: item.id,
+    representativeCi: item.persona?.ci ?? '',
+    fullName: `${item.persona?.nombre ?? ''} ${item.persona?.apellido ?? ''}`,
+    telefono: item.persona?.telefono ?? '',
+    direccion: item.persona?.direccion ?? '',
+    fechaNacimiento: item.persona?.fechaNacimiento ?? ''
   }))
 
   return (
@@ -66,7 +70,7 @@ const Table: FunctionComponent<Prop> = ({
         headers={[
           {
             columnLabel: 'Cedula',
-            fieldName: 'representativeDni',
+            fieldName: 'representativeCi',
             cellAlignment: 'left'
           },
           {
@@ -75,18 +79,18 @@ const Table: FunctionComponent<Prop> = ({
             cellAlignment: 'left'
           },
           {
-            columnLabel: 'Correo electrónico',
-            fieldName: 'email',
-            cellAlignment: 'left'
-          },
-          {
-            columnLabel: 'Teléfono',
-            fieldName: 'phone',
+            columnLabel: 'Delefono',
+            fieldName: 'telefono',
             cellAlignment: 'left'
           },
           {
             columnLabel: 'Dirección',
-            fieldName: 'address',
+            fieldName: 'direccion',
+            cellAlignment: 'left'
+          },
+          {
+            columnLabel: 'Fecha de Nacimiento',
+            fieldName: 'fechaNacimiento',
             cellAlignment: 'left'
           }
         ]}
@@ -96,7 +100,7 @@ const Table: FunctionComponent<Prop> = ({
             <Button
               color='primary'
               onClick={() => {
-                navigate('/representatives/edit/' + row.representativeDni)
+                navigate('/representatives/edit/' + row.id)
               }}
               startIcon={<IconEdit />}
             >
@@ -106,7 +110,7 @@ const Table: FunctionComponent<Prop> = ({
           (row: Representatives) => (
             <Button
               color='secondary'
-              onClick={() => handleOpen(row.representativeDni)}
+              onClick={() => handleOpen(row.id)}
               startIcon={<IconTrash />}
             >
               Eliminar
@@ -117,7 +121,7 @@ const Table: FunctionComponent<Prop> = ({
       <DialogDelete
         handleClose={handleClose}
         onDelete={() => {
-          onDelete(representativeDni)
+          onDelete(representativeId)
         }}
         open={open}
       />

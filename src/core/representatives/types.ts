@@ -1,9 +1,10 @@
 export interface Representatives {
-  representativeDni: string;
-  name: string;
-  lastName: string;
-  email: string;
-  phone: string,
-  address: string;
-  createdAt: string;
+  persona: any;
+  id: number,
+  ci: string;
+  nombre: string;
+  apellido: string;
+  telefono: string;
+  direccion: string,
+  fechaNacimiento: string;
 }

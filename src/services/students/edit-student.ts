@@ -10,8 +10,8 @@ const URL = `${API_BASE_URL}/api/v1/estudiante`;
 export default async function editClient(id: number , body: StudentPayload): Promise<Students> {
   try {
     const finalURL = `${URL}/${id}`;
-    console.log("URL generada:", finalURL); // ✅ Verifica que la URL sea correcta
-    console.log("Payload enviado:", body); // ✅ Verifica el contenido del body, 
+    console.log("URL generada:", finalURL); 
+    console.log("Payload enviado:", body); 
     const response = await axios.put<Students>(
       finalURL,
       body,

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+/* import { useCallback, useEffect, useState } from 'react';
 // Own
 import { User } from 'core/users/types';
 import getPaginate from 'services/users/get-paginate';
@@ -38,3 +38,4 @@ export default function usePaginate() {
 
   return { users, paginate, setPage, fetchUsers };
 }
+ */

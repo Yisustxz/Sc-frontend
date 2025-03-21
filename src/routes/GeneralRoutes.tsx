@@ -12,9 +12,9 @@ import CreateRepresentative from 'views/representatives/create'
 import EmployeesPage from 'views/employees'
 import CreateEmployee from 'views/employees/create'
 //Users
-import Users from 'views/users'
+/* import Users from 'views/users'
 import CreateUser from 'views/users/create'
-import EditUser from 'views/users/edit'
+import EditUser from 'views/users/edit' */
 
 import StudentsPage from 'views/students'
 import CreateStudent from 'views/students/create'
@@ -55,7 +55,7 @@ const GeneralRoutes: RouteObject[] = [
     element: <CreateEmployee />
   },
   //Usuarios
-  {
+  /*   {
     path: 'users',
     element: <Users />
   },
@@ -66,7 +66,7 @@ const GeneralRoutes: RouteObject[] = [
   {
     path: 'users/edit/:id',
     element: <EditUser />
-  },
+  }, */
   //estudiantes
   {
     path: 'students',

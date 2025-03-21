@@ -1,4 +1,4 @@
-import { Button, Pagination } from '@mui/material';
+/* import { Button, Pagination } from '@mui/material';
 import DynamicTable from 'components/DynamicTable';
 import { User } from 'core/users/types';
 import styled from 'styled-components';
@@ -113,3 +113,4 @@ export default styled(Table)`
         flex-direction: row;
     }
 `;
+ */

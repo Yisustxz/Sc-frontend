@@ -61,13 +61,12 @@ const CreateRepresentative: FunctionComponent<Props> = ({ className }) => {
 
       <Form
         initialValues={{
-          representativeDni: '',
-          name: '',
-          lastName: '',
-          email: '',
-          phone: '',
-          address: '',
-          createdAt: '',
+          ci: '',
+          nombre: '',
+          apellido: '',
+          telefono: '',
+          direccion: '',
+          fechaNacimiento: '',
           submit: null
         }}
         title={'Crear representante'}
