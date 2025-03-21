@@ -112,8 +112,8 @@ const Form: FunctionComponent<Props> = ({
                     fullWidth={true}
                     className="field-form"        
                     options={[
-                      { label: 'cualitativa', value: 'nya',},
-                       { label: 'cuantitativa', value: 'nya'}
+                      { label: 'cualitativa', value: 'nya'},
+                      { label: 'cuantitativa', value: 'nya'}
                       ]}
                     helperText={touched.subjectType ? errors.subjectType : ""}
                     id='subjectType'
