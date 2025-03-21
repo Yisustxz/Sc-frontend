@@ -4,9 +4,9 @@ import { API_BASE_URL } from 'config/constants';
 import BackendError from 'exceptions/backend-error';
 import store from 'store';
 
-const URL = `${API_BASE_URL}/subjects`;
+const URL = `${API_BASE_URL}/courses`;
 
-export default async function deleteSubject(id: string): Promise<void> {
+export default async function deleteCourse(id: string): Promise<void> {
   try {
     await axios.delete(
         `${URL}/${id}`, {

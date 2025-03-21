@@ -9,16 +9,16 @@ import BackendError from 'exceptions/backend-error';
 import { useAppDispatch } from '../../../store/index';
 import { setIsLoading, setSuccessMessage, setErrorMessage } from 'store/customizationSlice';
 import Form, { FormValues } from '../form';
-import editSubject from 'services/subjects/edit-subject';
-import useSubjectById from './use-subject-by-id';
-import useSubjectId from './use-subject-id';
+import editCourse from 'services/courses/edit-course';
+import useCourseById from './use-course-by-id';
+import useCourseId from './use-course-id';
 import { FormikHelpers } from 'formik';
 
-const EditSubject: FunctionComponent<Props> = ({className}) => {
+const EditCourse: FunctionComponent<Props> = ({className}) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const subjectId = useSubjectId();
-  const subject = useSubjectById(subjectId);
+  const courseId = useCourseId();
+  const course = useCourseById(courseId);
 
   const onSubmit = useCallback(async (values: any, { setErrors, setStatus, setSubmitting }: FormikHelpers<FormValues>) => {
     try {
@@ -26,8 +26,8 @@ const EditSubject: FunctionComponent<Props> = ({className}) => {
       setErrors({});
       setStatus({});
       setSubmitting(true);
-      await editSubject(subjectId!, values);
-      navigate('/subjects');
+      await editCourse(courseId!, values);
+      navigate('/courses');
       dispatch(setSuccessMessage(`Asignatura ${values.name} editada correctamente`));
     } catch (error) {
       if (error instanceof BackendError) {
@@ -42,7 +42,7 @@ const EditSubject: FunctionComponent<Props> = ({className}) => {
       dispatch(setIsLoading(false));
       setSubmitting(false);
     }
-  }, [subjectId, navigate, dispatch]);
+  }, [courseId, navigate, dispatch]);
 
   return (
     <div className={className}>
@@ -52,16 +52,16 @@ const EditSubject: FunctionComponent<Props> = ({className}) => {
         </Typography>
       </MainCard>
       {
-        subject && (
+        course && (
           <Form
             isUpdate={true}
             initialValues={{
-              id: subject.id,
-              name: subject.name,
-              grade: subject.grade,
-              teacher: subject.teacher,
-              weeklyHours: subject.weeklyHours,
-              subjectType: subject.subjectType,
+              id: course.id,
+              name: course.name,
+              grade: course.grade,
+              teacher: course.teacher,
+              weeklyHours: course.weeklyHours,
+              subjectType: course.subjectType,
               submit: null
             }}
             title={'Editar asignatura'}
@@ -77,7 +77,7 @@ interface Props {
   className?: string;
 }
 
-export default styled(EditSubject)`
+export default styled(EditCourse)`
   display: flex;
   flex-direction: column;
 

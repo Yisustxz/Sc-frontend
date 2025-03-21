@@ -1,16 +1,16 @@
 import axios from 'axios';
 // Own
 import { API_BASE_URL } from 'config/constants';
-import { Subject } from 'core/subjects/types';
+import { Course } from 'core/courses/types';
 import BackendError from 'exceptions/backend-error';
 import store from 'store';
 
-const URL = `${API_BASE_URL}/subjects/all`;
+const URL = `${API_BASE_URL}/courses`;
 
-export default async function getAllSubjects(): Promise<Subject[]> {
+export default async function createCourse(body: CoursePayload): Promise<Course> {
   try {
-    const response = await axios.get<Subject[]>(
-      URL, {
+    const response = await axios.post<Course>(
+        URL, body, {
         headers: {
           Authorization: `Bearer ${store.getState().auth.token}`,
         }
@@ -22,3 +22,5 @@ export default async function getAllSubjects(): Promise<Subject[]> {
     throw new BackendError(error);
   }
 }
+
+export type CoursePayload = Omit<Course, 'id' | 'createdAt'>;

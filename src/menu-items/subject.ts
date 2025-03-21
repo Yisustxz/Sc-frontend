@@ -16,17 +16,17 @@ const other: MenuItem = {
       breadcrumbs: false,
       children: [
         {
-          id: 'list-subjects',
+          id: 'list-courses',
           title: 'Lista de asignaturas',
           type: MenuItemType.Item,
-          url: '/subjects',
+          url: '/courses',
           breadcrumbs: false,
         },
         {
-          id: 'create-subjects',
+          id: 'create-courses',
           title: 'Crear asignatura',
           type: MenuItemType.Item,
-          url: '/subjects/create',
+          url: '/courses/create',
           breadcrumbs: false,
         }
       ]

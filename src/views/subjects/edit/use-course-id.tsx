@@ -8,7 +8,7 @@ export default function useSubjectId() {
   const [subjectId, setSubjectId] = useState<string | null>(null);
   useEffect(() => {
     if (!params.id || isNaN(params.id as any)) {
-      navigate('/subjects');
+      navigate('/courses');
     }
 
     setSubjectId(params.id as unknown as string);

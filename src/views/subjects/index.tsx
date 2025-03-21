@@ -7,12 +7,12 @@ import { styled } from 'styled-components';
 import { Button, Typography } from '@mui/material';
 import { IconCirclePlus } from '@tabler/icons';
 
-const SubjectsPage: FunctionComponent<Props> = ({ className }) => {
+const CoursesPage: FunctionComponent<Props> = ({ className }) => {
   const navigate = useNavigate();
-  const { subjects, paginate, setPage, fetchSubjects } = usePaginate();
+  const { courses, paginate, setPage, fetchCourses } = usePaginate();
 
   const goToCreate = useCallback(() => {
-    navigate('/subjects/create');
+    navigate('/courses/create');
   }, [navigate]);
 
   return (
@@ -29,7 +29,7 @@ const SubjectsPage: FunctionComponent<Props> = ({ className }) => {
         </Button>
       </div>
     }>
-      <Table items={subjects} paginate={paginate} onChange={setPage} fetchItems={fetchSubjects}/>
+      <Table items={courses} paginate={paginate} onChange={setPage} fetchItems={fetchCourses}/>
     </MainCard>
   );
 };
@@ -38,7 +38,7 @@ interface Props {
   className?: string;
 }
 
-export default styled(SubjectsPage)`
+export default styled(CoursesPage)`
   width: 100%;
   display: flex;
   flex-direction: column;

@@ -1,18 +1,18 @@
 import axios from 'axios';
 // Own
 import { API_BASE_URL } from 'config/constants';
-import { Subject } from 'core/subjects/types';
+import { Course } from 'core/courses/types';
 import BackendError from 'exceptions/backend-error';
 import addQueryParams from 'services/add-query-params';
 import { PaginateBody, PaginatedResponse } from 'services/types';
 import store from 'store';
 
-const URL = `${API_BASE_URL}/subjects`;
+const URL = `${API_BASE_URL}/courses`;
 
-export default async function getPaginate(body: PaginateBody): Promise<SubjectsPaginated> {
+export default async function getPaginate(body: PaginateBody): Promise<CoursesPaginated> {
   try {
     const urlPaginated = addQueryParams(URL, body);
-    const response = await axios.get<SubjectsPaginated>(
+    const response = await axios.get<CoursesPaginated>(
       urlPaginated, {
         headers: {
           Authorization: `Bearer ${store.getState().auth.token}`,
@@ -26,4 +26,4 @@ export default async function getPaginate(body: PaginateBody): Promise<SubjectsP
   }
 }
 
-type SubjectsPaginated = PaginatedResponse<Subject>;
+type CoursesPaginated = PaginatedResponse<Course>;

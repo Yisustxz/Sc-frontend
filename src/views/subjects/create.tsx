@@ -4,14 +4,14 @@ import MainCard from 'components/cards/MainCard';
 import {  Typography } from '@mui/material';
 import styled from 'styled-components';
 import BackendError from 'exceptions/backend-error';
-import createSubject from 'services/subjects/create-subject';
+import createCourse from 'services/courses/create-course';
 import { useNavigate } from 'react-router';
 import { setErrorMessage, setIsLoading, setSuccessMessage } from 'store/customizationSlice';
 import { useAppDispatch } from '../../store/index';
 import Form, { FormValues } from './form';
 import { FormikHelpers } from 'formik';
 
-const CreateSubject: FunctionComponent<Props> = ({className}) => {
+const CreateCourse: FunctionComponent<Props> = ({className}) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -21,8 +21,8 @@ const CreateSubject: FunctionComponent<Props> = ({className}) => {
       setErrors({});
       setStatus({});
       setSubmitting(true);
-      await createSubject(values);
-      navigate('/subjects');
+      await createCourse(values);
+      navigate('/courses');
       dispatch(setSuccessMessage(`Asignatura ${values.name} creada correctamente`));
     } catch (error) {
       if (error instanceof BackendError) {
@@ -68,7 +68,7 @@ interface Props {
   className?: string;
 }
 
-export default styled(CreateSubject)`
+export default styled(CreateCourse)`
   display: flex;
   flex-direction: column;
 

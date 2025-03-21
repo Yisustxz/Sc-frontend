@@ -3,18 +3,18 @@ import { useCallback, useEffect, useState } from 'react';
 import BackendError from 'exceptions/backend-error';
 import { setIsLoading, setErrorMessage } from 'store/customizationSlice';
 import { useAppDispatch } from '../../../store/index';
-import { Subject } from 'core/subjects/types';
-import getSubject from 'services/subjects/get-subject';
+import { Course } from 'core/courses/types';
+import getCourse from 'services/courses/get-course';
 
-export default function useSubjectById(subjectId: string | null) {
+export default function useCourseById(courseId: string | null) {
   const dispatch = useAppDispatch();
-  const [subject, setSubject] = useState<Subject | null>(null);
+  const [course, setCourse] = useState<Course | null>(null);
 
-  const fetchSubject = useCallback(async (subjectId: string) => {
+  const fetchCourse = useCallback(async (courseId: string) => {
     try {
       dispatch(setIsLoading(true));
-      const response = await getSubject(subjectId);
-      setSubject(response);
+      const response = await getCourse(courseId);
+      setCourse(response);
     } catch (error) {
       if (error instanceof BackendError)
         dispatch(setErrorMessage(error.getMessage()));
@@ -24,8 +24,8 @@ export default function useSubjectById(subjectId: string | null) {
   }, [dispatch]);
 
   useEffect(() => {
-    if (subjectId) fetchSubject(subjectId);
-  }, [fetchSubject, subjectId]);
+    if (courseId) fetchCourse(courseId);
+  }, [fetchCourse, courseId]);
 
-  return subject;
+  return course;
 };

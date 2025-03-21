@@ -1,6 +1,6 @@
 import { Button, Pagination } from '@mui/material';
 import DynamicTable from 'components/DynamicTable';
-import { Subject } from 'core/subjects/types';
+import { Course } from 'core/courses/types';
 import styled from 'styled-components';
 // Own
 import { useAppDispatch } from 'store/index';
@@ -10,7 +10,7 @@ import { FunctionComponent, useCallback, useState } from 'react';
 import { PaginateData } from 'services/types';
 import { IconEdit, IconTrash } from '@tabler/icons';
 import { useNavigate } from 'react-router';
-import deleteSubject from 'services/subjects/delete-subject';
+import deleteCourse from 'services/courses/delete-course';
 import DialogDelete from 'components/dialogDelete';
 
 const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, fetchItems }) => {
@@ -32,8 +32,8 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
     const onDelete = useCallback(async (subjectId: string) => {
         try {
             dispatch(setIsLoading(true));
-            await deleteSubject(subjectId!);
-            //navigate('/subjects');
+            await deleteCourse(subjectId!);
+            //navigate('/courses');
             dispatch(setSuccessMessage(`Asignatura eliminada correctamente`));
         } catch (error) {
             if (error instanceof BackendError) {
@@ -60,7 +60,7 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
                     (row: Subject) =>
                         <Button
                             color="primary"
-                            onClick={() => { navigate('/subjects/edit/'+row.id) }}
+                            onClick={() => { navigate('/courses/edit/'+row.id) }}
                             startIcon={<IconEdit />}
                         >
                             Editar

@@ -6,10 +6,10 @@ import Clients from 'views/clients'
 import CreateClient from 'views/clients/create'
 import EditClient from 'views/clients/edit'
 
-//Subjects
-import Subjects from 'views/subjects'
-import CreateSubject from 'views/subjects/create'
-import EditSubject from 'views/subjects/edit'
+//Courses
+import Courses from 'views/courses'
+import CreateCourse from 'views/courses/create'
+import EditCourse from 'views/courses/edit'
 
 const GeneralRoutes: RouteObject[] = [
   //aqui se van a añadir las rutas de cada modulo
@@ -30,16 +30,16 @@ const GeneralRoutes: RouteObject[] = [
 
    //Asignaturas
   {
-    path: 'subjects',
-    element: <Subjects />
+    path: 'courses',
+    element: <Courses />
   },
   {
-    path: 'subjects/create',
-    element: <CreateSubject />
+    path: 'courses/create',
+    element: <CreateCourse />
   },
   {
-    path: 'subjects/edit/:id',
-    element: <EditSubject />
+    path: 'courses/edit/:id',
+    element: <EditCourse />
   }
 ]
 

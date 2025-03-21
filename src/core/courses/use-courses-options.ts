@@ -1,20 +1,20 @@
 import { SelectOption } from "components/SelectField";
-import { Subject } from "core/subjects/types";
+import { Subject } from "core/courses/types";
 import BackendError from "exceptions/backend-error";
 import { useCallback, useEffect, useState } from "react";
-import getAllSubjects from "services/subjects/get-all-subjects";
+import getAllCourses from "services/courses/get-all-courses";
 import { useAppDispatch } from "store";
 import { setErrorMessage, setIsLoading } from "store/customizationSlice";
 
-export default function useSubjectsOptions(): SelectOption[] {
-  const [subjects, setSubjects] = useState<Subject[]>([]);
+export default function useCoursesOptions(): SelectOption[] {
+  const [courses, setCourses] = useState<Subject[]>([]);
   const dispatch = useAppDispatch();
 
-  const fetchSubjects = useCallback(async () => {
+  const fetchCourses = useCallback(async () => {
     try {
       dispatch(setIsLoading(true));
-      const response = await getAllSubjects();
-      setSubjects(response);
+      const response = await getAllCourses();
+      setCourses(response);
     } catch (error) {
       if (error instanceof BackendError)
         dispatch(setErrorMessage(error.getMessage()));
@@ -24,10 +24,10 @@ export default function useSubjectsOptions(): SelectOption[] {
   }, [dispatch]);
 
   useEffect(() => {
-    fetchSubjects();
-  }, [fetchSubjects]);
+    fetchCourses();
+  }, [fetchCourses]);
 
-  return subjects.map(subject => ({
+  return courses.map(subject => ({
     label: subject.name,
     value: subject.id,
   }));

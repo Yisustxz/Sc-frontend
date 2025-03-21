@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 // Own
-import { Subject } from 'core/subjects/types';
-import getPaginate from 'services/subjects/get-paginate';
+import { Course } from 'core/courses/types';
+import getPaginate from 'services/courses/get-paginate';
 import { PaginateData } from 'services/types';
 import { useAppDispatch } from 'store';
 import { setIsLoading, setErrorMessage } from 'store/customizationSlice';
@@ -10,7 +10,7 @@ import BackendError from 'exceptions/backend-error';
 export default function usePaginate() {
   const dispatch = useAppDispatch();
   const [page, setPage] = useState(1);
-  const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [paginate, setPaginate] = useState<PaginateData>({
     total: 0,
     page: 1,
@@ -18,11 +18,11 @@ export default function usePaginate() {
     pages: 0,
   });
 
-  const fetchSubjects = useCallback(async () => {
+  const fetchCourses = useCallback(async () => {
     try {
       dispatch(setIsLoading(true));
       const response = await getPaginate({ page, size: paginate.perPage });
-      setSubjects(response.items);
+      setCourses(response.items);
       setPaginate(response.paginate);
     } catch (error) {
       if (error instanceof BackendError)
@@ -33,8 +33,8 @@ export default function usePaginate() {
   }, [dispatch, page, paginate.perPage]);
 
   useEffect(() => {
-    fetchSubjects();
-  }, [fetchSubjects]);
+    fetchCourses();
+  }, [fetchCourses]);
 
-  return { subjects, paginate, setPage, fetchSubjects };
+  return { courses, paginate, setPage, fetchCourses };
 }
