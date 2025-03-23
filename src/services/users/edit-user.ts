@@ -1,13 +1,13 @@
 import axios from 'axios';
 // Own
 import { API_BASE_URL } from 'config/constants';
-import { User } from 'core/clients/types';
+import { User } from 'core/users/types';
 import BackendError from 'exceptions/backend-error';
 import store from 'store';
 
 const URL = `${API_BASE_URL}/clients`;
 
-export default async function editClient(id: string, body: UserPayload): Promise<User> {
+export default async function editUser(id: string, body: UserPayload): Promise<User> {
   try {
     const response = await axios.put<User>(
         `${URL}/${id}`, body, {
