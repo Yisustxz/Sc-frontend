@@ -60,12 +60,7 @@ const Table: FunctionComponent<Prop> = ({
   )
 
   const formattedItems = items.map((item) => ({
-    id: item.id,
-    studentCi: item.persona?.ci ?? '',
-    fullName: `${item.persona?.nombre ?? ''} ${item.persona?.apellido ?? ''}`,
-    telefono: item.persona?.telefono ?? '',
-    direccion: item.persona?.direccion ?? '',
-    fechaNacimiento: item.persona?.fechaNacimiento ?? ''
+    fullName: `${item.name ?? ''} ${item.lastName ?? ''}`
   }))
 
   return (
@@ -74,7 +69,7 @@ const Table: FunctionComponent<Prop> = ({
         headers={[
           {
             columnLabel: 'Cedula',
-            fieldName: 'studentCi',
+            fieldName: 'ci',
             cellAlignment: 'left'
           },
           {
@@ -84,17 +79,17 @@ const Table: FunctionComponent<Prop> = ({
           },
           {
             columnLabel: 'Teléfono',
-            fieldName: 'telefono',
+            fieldName: 'phone',
             cellAlignment: 'left'
           },
           {
             columnLabel: 'Dirección',
-            fieldName: 'direccion',
+            fieldName: 'direction',
             cellAlignment: 'left'
           },
           {
             columnLabel: 'Fecha de nacimiento',
-            fieldName: 'fechaNacimiento',
+            fieldName: 'birthDate',
             cellAlignment: 'left'
           }
         ]}
