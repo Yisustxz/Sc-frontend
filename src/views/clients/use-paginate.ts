@@ -12,10 +12,10 @@ export default function usePaginate() {
   const [page, setPage] = useState(1);
   const [clients, setClients] = useState<Client[]>([]);
   const [paginate, setPaginate] = useState<PaginateData>({
-    total: 0,
+    totalItems: 0,
     page: 1,
     perPage: 10,
-    pages: 0,
+    totalPages: 0
   });
 
   const fetchClients = useCallback(async () => {
