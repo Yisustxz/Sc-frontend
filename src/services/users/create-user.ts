@@ -16,6 +16,8 @@ export default async function createUser(body: UserPayload): Promise<User> {
         }
       }
     );
+    console.log('aqui: ',URL);
+
     return response.data;
   } catch (error: unknown) {
     console.log(error);
@@ -23,4 +25,4 @@ export default async function createUser(body: UserPayload): Promise<User> {
   }
 }
 
-export type UserPayload = Omit<User, 'userDni' | 'createdAt'>;
+export type UserPayload = Omit<User, 'id' | 'createdAt'>;

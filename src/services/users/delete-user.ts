@@ -6,10 +6,10 @@ import store from 'store';
 
 const URL = `${API_BASE_URL}/users`;
 
-export default async function deleteClient(userDni: string): Promise<void> {
+export default async function deleteUser(id: string): Promise<void> {
   try {
     await axios.delete(
-        `${URL}/${userDni}`, {
+        `${URL}/${id}`, {
         headers: {
           Authorization: `Bearer ${store.getState().auth.token}`,
         }

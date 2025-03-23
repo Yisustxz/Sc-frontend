@@ -17,8 +17,8 @@ import { FormikHelpers } from 'formik';
 const EditUser: FunctionComponent<Props> = ({className}) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const userDni = useUserDni();
-  const user = useUserByDni(userDni);
+  const id = useUserDni();
+  const user = useUserByDni(id);
 
   const onSubmit = useCallback(async (values: any, { setErrors, setStatus, setSubmitting }: FormikHelpers<FormValues>) => {
     try {
@@ -26,7 +26,7 @@ const EditUser: FunctionComponent<Props> = ({className}) => {
       setErrors({});
       setStatus({});
       setSubmitting(true);
-     // await EditUser(userDni!, values);
+     // await EditUser(id!, values);
       navigate('/users');
       dispatch(setSuccessMessage(`Usuario ${values.name} editado correctamente`));
     } catch (error) {
@@ -42,7 +42,7 @@ const EditUser: FunctionComponent<Props> = ({className}) => {
       dispatch(setIsLoading(false));
       setSubmitting(false);
     }
-  }, [userDni, navigate, dispatch]);
+  }, [id, navigate, dispatch]);
 
   return (
     <div className={className}>
@@ -56,10 +56,12 @@ const EditUser: FunctionComponent<Props> = ({className}) => {
           <Form
             isUpdate={true}
             initialValues={{
-              userDni: user.userDni,
+              id: user.id,
               name: user.name,
               email: user.email,
               role: user.role,
+              password: user.password,
+              confirmPassword: user.confirmPassword,
               submit: null
             }}
             title={'Editar usuario'}

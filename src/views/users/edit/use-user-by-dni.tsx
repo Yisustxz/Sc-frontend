@@ -6,14 +6,14 @@ import { useAppDispatch } from '../../../store/index';
 import { User } from 'core/users/types';
 import getUser from 'services/users/get-user';
 
-export default function useUserByDni(userDni: string | null) {
+export default function useUserByDni(id: string | null) {
   const dispatch = useAppDispatch();
   const [user, setUser] = useState<User | null>(null);
 
-  const fetchUser = useCallback(async (userDni: string) => {
+  const fetchUser = useCallback(async (id: string) => {
     try {
       dispatch(setIsLoading(true));
-      const response = await getUser(userDni);
+      const response = await getUser(id);
       setUser(response);
     } catch (error) {
       if (error instanceof BackendError)
@@ -24,8 +24,8 @@ export default function useUserByDni(userDni: string | null) {
   }, [dispatch]);
 
   useEffect(() => {
-    if (userDni) fetchUser(userDni);
-  }, [fetchUser, userDni]);
+    if (id) fetchUser(id);
+  }, [fetchUser, id]);
 
   return user;
 };

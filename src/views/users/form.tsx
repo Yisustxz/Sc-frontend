@@ -5,6 +5,7 @@ import { Formik, FormikHelpers } from 'formik'
 import MainCard from 'components/cards/MainCard'
 import { Button, FormControl, FormHelperText, TextField } from '@mui/material'
 import styled from 'styled-components'
+import SelectField from 'components/SelectField'
 
 const USE_AUTOCOMPLETES = false
 
@@ -17,14 +18,6 @@ const Form: FunctionComponent<Props> = ({
 }) => {
   const isCreated = !isUpdate
 
-  const extraValidations: any = isCreated
-    ? {
-        userDni: Yup.string()
-          .max(8)
-          .required('La cedula del usuario es requerida')
-      }
-    : {}
-
   return (
     <div className={className}>
       <Formik
@@ -33,7 +26,6 @@ const Form: FunctionComponent<Props> = ({
         validateOnMount={false}
         initialValues={initialValues}
         validationSchema={Yup.object().shape({
-          ...extraValidations,
           name: Yup.string()
             .max(30)
             .required('El nombre del usuario es requerido'),
@@ -42,7 +34,15 @@ const Form: FunctionComponent<Props> = ({
             .required('El correo electrónico del usuario es requerido'),
           role: Yup.string()
             .max(11)
-            .required('El rol del usuario es requerido')
+            .required('El rol del usuario es requerido'),
+          password: Yup.string()
+            .max(30)
+            .required('La contraseña del usuario es requerida'),
+          confirmPassword: Yup.string()
+            .max(30)
+            .required('La confirmación de la contraseña del usuario es requerida')
+            .oneOf([Yup.ref('password'), null], 'Las contraseñas deben coincidir'),
+          submit: Yup.string().nullable()
         })}
         onSubmit={onSubmit as any}
       >
@@ -58,25 +58,10 @@ const Form: FunctionComponent<Props> = ({
           <form noValidate onSubmit={handleSubmit}>
             <MainCard className={'form-data'} title={title}>
               <div className='form-grid'>
-                {isCreated && (
-                  <FormControl className='field-form' fullWidth>
-                    <TextField
-                      id='userDni'
-                      label='Cédula'
-                      variant='outlined'
-                      onBlur={handleBlur}
-                      onChange={handleChange}
-                      value={values.userDni}
-                      helperText={touched.userDni ? errors.userDni : ''}
-                      error={touched.userDni && !!errors.userDni}
-                      name='userDni'
-                    />
-                  </FormControl>
-                )}
                 <FormControl className='field-form' fullWidth>
                   <TextField
                     id='name'
-                    label='Nombre del cliente'
+                    label='Nombre del usuario'
                     variant='outlined'
                     onBlur={handleBlur}
                     onChange={handleChange}
@@ -86,6 +71,21 @@ const Form: FunctionComponent<Props> = ({
                     name='name'
                   />
                 </FormControl>
+                <SelectField
+                    fullWidth={true}
+                    className="field-form"        
+                    options={[
+                      { label: 'profesor', value: 'nya',},
+                      { label: 'empleado', value: 'nya'}
+                      ]}
+                    helperText={touched.role ? errors.role : ""}
+                    label='Rol'
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.role}
+                    error={touched.role && !!errors.role}
+                    name='role'
+                  />
                 <FormControl className='field-form' fullWidth>
                   <TextField
                     id='email'
@@ -101,15 +101,28 @@ const Form: FunctionComponent<Props> = ({
                 </FormControl>
                 <FormControl className='field-form' fullWidth>
                   <TextField
-                    id='role'
-                    label='Rol'
+                    id='password'
+                    label='Contraseña'
                     variant='outlined'
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    value={values.role}
-                    helperText={touched.role ? errors.role : ''}
-                    error={touched.role && !!errors.role}
-                    name='mainPhone'
+                    value={values.password}
+                    helperText={touched.password ? errors.password : ''}
+                    error={touched.password && !!errors.password}
+                    name='password'
+                  />
+                </FormControl>
+                <FormControl className='field-form' fullWidth>
+                  <TextField
+                    id='confirmPassword'
+                    label='Confirme contraseña'
+                    variant='outlined'
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.confirmPassword}
+                    helperText={touched.confirmPassword ? errors.confirmPassword : ''}
+                    error={touched.confirmPassword && !!errors.confirmPassword}
+                    name='confirmPassword'
                   />
                 </FormControl>
               </div>
@@ -139,10 +152,12 @@ interface Props {
 }
 
 export type FormValues = {
-  userDni: string
+  id: string
   name: string
   email: string
   role: string
+  password: string,
+  confirmPassword: string,
   submit: string | null
 }
 

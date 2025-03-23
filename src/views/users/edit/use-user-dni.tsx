@@ -5,7 +5,7 @@ export default function useUserDni() {
   const navigate = useNavigate();
   const params = useParams();
 
-  const [userDni, setUserDni] = useState<string | null>(null);
+  const [id, setUserDni] = useState<string | null>(null);
   useEffect(() => {
     if (!params.id || isNaN(params.id as any)) {
       navigate('/users');
@@ -14,5 +14,5 @@ export default function useUserDni() {
     setUserDni(params.id as unknown as string);
   }, [navigate, params.id]);
 
-  return userDni;
+  return id;
 }
