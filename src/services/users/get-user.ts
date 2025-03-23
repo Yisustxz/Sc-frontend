@@ -7,7 +7,7 @@ import store from 'store';
 
 const URL = `${API_BASE_URL}/users`;
 
-export default async function getClient(id: string): Promise<User> {
+export default async function getUser(id: string): Promise<User> {
   try {
     const response = await axios.get<User>(
         `${URL}/${id}`, {

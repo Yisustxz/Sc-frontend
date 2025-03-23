@@ -5,7 +5,7 @@ import { User } from 'core/users/types';
 import BackendError from 'exceptions/backend-error';
 import store from 'store';
 
-const URL = `${API_BASE_URL}/users/all`;
+const URL = `${API_BASE_URL}/users`;
 
 export default async function getAllUsers(): Promise<User[]> {
   try {

@@ -16,6 +16,8 @@ export default async function createUser(body: UserPayload): Promise<User> {
         }
       }
     );
+    console.log('aqui: ',URL);
+
     return response.data;
   } catch (error: unknown) {
     console.log(error);

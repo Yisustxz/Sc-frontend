@@ -14,7 +14,7 @@ export default function usePaginate() {
   const [paginate, setPaginate] = useState<PaginateData>({
     total: 0,
     page: 1,
-    perPage: 5,
+    perPage: 10,
     pages: 0,
   });
 

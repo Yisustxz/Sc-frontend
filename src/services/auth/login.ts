@@ -17,9 +17,8 @@ export default async function login(body: LoginBody): Promise<LoginResponse> {
       };
     }
 
-    console.log('URL ' + URL);
     const response = await axios.post<LoginResponse>(URL, body);
-    console.log('respuesta',response);
+    console.log('respuesta');
     return response.data;
   } catch (error: unknown) {
     throw new BackendError(error);

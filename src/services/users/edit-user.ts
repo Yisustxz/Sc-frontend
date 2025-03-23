@@ -5,7 +5,7 @@ import { User } from 'core/users/types';
 import BackendError from 'exceptions/backend-error';
 import store from 'store';
 
-const URL = `${API_BASE_URL}/clients`;
+const URL = `${API_BASE_URL}/users`;
 
 export default async function editUser(id: string, body: UserPayload): Promise<User> {
   try {
