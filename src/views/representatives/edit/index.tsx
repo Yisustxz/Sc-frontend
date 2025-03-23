@@ -38,7 +38,7 @@ const EditRepresentative: FunctionComponent<Props> = ({ className }) => {
         navigate('/representatives')
         dispatch(
           setSuccessMessage(
-            `Representante ${values.nombre} ${values.apellido} editado correctamente`
+            `Representante ${values.name} ${values.lastName} editado correctamente`
           )
         )
       } catch (error) {
@@ -69,12 +69,12 @@ const EditRepresentative: FunctionComponent<Props> = ({ className }) => {
         <Form
           isUpdate={true}
           initialValues={{
-            ci: representative.ci,
-            nombre: representative.nombre,
-            apellido: representative.apellido,
-            telefono: representative.telefono,
-            direccion: representative.direccion,
-            fechaNacimiento: representative.fechaNacimiento,
+            dni: representative.dni,
+            name: representative.name,
+            lastName: representative.lastName,
+            phone: representative.phone,
+            direction: representative.direction,
+            birthDate: representative.birthDate,
             submit: null
           }}
           title={'Editar Alumno'}

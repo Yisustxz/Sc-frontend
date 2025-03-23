@@ -19,7 +19,7 @@ const Form: FunctionComponent<Props> = ({
 
   const extraValidations: any = isCreated
     ? {
-        ci: Yup.string()
+        dni: Yup.string()
           .max(8)
           .required('La cedula del Representante es requerida')
       }
@@ -34,16 +34,16 @@ const Form: FunctionComponent<Props> = ({
         initialValues={initialValues}
         validationSchema={Yup.object().shape({
           ...extraValidations,
-          nombre: Yup.string()
+          name: Yup.string()
             .max(30)
             .required('El nombre del Representante es requerido'),
-          apellido: Yup.string()
+          lastName: Yup.string()
             .max(30)
             .required('El apellido del Representante es requerido'),
-          telefono: Yup.string()
+          phone: Yup.string()
             .max(30)
             .required('El teléfono del Representante es requerido'),
-          direccion: Yup.string()
+          direction: Yup.string()
             .max(11)
             .required('La direccion del Representante es requerido')
         })}
@@ -64,84 +64,82 @@ const Form: FunctionComponent<Props> = ({
                 {isCreated && (
                   <FormControl className='field-form' fullWidth>
                     <TextField
-                      id='ci'
+                      id='dni'
                       label='Cédula'
                       variant='outlined'
                       onBlur={handleBlur}
                       onChange={handleChange}
-                      value={values.ci}
-                      helperText={touched.ci ? errors.ci : ''}
-                      error={touched.ci && !!errors.ci}
-                      name='ci'
+                      value={values.dni}
+                      helperText={touched.dni ? errors.dni : ''}
+                      error={touched.dni && !!errors.dni}
+                      name='dni'
                     />
                   </FormControl>
                 )}
                 <FormControl className='field-form' fullWidth>
                   <TextField
-                    id='nombre'
+                    id='name'
                     label='Nombre del Representante'
                     variant='outlined'
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    value={values.nombre}
-                    helperText={touched.nombre ? errors.nombre : ''}
-                    error={touched.nombre && !!errors.nombre}
-                    name='nombre'
+                    value={values.name}
+                    helperText={touched.name ? errors.name : ''}
+                    error={touched.name && !!errors.name}
+                    name='name'
                   />
                 </FormControl>
                 <FormControl className='field-form' fullWidth>
                   <TextField
-                    id='apellido'
+                    id='lastName'
                     label='Apellido del Representante'
                     variant='outlined'
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    value={values.apellido}
-                    helperText={touched.apellido ? errors.apellido : ''}
-                    error={touched.apellido && !!errors.apellido}
-                    name='apellido'
+                    value={values.lastName}
+                    helperText={touched.lastName ? errors.lastName : ''}
+                    error={touched.lastName && !!errors.lastName}
+                    name='lastName'
                   />
                 </FormControl>
                 <FormControl className='field-form' fullWidth>
                   <TextField
-                    id='telefono'
+                    id='phone'
                     label='Numero de Telefono'
                     variant='outlined'
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    value={values.telefono}
-                    helperText={touched.telefono ? errors.telefono : ''}
-                    error={touched.telefono && !!errors.telefono}
-                    name='telefono'
+                    value={values.phone}
+                    helperText={touched.phone ? errors.phone : ''}
+                    error={touched.phone && !!errors.phone}
+                    name='phone'
                   />
                 </FormControl>
                 <FormControl className='field-form' fullWidth>
                   <TextField
-                    id='direccion'
+                    id='direction'
                     label='direccion de casa'
                     variant='outlined'
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    value={values.direccion}
-                    helperText={touched.direccion ? errors.direccion : ''}
-                    error={touched.direccion && !!errors.direccion}
-                    name='direccion'
+                    value={values.direction}
+                    helperText={touched.direction ? errors.direction : ''}
+                    error={touched.direction && !!errors.direction}
+                    name='direction'
                   />
                 </FormControl>
                 <FormControl className='field-form' fullWidth>
                   <TextField
-                    id='fechaNacimiento'
+                    id='birthDate'
                     label='Fecha de Nacimiento'
                     variant='outlined'
                     type='date'
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    value={values.fechaNacimiento}
-                    helperText={
-                      touched.fechaNacimiento ? errors.fechaNacimiento : ''
-                    }
-                    error={touched.fechaNacimiento && !!errors.fechaNacimiento}
-                    name='fechaNacimiento'
+                    value={values.birthDate}
+                    helperText={touched.birthDate ? errors.birthDate : ''}
+                    error={touched.birthDate && !!errors.birthDate}
+                    name='birthDate'
                     InputLabelProps={{
                       shrink: true
                     }}
@@ -174,12 +172,12 @@ interface Props {
 }
 
 export type FormValues = {
-  ci: string
-  nombre: string
-  apellido: string
-  telefono: string
-  direccion: string
-  fechaNacimiento: string
+  dni: string
+  name: string
+  lastName: string
+  phone: string
+  direction: string
+  birthDate: string
   submit: string | null
 }
 

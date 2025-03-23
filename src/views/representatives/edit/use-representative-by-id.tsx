@@ -12,7 +12,7 @@ export default function useRepresentativeById(id: number | null) {
     null
   )
 
-  const fetchStudent = useCallback(
+  const fetchRepresentative = useCallback(
     async (id: number) => {
       try {
         dispatch(setIsLoading(true))
@@ -29,8 +29,8 @@ export default function useRepresentativeById(id: number | null) {
   )
 
   useEffect(() => {
-    if (id) fetchStudent(id)
-  }, [fetchStudent, id])
+    if (id) fetchRepresentative(id)
+  }, [fetchRepresentative, id])
 
   return representative
 }

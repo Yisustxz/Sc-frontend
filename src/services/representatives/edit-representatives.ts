@@ -5,16 +5,12 @@ import { Representatives } from 'core/representatives/types';
 import BackendError from 'exceptions/backend-error';
 import store from 'store';
 
-const URL = `${API_BASE_URL}/api/v1/representante`;
+const URL = `${API_BASE_URL}/api/v1/representative`;
 
 export default async function editRepresentative(id: number , body: RepresenativePayload): Promise<Representatives> {
   try {
-    const finalURL = `${URL}/${id}`;
-    console.log("URL generada:", finalURL);
-    console.log("Payload enviado:", body); 
     const response = await axios.put<Representatives>(
-      finalURL,
-      body,
+     `${URL}/${id}`,body,
       {
         headers: {
           Authorization: `Bearer ${store.getState().auth.token}`,

@@ -32,7 +32,9 @@ const CreateRepresentative: FunctionComponent<Props> = ({ className }) => {
         await createClient(values)
         navigate('/representatives')
         dispatch(
-          setSuccessMessage(`representante ${values.name} creado correctamente`)
+          setSuccessMessage(
+            `representante ${values.name} ${values.lastName} creado correctamente`
+          )
         )
       } catch (error) {
         if (error instanceof BackendError) {
@@ -61,12 +63,12 @@ const CreateRepresentative: FunctionComponent<Props> = ({ className }) => {
 
       <Form
         initialValues={{
-          ci: '',
-          nombre: '',
-          apellido: '',
-          telefono: '',
-          direccion: '',
-          fechaNacimiento: '',
+          dni: '',
+          name: '',
+          lastName: '',
+          phone: '',
+          direction: '',
+          birthDate: '',
           submit: null
         }}
         title={'Crear representante'}

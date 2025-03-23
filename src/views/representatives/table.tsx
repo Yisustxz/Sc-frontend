@@ -15,6 +15,7 @@ import { PaginateData } from 'services/types'
 import { IconEdit, IconTrash } from '@tabler/icons'
 import { useNavigate } from 'react-router'
 import DialogDelete from 'components/dialogDelete'
+import deleteRepresentative from 'services/representatives/delete-representatives'
 
 const Table: FunctionComponent<Prop> = ({
   items,
@@ -42,6 +43,7 @@ const Table: FunctionComponent<Prop> = ({
     async (representativeid: number) => {
       try {
         dispatch(setIsLoading(true))
+        await deleteRepresentative(representativeid)
         dispatch(setSuccessMessage(`Representante eliminado correctamente`))
       } catch (error) {
         if (error instanceof BackendError) {
@@ -56,12 +58,7 @@ const Table: FunctionComponent<Prop> = ({
     [dispatch, fetchItems, handleClose]
   )
   const formattedItems = items.map((item) => ({
-    id: item.id,
-    representativeCi: item.persona?.ci ?? '',
-    fullName: `${item.persona?.nombre ?? ''} ${item.persona?.apellido ?? ''}`,
-    telefono: item.persona?.telefono ?? '',
-    direccion: item.persona?.direccion ?? '',
-    fechaNacimiento: item.persona?.fechaNacimiento ?? ''
+    fullName: `${item.name ?? ''} ${item.lastName ?? ''}`
   }))
 
   return (
@@ -70,7 +67,7 @@ const Table: FunctionComponent<Prop> = ({
         headers={[
           {
             columnLabel: 'Cedula',
-            fieldName: 'representativeCi',
+            fieldName: 'dni',
             cellAlignment: 'left'
           },
           {
@@ -80,17 +77,17 @@ const Table: FunctionComponent<Prop> = ({
           },
           {
             columnLabel: 'Delefono',
-            fieldName: 'telefono',
+            fieldName: 'phone',
             cellAlignment: 'left'
           },
           {
             columnLabel: 'Dirección',
-            fieldName: 'direccion',
+            fieldName: 'direction',
             cellAlignment: 'left'
           },
           {
             columnLabel: 'Fecha de Nacimiento',
-            fieldName: 'fechaNacimiento',
+            fieldName: 'birthDate',
             cellAlignment: 'left'
           }
         ]}
