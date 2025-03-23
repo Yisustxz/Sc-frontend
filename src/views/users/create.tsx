@@ -48,10 +48,12 @@ const CreateUser: FunctionComponent<Props> = ({className}) => {
 
       <Form
         initialValues={{
-          userDni: '',
+          id: '',
           name: '',
           email: '',
           role: '',
+          password: '',
+          confirmPassword: '',
           submit: null
         }}
         title={'Crear usuario'}

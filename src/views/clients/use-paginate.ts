@@ -14,8 +14,8 @@ export default function usePaginate() {
   const [paginate, setPaginate] = useState<PaginateData>({
     totalItems: 0,
     page: 1,
-    perPage: 5,
-    totalPages: 0,
+    perPage: 10,
+    pages: 0,
   });
 
   const fetchClients = useCallback(async () => {
