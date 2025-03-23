@@ -15,6 +15,7 @@ const initialState: AuthState = hasStorageData() ? {
   isAuth: false,
 };
 
+console.log('getstorage', getStorageData());
 console.log('initial,state', hasStorageData(), initialState);
 
 export type LoginPayload = LoginResponse & { remember: boolean };
@@ -28,7 +29,7 @@ const authSlice = createSlice({
         email: action.payload.email,
         name: action.payload.name
       };
-      state.token = action.payload.token;
+      state.token = action.payload.accessToken;
       state.isAuth = true;
       if (action.payload.remember)
         setStorageData({
@@ -36,7 +37,7 @@ const authSlice = createSlice({
             email: action.payload.email,
             name: action.payload.name
           },
-          token: action.payload.token
+          token: action.payload.accessToken
         });
     },
     logout(state) {

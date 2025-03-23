@@ -12,6 +12,8 @@ const URL = `${API_BASE_URL}/users`;
 export default async function getPaginate(body: PaginateBody): Promise<UsersPaginated> {
   try {
     const urlPaginated = addQueryParams(URL, body);
+    const token = store.getState().auth.token;
+    console.log('Token:', token);
     const response = await axios.get<UsersPaginated>(
       urlPaginated, {
         headers: {
