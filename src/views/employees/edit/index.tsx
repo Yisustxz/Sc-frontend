@@ -13,16 +13,16 @@ import {
   setErrorMessage
 } from 'store/customizationSlice'
 import Form, { FormValues } from '../form'
-import editRepresentative from 'services/representatives/edit-representatives'
-import useRepresentativeById from './use-representative-by-id'
-import useRepresentativeId from './use-representative-id'
+import editEmployee from 'services/employees/edit-employee'
+import useEmployeeById from './use-employee-by-id'
+import useEmployeeId from './use-employee-id'
 import { FormikHelpers } from 'formik'
 
-const EditRepresentative: FunctionComponent<Props> = ({ className }) => {
+const EditEmployee: FunctionComponent<Props> = ({ className }) => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  const representativeId = useRepresentativeId()
-  const representative = useRepresentativeById(representativeId)
+  const employeeId = useEmployeeId()
+  const employee = useEmployeeById(employeeId)
 
   const onSubmit = useCallback(
     async (
@@ -34,11 +34,11 @@ const EditRepresentative: FunctionComponent<Props> = ({ className }) => {
         setErrors({})
         setStatus({})
         setSubmitting(true)
-        await editRepresentative(representativeId!, values)
-        navigate('/representatives')
+        await editEmployee(employeeId!, values)
+        navigate('/employees')
         dispatch(
           setSuccessMessage(
-            `Representante ${values.name} ${values.lastName} editado correctamente`
+            `Empleado ${values.name} ${values.lastName} editado correctamente`
           )
         )
       } catch (error) {
@@ -55,29 +55,30 @@ const EditRepresentative: FunctionComponent<Props> = ({ className }) => {
         setSubmitting(false)
       }
     },
-    [representativeId, navigate, dispatch]
+    [employeeId, navigate, dispatch]
   )
 
   return (
     <div className={className}>
       <MainCard>
         <Typography variant='h3' component='h3'>
-          Clientes
+          Empleados
         </Typography>
       </MainCard>
-      {representative && (
+      {employee && (
         <Form
           isUpdate={true}
           initialValues={{
-            dni: representative.dni,
-            name: representative.name,
-            lastName: representative.lastName,
-            phone: representative.phone,
-            direction: representative.direction,
-            birthDate: representative.birthDate,
+            dni: employee.dni,
+            name: employee.name,
+            lastName: employee.lastName,
+            phone: employee.phone,
+            direction: employee.direction,
+            birthDate: employee.birthDate,
+            employeeType: employee.employeeType,
             submit: null
           }}
-          title={'Editar Representante'}
+          title={'Editar Empleado'}
           onSubmit={onSubmit}
         />
       )}
@@ -89,7 +90,7 @@ interface Props {
   className?: string
 }
 
-export default styled(EditRepresentative)`
+export default styled(EditEmployee)`
   display: flex;
   flex-direction: column;
 

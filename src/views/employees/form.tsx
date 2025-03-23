@@ -15,6 +15,7 @@ import {
 import styled from 'styled-components'
 import { ro } from 'date-fns/locale'
 import { Margin } from '@mui/icons-material'
+import { TypeEmployee } from 'core/employees/types'
 
 const USE_AUTOCOMPLETES = false
 
@@ -29,7 +30,7 @@ const Form: FunctionComponent<Props> = ({
 
   const extraValidations: any = isCreated
     ? {
-        employeeDni: Yup.string()
+        dni: Yup.string()
           .max(8, 'La cédula del Empleado no puede tener más de 8 numeros')
           .required('La cedula del Empleado es requerida')
       }
@@ -56,19 +57,13 @@ const Form: FunctionComponent<Props> = ({
               'El apellido del Empleado no puede tener más de 30 caracteres'
             )
             .required('El apellido del Empleado es requerido'),
-          email: Yup.string()
-            .max(
-              30,
-              'El correo electrónico del Empleado no puede tener más de 30 caracteres'
-            )
-            .required('El correo electrónico del Empleado es requerido'),
           phone: Yup.string()
             .max(
               11,
               'El teléfono del Empleado no puede tener más de 11 caracteres'
             )
             .required('El teléfono del Empleado es requerido'),
-          address: Yup.string().required(
+          direction: Yup.string().required(
             'La dirección del Empleado es requerido'
           )
         })}
@@ -89,15 +84,15 @@ const Form: FunctionComponent<Props> = ({
                 {isCreated && (
                   <FormControl className='field-form' fullWidth>
                     <TextField
-                      id='employeeDni'
+                      id='dni'
                       label='Cédula'
                       variant='outlined'
                       onBlur={handleBlur}
                       onChange={handleChange}
-                      value={values.employeeDni}
-                      helperText={touched.employeeDni ? errors.employeeDni : ''}
-                      error={touched.employeeDni && !!errors.employeeDni}
-                      name='employeeDni'
+                      value={values.dni}
+                      helperText={touched.dni ? errors.dni : ''}
+                      error={touched.dni && !!errors.dni}
+                      name='dni'
                     />
                   </FormControl>
                 )}
@@ -129,19 +124,6 @@ const Form: FunctionComponent<Props> = ({
                 </FormControl>
                 <FormControl className='field-form' fullWidth>
                   <TextField
-                    id='email'
-                    label='Correo electrónico'
-                    variant='outlined'
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    value={values.email}
-                    helperText={touched.email ? errors.email : ''}
-                    error={touched.email && !!errors.email}
-                    name='email'
-                  />
-                </FormControl>
-                <FormControl className='field-form' fullWidth>
-                  <TextField
                     id='phone'
                     label='Teléfono'
                     variant='outlined'
@@ -155,15 +137,15 @@ const Form: FunctionComponent<Props> = ({
                 </FormControl>
                 <FormControl className='field-form' fullWidth>
                   <TextField
-                    id='address'
+                    id='direction'
                     label='Dirección'
                     variant='outlined'
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    value={values.address}
-                    helperText={touched.address ? errors.address : ''}
-                    error={touched.address && !!errors.address}
-                    name='address'
+                    value={values.direction}
+                    helperText={touched.direction ? errors.direction : ''}
+                    error={touched.direction && !!errors.direction}
+                    name='direction'
                   />
                 </FormControl>
                 <FormControl className='field-form' fullWidth>
@@ -171,19 +153,19 @@ const Form: FunctionComponent<Props> = ({
                   <Select
                     id='role'
                     name='role'
-                    value={values.role}
+                    value={values.employeeType}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    error={touched.role && !!errors.role}
+                    error={touched.employeeType && !!errors.employeeType}
                   >
-                    {Object.values(EmployeeRole).map((role) => (
+                    {Object.values(TypeEmployee).map((role) => (
                       <MenuItem key={role} value={role}>
                         {role}
                       </MenuItem>
                     ))}
                   </Select>
-                  {touched.role && errors.role && (
-                    <FormHelperText error>{errors.role}</FormHelperText>
+                  {touched.employeeType && errors.employeeType && (
+                    <FormHelperText error>{errors.employeeType}</FormHelperText>
                   )}
                 </FormControl>
               </div>
@@ -212,21 +194,14 @@ interface Props {
   initialValues: FormValues
 }
 
-export enum EmployeeRole {
-  administrative = 'Administrativo',
-  professor = 'Profesor',
-  director = 'Director',
-  coordinator = 'Coordinador'
-}
-
 export type FormValues = {
-  employeeDni: string
+  dni: string
   name: string
   lastName: string
-  email: string
   phone: string
-  address: string
-  role: EmployeeRole | string
+  direction: string
+  birthDate: string
+  employeeType: TypeEmployee
   submit: string | null
 }
 
