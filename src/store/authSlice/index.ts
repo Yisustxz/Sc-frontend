@@ -15,7 +15,6 @@ const initialState: AuthState = hasStorageData() ? {
   isAuth: false,
 };
 
-console.log('getstorage', getStorageData());
 console.log('initial,state', hasStorageData(), initialState);
 
 export type LoginPayload = LoginResponse & { remember: boolean };
