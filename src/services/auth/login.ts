@@ -3,8 +3,7 @@ import axios from 'axios';
 import { API_BASE_URL } from 'config/constants';
 import BackendError from 'exceptions/backend-error';
 
-
-const URL = `${API_BASE_URL}/login`;
+const URL = `${API_BASE_URL}/auth/login`;
 
 const BYPASS_LOGIN = true;
 
@@ -20,6 +19,7 @@ export default async function login(body: LoginBody): Promise<LoginResponse> {
 
     console.log('URL ' + URL);
     const response = await axios.post<LoginResponse>(URL, body);
+    console.log('respuesta',response);
     return response.data;
   } catch (error: unknown) {
     throw new BackendError(error);
@@ -32,7 +32,7 @@ export interface LoginBody {
 }
 
 export interface LoginResponse {
-  name: string;
-  email: string;
   token: string;
+  name:string;
+  email:string;
 }
