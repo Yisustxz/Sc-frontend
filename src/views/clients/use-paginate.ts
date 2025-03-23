@@ -15,7 +15,7 @@ export default function usePaginate() {
     totalItems: 0,
     page: 1,
     perPage: 10,
-    pages: 0,
+    totalPages: 0
   });
 
   const fetchClients = useCallback(async () => {
