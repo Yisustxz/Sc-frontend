@@ -58,10 +58,25 @@ const Table: FunctionComponent<Prop> = ({
     [dispatch, fetchItems, handleClose]
   )
 
-  const formattedItems = items.map((item) => ({
-    ...item,
-    fullName: `${item.name} ${item.lastName}`
-  }))
+  const formattedItems = items
+    .map((item) => ({
+      id: item.id,
+      dni: item.dni,
+      phone: item.phone,
+      direction: item.direction,
+      birthDate: item.birthDate,
+      employeeType: item.employeeType,
+      fullName: `${item.name ?? ''} ${item.lastName ?? ''}`
+    }))
+    .filter(
+      (item) =>
+        item.dni ||
+        item.phone ||
+        item.direction ||
+        item.birthDate ||
+        item.employeeType ||
+        item.fullName.trim()
+    )
 
   return (
     <div className={className}>

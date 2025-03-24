@@ -149,6 +149,23 @@ const Form: FunctionComponent<Props> = ({
                   />
                 </FormControl>
                 <FormControl className='field-form' fullWidth>
+                  <TextField
+                    id='birthDate'
+                    label='Fecha de Nacimiento'
+                    variant='outlined'
+                    type='date'
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.birthDate}
+                    helperText={touched.birthDate ? errors.birthDate : ''}
+                    error={touched.birthDate && !!errors.birthDate}
+                    name='birthDate'
+                    InputLabelProps={{
+                      shrink: true
+                    }}
+                  />
+                </FormControl>
+                <FormControl className='field-form' fullWidth>
                   <InputLabel id='role-label'>Seleccionar Rol</InputLabel>
                   <Select
                     id='role'

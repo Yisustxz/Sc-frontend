@@ -5,7 +5,7 @@ import { Employees } from 'core/employees/types';
 import BackendError from 'exceptions/backend-error';
 import store from 'store';
 
-const URL = `${API_BASE_URL}/api/v1/employee`;
+const URL = `${API_BASE_URL}/employee`;
 
 export default async function getEmployee(id: number ): Promise<Employees> {
   try {

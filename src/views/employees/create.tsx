@@ -4,7 +4,7 @@ import MainCard from 'components/cards/MainCard'
 import { Typography } from '@mui/material'
 import styled from 'styled-components'
 import BackendError from 'exceptions/backend-error'
-import createClient from 'services/clients/create-client'
+import createEmployee from 'services/employees/create-employee'
 import { useNavigate } from 'react-router'
 import {
   setErrorMessage,
@@ -29,7 +29,7 @@ const CreateEmployee: FunctionComponent<Props> = ({ className }) => {
         setErrors({})
         setStatus({})
         setSubmitting(true)
-        await createClient(values)
+        await createEmployee(values)
         navigate('/employees')
         dispatch(
           setSuccessMessage(

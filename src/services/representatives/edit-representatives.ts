@@ -5,7 +5,7 @@ import { Representatives } from 'core/representatives/types';
 import BackendError from 'exceptions/backend-error';
 import store from 'store';
 
-const URL = `${API_BASE_URL}/api/v1/representative`;
+const URL = `${API_BASE_URL}/representative`;
 
 export default async function editRepresentative(id: number , body: RepresenativePayload): Promise<Representatives> {
   try {

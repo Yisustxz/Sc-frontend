@@ -4,7 +4,7 @@ import { API_BASE_URL } from 'config/constants';
 import BackendError from 'exceptions/backend-error';
 import store from 'store';
 
-const URL = `${API_BASE_URL}/api/v1/employee`;
+const URL = `${API_BASE_URL}/employee`;
 
 export default async function deleteEmployee(id: number): Promise<void> {
   try {

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 // Own
-import { Employee } from 'core/employees/types';
+import { Employees } from 'core/employees/types';
 import getPaginate from 'services/employees/get-paginate';
 import { PaginateData } from 'services/types';
 import { useAppDispatch } from 'store';
@@ -10,7 +10,7 @@ import BackendError from 'exceptions/backend-error';
 export default function usePaginate() {
   const dispatch = useAppDispatch();
   const [page, setPage] = useState(1);
-  const [Employee, setEmployee] = useState<Employee[]>([]);
+  const [Employee, setEmployee] = useState<Employees[]>([]);
   const [paginate, setPaginate] = useState<PaginateData>({
     totalItems: 0,
     page: 1,

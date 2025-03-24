@@ -12,7 +12,7 @@ const EmployeesPage = ({ className }: Props) => {
   const navigate = useNavigate()
   const { Employee, paginate, setPage, fetchEmployee } = usePaginate()
   const goToCreate = useCallback(() => {
-    navigate('/employee/create')
+    navigate('/employees/create')
   }, [navigate])
 
   return (

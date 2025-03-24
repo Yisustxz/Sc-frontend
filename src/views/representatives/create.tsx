@@ -4,7 +4,7 @@ import MainCard from 'components/cards/MainCard'
 import { Typography } from '@mui/material'
 import styled from 'styled-components'
 import BackendError from 'exceptions/backend-error'
-import createClient from 'services/clients/create-client'
+import createRepresentative from 'services/representatives/create-representatives'
 import { useNavigate } from 'react-router'
 import {
   setErrorMessage,
@@ -29,7 +29,7 @@ const CreateRepresentative: FunctionComponent<Props> = ({ className }) => {
         setErrors({})
         setStatus({})
         setSubmitting(true)
-        await createClient(values)
+        await createRepresentative(values)
         navigate('/representatives')
         dispatch(
           setSuccessMessage(
