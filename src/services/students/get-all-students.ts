@@ -5,7 +5,7 @@ import { Students } from 'core/students/types';
 import BackendError from 'exceptions/backend-error';
 import store from 'store';
 
-const URL = `${API_BASE_URL}/api/v1/student`;
+const URL = `${API_BASE_URL}/student`;
 
 export default async function getStudent(): Promise<Students> {
   try {

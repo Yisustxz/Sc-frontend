@@ -59,9 +59,22 @@ const Table: FunctionComponent<Prop> = ({
     [dispatch, fetchItems, handleClose]
   )
 
-  const formattedItems = items.map((item) => ({
-    fullName: `${item.name ?? ''} ${item.lastName ?? ''}`
-  }))
+  const formattedItems = items
+    .map((item) => ({
+      dni: item.dni,
+      phone: item.phone,
+      direction: item.direction,
+      birthDate: item.birthDate,
+      fullName: `${item.name ?? ''} ${item.lastName ?? ''}`
+    }))
+    .filter(
+      (item) =>
+        item.dni ||
+        item.phone ||
+        item.direction ||
+        item.birthDate ||
+        item.fullName.trim()
+    )
 
   return (
     <div className={className}>
@@ -69,7 +82,7 @@ const Table: FunctionComponent<Prop> = ({
         headers={[
           {
             columnLabel: 'Cedula',
-            fieldName: 'ci',
+            fieldName: 'dni',
             cellAlignment: 'left'
           },
           {
