@@ -15,6 +15,7 @@ import { PaginateData } from 'services/types'
 import { IconEdit, IconTrash } from '@tabler/icons'
 import { useNavigate } from 'react-router'
 import DialogDelete from 'components/dialogDelete'
+import deleteRepresentative from 'services/representatives/delete-representatives'
 
 const Table: FunctionComponent<Prop> = ({
   items,
@@ -26,22 +27,23 @@ const Table: FunctionComponent<Prop> = ({
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const [open, setOpen] = useState<boolean>(false)
-  const [representativeDni, setRepresentativeDni] = useState<string>('')
+  const [representativeId, setRepresentativeId] = useState<number>(0)
 
-  const handleOpen = useCallback((representativeDni: string) => {
+  const handleOpen = useCallback((id: number) => {
     setOpen(true)
-    setRepresentativeDni(representativeDni)
+    setRepresentativeId(id)
   }, [])
 
   const handleClose = useCallback(() => {
     setOpen(false)
-    setRepresentativeDni('')
+    setRepresentativeId(0)
   }, [])
 
   const onDelete = useCallback(
-    async (representativeDni: string) => {
+    async (representativeid: number) => {
       try {
         dispatch(setIsLoading(true))
+        await deleteRepresentative(representativeid)
         dispatch(setSuccessMessage(`Representante eliminado correctamente`))
       } catch (error) {
         if (error instanceof BackendError) {
@@ -55,18 +57,30 @@ const Table: FunctionComponent<Prop> = ({
     },
     [dispatch, fetchItems, handleClose]
   )
-  const formattedItems = items.map((item) => ({
-    ...item,
-    fullName: `${item.name} ${item.lastName}`
-  }))
-
+  const formattedItems = items
+    .map((item) => ({
+      id: item.id,
+      dni: item.dni,
+      phone: item.phone,
+      direction: item.direction,
+      birthDate: item.birthDate,
+      fullName: `${item.name ?? ''} ${item.lastName ?? ''}`
+    }))
+    .filter(
+      (item) =>
+        item.dni ||
+        item.phone ||
+        item.direction ||
+        item.birthDate ||
+        item.fullName.trim()
+    )
   return (
     <div className={className}>
       <DynamicTable
         headers={[
           {
             columnLabel: 'Cedula',
-            fieldName: 'representativeDni',
+            fieldName: 'dni',
             cellAlignment: 'left'
           },
           {
@@ -75,18 +89,18 @@ const Table: FunctionComponent<Prop> = ({
             cellAlignment: 'left'
           },
           {
-            columnLabel: 'Correo electrónico',
-            fieldName: 'email',
-            cellAlignment: 'left'
-          },
-          {
-            columnLabel: 'Teléfono',
+            columnLabel: 'Telefono',
             fieldName: 'phone',
             cellAlignment: 'left'
           },
           {
             columnLabel: 'Dirección',
-            fieldName: 'address',
+            fieldName: 'direction',
+            cellAlignment: 'left'
+          },
+          {
+            columnLabel: 'Fecha de Nacimiento',
+            fieldName: 'birthDate',
             cellAlignment: 'left'
           }
         ]}
@@ -96,7 +110,7 @@ const Table: FunctionComponent<Prop> = ({
             <Button
               color='primary'
               onClick={() => {
-                navigate('/representatives/edit/' + row.representativeDni)
+                navigate('/representatives/edit/' + row.id)
               }}
               startIcon={<IconEdit />}
             >
@@ -106,7 +120,7 @@ const Table: FunctionComponent<Prop> = ({
           (row: Representatives) => (
             <Button
               color='secondary'
-              onClick={() => handleOpen(row.representativeDni)}
+              onClick={() => handleOpen(row.id)}
               startIcon={<IconTrash />}
             >
               Eliminar
@@ -117,7 +131,7 @@ const Table: FunctionComponent<Prop> = ({
       <DialogDelete
         handleClose={handleClose}
         onDelete={() => {
-          onDelete(representativeDni)
+          onDelete(representativeId)
         }}
         open={open}
       />

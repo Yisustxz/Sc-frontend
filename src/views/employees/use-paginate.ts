@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 // Own
-import { User } from 'core/users/types';
-import getPaginate from 'services/users/get-paginate';
+import { Employees } from 'core/employees/types';
+import getPaginate from 'services/employees/get-paginate';
 import { PaginateData } from 'services/types';
 import { useAppDispatch } from 'store';
 import { setIsLoading, setErrorMessage } from 'store/customizationSlice';
@@ -10,19 +10,19 @@ import BackendError from 'exceptions/backend-error';
 export default function usePaginate() {
   const dispatch = useAppDispatch();
   const [page, setPage] = useState(1);
-  const [users, setUsers] = useState<User[]>([]);
+  const [Employee, setEmployee] = useState<Employees[]>([]);
   const [paginate, setPaginate] = useState<PaginateData>({
     totalItems: 0,
     page: 1,
-    perPage: 10,
-    totalPages: 0
+    perPage: 5,
+    totalPages: 0,
   });
 
-  const fetchUsers = useCallback(async () => {
+  const fetchEmployee = useCallback(async () => {
     try {
       dispatch(setIsLoading(true));
       const response = await getPaginate({ page, size: paginate.perPage });
-      setUsers(response.items);
+      setEmployee(response.items);
       setPaginate(response.paginate);
     } catch (error) {
       if (error instanceof BackendError)
@@ -33,9 +33,8 @@ export default function usePaginate() {
   }, [dispatch, page, paginate.perPage]);
 
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    fetchEmployee();
+  }, [fetchEmployee]);
 
-  return { users, paginate, setPage, fetchUsers };
+  return { Employee, paginate, setPage, fetchEmployee };
 }
- 

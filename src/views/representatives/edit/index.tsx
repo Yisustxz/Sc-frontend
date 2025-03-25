@@ -3,21 +3,26 @@ import { FunctionComponent, useCallback } from 'react'
 import MainCard from 'components/cards/MainCard'
 import { Typography } from '@mui/material'
 import styled from 'styled-components'
-import BackendError from 'exceptions/backend-error'
-import createRepresentative from 'services/representatives/create-representatives'
 import { useNavigate } from 'react-router'
+//own
+import BackendError from 'exceptions/backend-error'
+import { useAppDispatch } from '../../../store/index'
 import {
-  setErrorMessage,
   setIsLoading,
-  setSuccessMessage
+  setSuccessMessage,
+  setErrorMessage
 } from 'store/customizationSlice'
-import { useAppDispatch } from '../../store/index'
-import Form, { FormValues } from './form'
+import Form, { FormValues } from '../form'
+import editRepresentative from 'services/representatives/edit-representatives'
+import useRepresentativeById from './use-representative-by-id'
+import useRepresentativeId from './use-representative-id'
 import { FormikHelpers } from 'formik'
 
-const CreateRepresentative: FunctionComponent<Props> = ({ className }) => {
+const EditRepresentative: FunctionComponent<Props> = ({ className }) => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
+  const representativeId = useRepresentativeId()
+  const representative = useRepresentativeById(representativeId)
 
   const onSubmit = useCallback(
     async (
@@ -29,11 +34,11 @@ const CreateRepresentative: FunctionComponent<Props> = ({ className }) => {
         setErrors({})
         setStatus({})
         setSubmitting(true)
-        await createRepresentative(values)
+        await editRepresentative(representativeId!, values)
         navigate('/representatives')
         dispatch(
           setSuccessMessage(
-            `representante ${values.name} ${values.lastName} creado correctamente`
+            `Representante ${values.name} ${values.lastName} editado correctamente`
           )
         )
       } catch (error) {
@@ -50,30 +55,32 @@ const CreateRepresentative: FunctionComponent<Props> = ({ className }) => {
         setSubmitting(false)
       }
     },
-    [dispatch, navigate]
+    [representativeId, navigate, dispatch]
   )
 
   return (
     <div className={className}>
       <MainCard>
         <Typography variant='h3' component='h3'>
-          Representantes
+          Clientes
         </Typography>
       </MainCard>
-
-      <Form
-        initialValues={{
-          dni: '',
-          name: '',
-          lastName: '',
-          phone: '',
-          direction: '',
-          birthDate: '',
-          submit: null
-        }}
-        title={'Crear representante'}
-        onSubmit={onSubmit}
-      />
+      {representative && (
+        <Form
+          isUpdate={true}
+          initialValues={{
+            dni: representative.dni,
+            name: representative.name,
+            lastName: representative.lastName,
+            phone: representative.phone,
+            direction: representative.direction,
+            birthDate: representative.birthDate,
+            submit: null
+          }}
+          title={'Editar Representante'}
+          onSubmit={onSubmit}
+        />
+      )}
     </div>
   )
 }
@@ -82,7 +89,7 @@ interface Props {
   className?: string
 }
 
-export default styled(CreateRepresentative)`
+export default styled(EditRepresentative)`
   display: flex;
   flex-direction: column;
 

@@ -15,6 +15,7 @@ import { PaginateData } from 'services/types'
 import { IconEdit, IconTrash } from '@tabler/icons'
 import { useNavigate } from 'react-router'
 import DialogDelete from 'components/dialogDelete'
+import deleteEmployee from 'services/employees/delete-employee'
 
 const Table: FunctionComponent<Prop> = ({
   items,
@@ -26,23 +27,24 @@ const Table: FunctionComponent<Prop> = ({
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const [open, setOpen] = useState<boolean>(false)
-  const [representativeDni, setRepresentativeDni] = useState<string>('')
+  const [employeeId, setemployeeId] = useState<number>(0)
 
-  const handleOpen = useCallback((representativeDni: string) => {
+  const handleOpen = useCallback((employeeId: number) => {
     setOpen(true)
-    setRepresentativeDni(representativeDni)
+    setemployeeId(employeeId)
   }, [])
 
   const handleClose = useCallback(() => {
     setOpen(false)
-    setRepresentativeDni('')
+    setemployeeId(0)
   }, [])
 
   const onDelete = useCallback(
-    async (representativeDni: string) => {
+    async (employeeId: number) => {
       try {
         dispatch(setIsLoading(true))
-        dispatch(setSuccessMessage(`Representante eliminado correctamente`))
+        await deleteEmployee(employeeId)
+        dispatch(setSuccessMessage(`Empleado eliminado correctamente`))
       } catch (error) {
         if (error instanceof BackendError) {
           dispatch(setErrorMessage(error.getMessage()))
@@ -56,10 +58,25 @@ const Table: FunctionComponent<Prop> = ({
     [dispatch, fetchItems, handleClose]
   )
 
-  const formattedItems = items.map((item) => ({
-    ...item,
-    fullName: `${item.name} ${item.lastName}`
-  }))
+  const formattedItems = items
+    .map((item) => ({
+      id: item.id,
+      dni: item.dni,
+      phone: item.phone,
+      direction: item.direction,
+      birthDate: item.birthDate,
+      employeeType: item.employeeType,
+      fullName: `${item.name ?? ''} ${item.lastName ?? ''}`
+    }))
+    .filter(
+      (item) =>
+        item.dni ||
+        item.phone ||
+        item.direction ||
+        item.birthDate ||
+        item.employeeType ||
+        item.fullName.trim()
+    )
 
   return (
     <div className={className}>
@@ -67,7 +84,7 @@ const Table: FunctionComponent<Prop> = ({
         headers={[
           {
             columnLabel: 'Cedula',
-            fieldName: 'employeeDni',
+            fieldName: 'dni',
             cellAlignment: 'left'
           },
           {
@@ -76,23 +93,23 @@ const Table: FunctionComponent<Prop> = ({
             cellAlignment: 'left'
           },
           {
-            columnLabel: 'Correo electrónico',
-            fieldName: 'email',
-            cellAlignment: 'left'
-          },
-          {
-            columnLabel: 'Dirección',
-            fieldName: 'address',
-            cellAlignment: 'left'
-          },
-          {
-            columnLabel: 'Teléfono',
+            columnLabel: 'telefono',
             fieldName: 'phone',
             cellAlignment: 'left'
           },
           {
-            columnLabel: 'Rol',
-            fieldName: 'role',
+            columnLabel: 'Dirección',
+            fieldName: 'direction',
+            cellAlignment: 'left'
+          },
+          {
+            columnLabel: 'Fecha de nacimiento',
+            fieldName: 'birthDate',
+            cellAlignment: 'left'
+          },
+          {
+            columnLabel: 'Tipo de empleado',
+            fieldName: 'employeeType',
             cellAlignment: 'left'
           }
         ]}
@@ -102,7 +119,7 @@ const Table: FunctionComponent<Prop> = ({
             <Button
               color='primary'
               onClick={() => {
-                navigate('/Employees/edit/' + row.employeeDni)
+                navigate('/Employees/edit/' + row.id)
               }}
               startIcon={<IconEdit />}
             >
@@ -112,7 +129,7 @@ const Table: FunctionComponent<Prop> = ({
           (row: Employees) => (
             <Button
               color='secondary'
-              onClick={() => handleOpen(row.employeeDni)}
+              onClick={() => handleOpen(row.id)}
               startIcon={<IconTrash />}
             >
               Eliminar
@@ -123,7 +140,7 @@ const Table: FunctionComponent<Prop> = ({
       <DialogDelete
         handleClose={handleClose}
         onDelete={() => {
-          onDelete(representativeDni)
+          onDelete(employeeId)
         }}
         open={open}
       />

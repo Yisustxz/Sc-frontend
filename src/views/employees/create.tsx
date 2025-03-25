@@ -4,7 +4,7 @@ import MainCard from 'components/cards/MainCard'
 import { Typography } from '@mui/material'
 import styled from 'styled-components'
 import BackendError from 'exceptions/backend-error'
-import createClient from 'services/clients/create-client'
+import createEmployee from 'services/employees/create-employee'
 import { useNavigate } from 'react-router'
 import {
   setErrorMessage,
@@ -29,10 +29,12 @@ const CreateEmployee: FunctionComponent<Props> = ({ className }) => {
         setErrors({})
         setStatus({})
         setSubmitting(true)
-        await createClient(values)
+        await createEmployee(values)
         navigate('/employees')
         dispatch(
-          setSuccessMessage(`Empleado ${values.name} creado correctamente`)
+          setSuccessMessage(
+            `Empleado ${values.name} ${values.lastName} creado correctamente`
+          )
         )
       } catch (error) {
         if (error instanceof BackendError) {
@@ -61,13 +63,13 @@ const CreateEmployee: FunctionComponent<Props> = ({ className }) => {
 
       <Form
         initialValues={{
-          employeeDni: '',
+          dni: '',
           name: '',
           lastName: '',
-          email: '',
           phone: '',
-          address: '',
-          role: '',
+          direction: '',
+          birthDate: '',
+          employeeType: TypeEmployee.Professor,
           submit: null
         }}
         title={'Crear Empleado'}
@@ -81,11 +83,10 @@ interface Props {
   className?: string
 }
 
-export enum EmployeeRole {
-  administrative = 'Administrativo',
-  professor = 'Profesor',
-  director = 'Director',
-  coordinator = 'Coordinador'
+export enum TypeEmployee {
+  Professor = 'professor',
+  Substitute = 'substitute',
+  Worker = 'worker'
 }
 
 export default styled(CreateEmployee)`

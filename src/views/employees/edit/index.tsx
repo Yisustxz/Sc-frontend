@@ -3,21 +3,26 @@ import { FunctionComponent, useCallback } from 'react'
 import MainCard from 'components/cards/MainCard'
 import { Typography } from '@mui/material'
 import styled from 'styled-components'
-import BackendError from 'exceptions/backend-error'
-import createRepresentative from 'services/representatives/create-representatives'
 import { useNavigate } from 'react-router'
+//own
+import BackendError from 'exceptions/backend-error'
+import { useAppDispatch } from '../../../store/index'
 import {
-  setErrorMessage,
   setIsLoading,
-  setSuccessMessage
+  setSuccessMessage,
+  setErrorMessage
 } from 'store/customizationSlice'
-import { useAppDispatch } from '../../store/index'
-import Form, { FormValues } from './form'
+import Form, { FormValues } from '../form'
+import editEmployee from 'services/employees/edit-employee'
+import useEmployeeById from './use-employee-by-id'
+import useEmployeeId from './use-employee-id'
 import { FormikHelpers } from 'formik'
 
-const CreateRepresentative: FunctionComponent<Props> = ({ className }) => {
+const EditEmployee: FunctionComponent<Props> = ({ className }) => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
+  const employeeId = useEmployeeId()
+  const employee = useEmployeeById(employeeId)
 
   const onSubmit = useCallback(
     async (
@@ -29,11 +34,11 @@ const CreateRepresentative: FunctionComponent<Props> = ({ className }) => {
         setErrors({})
         setStatus({})
         setSubmitting(true)
-        await createRepresentative(values)
-        navigate('/representatives')
+        await editEmployee(employeeId!, values)
+        navigate('/employees')
         dispatch(
           setSuccessMessage(
-            `representante ${values.name} ${values.lastName} creado correctamente`
+            `Empleado ${values.name} ${values.lastName} editado correctamente`
           )
         )
       } catch (error) {
@@ -50,30 +55,33 @@ const CreateRepresentative: FunctionComponent<Props> = ({ className }) => {
         setSubmitting(false)
       }
     },
-    [dispatch, navigate]
+    [employeeId, navigate, dispatch]
   )
 
   return (
     <div className={className}>
       <MainCard>
         <Typography variant='h3' component='h3'>
-          Representantes
+          Empleados
         </Typography>
       </MainCard>
-
-      <Form
-        initialValues={{
-          dni: '',
-          name: '',
-          lastName: '',
-          phone: '',
-          direction: '',
-          birthDate: '',
-          submit: null
-        }}
-        title={'Crear representante'}
-        onSubmit={onSubmit}
-      />
+      {employee && (
+        <Form
+          isUpdate={true}
+          initialValues={{
+            dni: employee.dni,
+            name: employee.name,
+            lastName: employee.lastName,
+            phone: employee.phone,
+            direction: employee.direction,
+            birthDate: employee.birthDate,
+            employeeType: employee.employeeType,
+            submit: null
+          }}
+          title={'Editar Empleado'}
+          onSubmit={onSubmit}
+        />
+      )}
     </div>
   )
 }
@@ -82,7 +90,7 @@ interface Props {
   className?: string
 }
 
-export default styled(CreateRepresentative)`
+export default styled(EditEmployee)`
   display: flex;
   flex-direction: column;
 

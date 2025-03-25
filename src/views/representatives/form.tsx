@@ -19,7 +19,7 @@ const Form: FunctionComponent<Props> = ({
 
   const extraValidations: any = isCreated
     ? {
-        representativeDni: Yup.string()
+        dni: Yup.string()
           .max(8)
           .required('La cedula del Representante es requerida')
       }
@@ -40,15 +40,12 @@ const Form: FunctionComponent<Props> = ({
           lastName: Yup.string()
             .max(30)
             .required('El apellido del Representante es requerido'),
-          email: Yup.string()
-            .max(30)
-            .required('El correo electrónico del Representante es requerido'),
           phone: Yup.string()
-            .max(11)
+            .max(30)
             .required('El teléfono del Representante es requerido'),
-          address: Yup.string()
+          direction: Yup.string()
             .max(11)
-            .required('La dirección del Representante es requerido')
+            .required('La direccion del Representante es requerido')
         })}
         onSubmit={onSubmit as any}
       >
@@ -67,21 +64,17 @@ const Form: FunctionComponent<Props> = ({
                 {isCreated && (
                   <FormControl className='field-form' fullWidth>
                     <TextField
-                      id='representativeDni'
+                      id='dni'
+                      type='number'
                       label='Cédula'
                       variant='outlined'
                       onBlur={handleBlur}
                       onChange={handleChange}
-                      value={values.representativeDni}
-                      helperText={
-                        touched.representativeDni
-                          ? errors.representativeDni
-                          : ''
-                      }
-                      error={
-                        touched.representativeDni && !!errors.representativeDni
-                      }
-                      name='representativeDni'
+                      value={values.dni}
+                      helperText={touched.dni ? errors.dni : ''}
+                      error={touched.dni && !!errors.dni}
+                      name='dni'
+                      inputProps={{ maxLength: 8 }}
                     />
                   </FormControl>
                 )}
@@ -96,11 +89,12 @@ const Form: FunctionComponent<Props> = ({
                     helperText={touched.name ? errors.name : ''}
                     error={touched.name && !!errors.name}
                     name='name'
+                    inputProps={{ maxLength: 30 }}
                   />
                 </FormControl>
                 <FormControl className='field-form' fullWidth>
                   <TextField
-                    id='name'
+                    id='lastName'
                     label='Apellido del Representante'
                     variant='outlined'
                     onBlur={handleBlur}
@@ -109,25 +103,14 @@ const Form: FunctionComponent<Props> = ({
                     helperText={touched.lastName ? errors.lastName : ''}
                     error={touched.lastName && !!errors.lastName}
                     name='lastName'
-                  />
-                </FormControl>
-                <FormControl className='field-form' fullWidth>
-                  <TextField
-                    id='email'
-                    label='Correo electrónico'
-                    variant='outlined'
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    value={values.email}
-                    helperText={touched.email ? errors.email : ''}
-                    error={touched.email && !!errors.email}
-                    name='email'
+                    inputProps={{ maxLength: 30 }}
                   />
                 </FormControl>
                 <FormControl className='field-form' fullWidth>
                   <TextField
                     id='phone'
-                    label='Teléfono'
+                    type='number'
+                    label='Numero de Telefono'
                     variant='outlined'
                     onBlur={handleBlur}
                     onChange={handleChange}
@@ -135,19 +118,40 @@ const Form: FunctionComponent<Props> = ({
                     helperText={touched.phone ? errors.phone : ''}
                     error={touched.phone && !!errors.phone}
                     name='phone'
+                    inputProps={{ maxLength: 11 }}
                   />
                 </FormControl>
                 <FormControl className='field-form' fullWidth>
                   <TextField
-                    id='address'
-                    label='Dirección'
+                    id='direction'
+                    label='direccion de casa'
                     variant='outlined'
                     onBlur={handleBlur}
                     onChange={handleChange}
-                    value={values.address}
-                    helperText={touched.address ? errors.address : ''}
-                    error={touched.address && !!errors.address}
-                    name='address'
+                    value={values.direction}
+                    helperText={touched.direction ? errors.direction : ''}
+                    error={touched.direction && !!errors.direction}
+                    name='direction'
+                  />
+                </FormControl>
+                <FormControl className='field-form' fullWidth>
+                  <TextField
+                    id='birthDate'
+                    label='Fecha de Nacimiento'
+                    variant='outlined'
+                    type='date'
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.birthDate}
+                    helperText={touched.birthDate ? errors.birthDate : ''}
+                    error={touched.birthDate && !!errors.birthDate}
+                    name='birthDate'
+                    InputLabelProps={{
+                      shrink: true
+                    }}
+                    inputProps={{
+                      max: new Date().toISOString().split('T')[0]
+                    }}
                   />
                 </FormControl>
               </div>
@@ -177,13 +181,12 @@ interface Props {
 }
 
 export type FormValues = {
-  representativeDni: string
+  dni: string
   name: string
   lastName: string
-  email: string
   phone: string
-  address: string
-  createdAt: string
+  direction: string
+  birthDate: string
   submit: string | null
 }
 

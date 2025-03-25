@@ -12,8 +12,8 @@ const UsersPage: FunctionComponent<Props> = ({ className }) => {
   const { users, paginate, setPage, fetchUsers } = usePaginate();
   
   const goToCreate = useCallback(() => {
-    navigate('/users/create');
-  }, [navigate]);
+    navigate('/users/create')
+  }, [navigate])
 
   return (
     <MainCard className={className} headerClass={'page-header'} title={
@@ -35,11 +35,11 @@ const UsersPage: FunctionComponent<Props> = ({ className }) => {
       onChange={setPage} 
       fetchItems={fetchUsers}/>
     </MainCard>
-  );
-};
+  )
+}
 
 interface Props {
-  className?: string;
+  className?: string
 }
 
 export default styled(UsersPage)`
@@ -54,4 +54,5 @@ export default styled(UsersPage)`
     justify-content: space-between;
     flex-direction: row;
   }
-`;
+`
+ 
