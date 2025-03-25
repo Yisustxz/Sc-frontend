@@ -5,16 +5,12 @@ import { Students } from 'core/students/types';
 import BackendError from 'exceptions/backend-error';
 import store from 'store';
 
-const URL = `${API_BASE_URL}/api/v1/estudiante`;
+const URL = `${API_BASE_URL}/student`;
 
 export default async function editClient(id: number , body: StudentPayload): Promise<Students> {
-  try {
-    const finalURL = `${URL}/${id}`;
-    console.log("URL generada:", finalURL); // ✅ Verifica que la URL sea correcta
-    console.log("Payload enviado:", body); // ✅ Verifica el contenido del body, 
+  try { 
     const response = await axios.put<Students>(
-      finalURL,
-      body,
+      `${URL}/${id}`,body,
       {
         headers: {
           Authorization: `Bearer ${store.getState().auth.token}`,

@@ -61,12 +61,12 @@ const CreateStudent: FunctionComponent<Props> = ({ className }) => {
 
       <Form
         initialValues={{
-          ci: '',
-          nombre: '',
-          apellido: '',
-          telefono: '',
-          direccion: '',
-          fechaNacimiento: '',
+          dni: '',
+          name: '',
+          lastName: '',
+          phone: '',
+          direction: '',
+          birthDate: '',
           submit: null
         }}
         title={'Crear Alumno'}

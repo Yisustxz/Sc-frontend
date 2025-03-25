@@ -62,19 +62,19 @@ const EditStudent: FunctionComponent<Props> = ({ className }) => {
     <div className={className}>
       <MainCard>
         <Typography variant='h3' component='h3'>
-          Clientes
+          Alumnos
         </Typography>
       </MainCard>
       {student && (
         <Form
           isUpdate={true}
           initialValues={{
-            ci: student.ci,
-            nombre: student.nombre,
-            apellido: student.apellido,
-            telefono: student.telefono,
-            direccion: student.direccion,
-            fechaNacimiento: student.fechaNacimiento,
+            dni: student.dni,
+            name: student.name,
+            lastName: student.lastName,
+            phone: student.phone,
+            direction: student.direction,
+            birthDate: student.birthDate,
             submit: null
           }}
           title={'Editar Alumno'}
