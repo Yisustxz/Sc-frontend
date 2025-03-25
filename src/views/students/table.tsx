@@ -61,6 +61,7 @@ const Table: FunctionComponent<Prop> = ({
 
   const formattedItems = items
     .map((item) => ({
+      id: item.id,
       dni: item.dni,
       phone: item.phone,
       direction: item.direction,

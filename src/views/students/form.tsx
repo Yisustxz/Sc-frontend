@@ -87,13 +87,14 @@ const Form: FunctionComponent<Props> = ({
                       helperText={touched.dni ? errors.dni : ''}
                       error={touched.dni && !!errors.dni}
                       name='dni'
+                      inputProps={{ maxLength: 8 }}
                     />
                   </FormControl>
                 )}
                 <FormControl className='field-form' fullWidth>
                   <TextField
                     id='name'
-                    label='Nombre'
+                    label='Nombres del Alumno'
                     variant='outlined'
                     onBlur={handleBlur}
                     onChange={handleChange}
@@ -106,7 +107,7 @@ const Form: FunctionComponent<Props> = ({
                 <FormControl className='field-form' fullWidth>
                   <TextField
                     id='lastName'
-                    label='Apellido'
+                    label='Apellidos del alumno'
                     variant='outlined'
                     onBlur={handleBlur}
                     onChange={handleChange}
@@ -119,7 +120,7 @@ const Form: FunctionComponent<Props> = ({
                 <FormControl className='field-form' fullWidth>
                   <TextField
                     id='phone'
-                    label='Teléfono'
+                    label='Numero de Telefono'
                     variant='outlined'
                     onBlur={handleBlur}
                     onChange={handleChange}
@@ -127,12 +128,13 @@ const Form: FunctionComponent<Props> = ({
                     helperText={touched.phone ? errors.phone : ''}
                     error={touched.phone && !!errors.phone}
                     name='phone'
+                    inputProps={{ maxLength: 11 }}
                   />
                 </FormControl>
                 <FormControl className='field-form' fullWidth>
                   <TextField
                     id='direction'
-                    label='Dirección'
+                    label='Dirección de casa '
                     variant='outlined'
                     onBlur={handleBlur}
                     onChange={handleChange}
@@ -156,6 +158,9 @@ const Form: FunctionComponent<Props> = ({
                     name='birthDate'
                     InputLabelProps={{
                       shrink: true
+                    }}
+                    inputProps={{
+                      max: new Date().toISOString().split('T')[0]
                     }}
                   />
                 </FormControl>
