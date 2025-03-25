@@ -65,7 +65,6 @@ const Form: FunctionComponent<Props> = ({
                   <FormControl className='field-form' fullWidth>
                     <TextField
                       id='dni'
-                      type='number'
                       label='Cédula'
                       variant='outlined'
                       onBlur={handleBlur}
@@ -109,7 +108,6 @@ const Form: FunctionComponent<Props> = ({
                 <FormControl className='field-form' fullWidth>
                   <TextField
                     id='phone'
-                    type='number'
                     label='Numero de Telefono'
                     variant='outlined'
                     onBlur={handleBlur}

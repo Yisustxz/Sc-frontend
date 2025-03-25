@@ -94,9 +94,7 @@ const Form: FunctionComponent<Props> = ({
                       error={touched.dni && !!errors.dni}
                       name='dni'
                       inputProps={{
-                        maxLength: 8,
-                        inputMode: 'numeric',
-                        pattern: '[0-9]*'
+                        maxLength: 8
                       }}
                     />
                   </FormControl>
