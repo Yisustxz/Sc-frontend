@@ -85,7 +85,6 @@ const Form: FunctionComponent<Props> = ({
                   <FormControl className='field-form' fullWidth>
                     <TextField
                       id='dni'
-                      type='number'
                       label='Cédula'
                       variant='outlined'
                       onBlur={handleBlur}
@@ -94,7 +93,11 @@ const Form: FunctionComponent<Props> = ({
                       helperText={touched.dni ? errors.dni : ''}
                       error={touched.dni && !!errors.dni}
                       name='dni'
-                      inputProps={{ maxLength: 8 }}
+                      inputProps={{
+                        maxLength: 8,
+                        inputMode: 'numeric',
+                        pattern: '[0-9]*'
+                      }}
                     />
                   </FormControl>
                 )}
@@ -129,7 +132,6 @@ const Form: FunctionComponent<Props> = ({
                 <FormControl className='field-form' fullWidth>
                   <TextField
                     id='phone'
-                    type='number'
                     label='Teléfono'
                     variant='outlined'
                     onBlur={handleBlur}
@@ -178,7 +180,7 @@ const Form: FunctionComponent<Props> = ({
                   <InputLabel id='role-label'>Seleccionar Rol</InputLabel>
                   <Select
                     id='role'
-                    name='role'
+                    name='employeeType'
                     value={values.employeeType}
                     onChange={handleChange}
                     onBlur={handleBlur}
