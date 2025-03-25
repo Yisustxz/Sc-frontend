@@ -65,6 +65,7 @@ const Form: FunctionComponent<Props> = ({
                   <FormControl className='field-form' fullWidth>
                     <TextField
                       id='dni'
+                      type='number'
                       label='Cédula'
                       variant='outlined'
                       onBlur={handleBlur}
@@ -73,6 +74,7 @@ const Form: FunctionComponent<Props> = ({
                       helperText={touched.dni ? errors.dni : ''}
                       error={touched.dni && !!errors.dni}
                       name='dni'
+                      inputProps={{ maxLength: 8 }}
                     />
                   </FormControl>
                 )}
@@ -87,6 +89,7 @@ const Form: FunctionComponent<Props> = ({
                     helperText={touched.name ? errors.name : ''}
                     error={touched.name && !!errors.name}
                     name='name'
+                    inputProps={{ maxLength: 30 }}
                   />
                 </FormControl>
                 <FormControl className='field-form' fullWidth>
@@ -100,11 +103,13 @@ const Form: FunctionComponent<Props> = ({
                     helperText={touched.lastName ? errors.lastName : ''}
                     error={touched.lastName && !!errors.lastName}
                     name='lastName'
+                    inputProps={{ maxLength: 30 }}
                   />
                 </FormControl>
                 <FormControl className='field-form' fullWidth>
                   <TextField
                     id='phone'
+                    type='number'
                     label='Numero de Telefono'
                     variant='outlined'
                     onBlur={handleBlur}
@@ -113,6 +118,7 @@ const Form: FunctionComponent<Props> = ({
                     helperText={touched.phone ? errors.phone : ''}
                     error={touched.phone && !!errors.phone}
                     name='phone'
+                    inputProps={{ maxLength: 11 }}
                   />
                 </FormControl>
                 <FormControl className='field-form' fullWidth>
@@ -142,6 +148,9 @@ const Form: FunctionComponent<Props> = ({
                     name='birthDate'
                     InputLabelProps={{
                       shrink: true
+                    }}
+                    inputProps={{
+                      max: new Date().toISOString().split('T')[0]
                     }}
                   />
                 </FormControl>
