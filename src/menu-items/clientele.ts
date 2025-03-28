@@ -99,6 +99,29 @@ const other: MenuItem = {
           breadcrumbs: false,
         }
       ]
+    },
+    {
+      id: "AcademicYear",
+      title: "Años escolares",
+      type: MenuItemType.Collapse,
+      icon: IconUsers,
+      breadcrumbs: false,
+      children: [
+        {
+          id: 'list-academic-year',
+          title: 'Lista de años escolares',
+          type: MenuItemType.Item,
+          url: '/schoolar-year',
+          breadcrumbs: false,
+        },
+        {
+          id: 'create-academic-year',
+          title: 'Crear año escolar',
+          type: MenuItemType.Item,
+          url: '/schoolar-year/create',
+          breadcrumbs: false,
+        }
+      ]
     }
   ]
 }
