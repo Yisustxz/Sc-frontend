@@ -1,29 +1,18 @@
 import { FunctionComponent, useCallback, useState } from 'react'
 import MainCard from 'components/cards/MainCard'
 import { useNavigate } from 'react-router'
+import usePaginate from './use-paginate'
 import { styled } from 'styled-components'
 import { Button, Typography } from '@mui/material'
 import { IconCirclePlus } from '@tabler/icons'
 import Table from './table'
 
-const DUMMY_DATA = [
-  { id: 1, code: '2020-2021', startDate: '2020-09-01', endDate: '2021-07-31' },
-  { id: 2, code: '2021-2022', startDate: '2021-09-01', endDate: '2022-07-31' },
-  { id: 3, code: '2022-2023', startDate: '2022-09-01', endDate: '2023-07-31' }
-]
-
 const SchoolarYearPage: FunctionComponent<Props> = ({ className }) => {
   const navigate = useNavigate()
-  const [page, setPage] = useState(1)
-  const paginate = { totalItems: 0, page: 1, perPage: 5, totalPages: 0 }
-
+  const { schoolarYear, paginate, setPage, fetchSchoolarYear } = usePaginate()
   const goToCreate = useCallback(() => {
     navigate('/schoolar-year/create')
   }, [navigate])
-
-  const fetchItems = useCallback(() => {
-    console.log('Fetching items...') // aquí luego llamarás al servicio real
-  }, [])
 
   return (
     <MainCard
@@ -46,10 +35,10 @@ const SchoolarYearPage: FunctionComponent<Props> = ({ className }) => {
       }
     >
       <Table
-        items={DUMMY_DATA}
+        items={schoolarYear}
         paginate={paginate}
-        onChange={() => setPage(page)}
-        fetchItems={fetchItems}
+        onChange={setPage}
+        fetchItems={fetchSchoolarYear}
       />
     </MainCard>
   )

@@ -3,21 +3,26 @@ import { FunctionComponent, useCallback } from 'react'
 import MainCard from 'components/cards/MainCard'
 import { Typography } from '@mui/material'
 import styled from 'styled-components'
-import BackendError from 'exceptions/backend-error'
 import { useNavigate } from 'react-router'
+// own
+import BackendError from 'exceptions/backend-error'
+import { useAppDispatch } from '../../../store/index'
 import {
-  setErrorMessage,
   setIsLoading,
-  setSuccessMessage
+  setSuccessMessage,
+  setErrorMessage
 } from 'store/customizationSlice'
-import { useAppDispatch } from 'store/index'
-import Form, { FormValues } from './form'
+import Form, { FormValues } from '../form'
+import editSchoolarYear from 'services/schoolar-year/edit-schoolar-year'
+import useSchoolarYearById from './use-schoolar-year-by-id'
+import useSchoolarYearId from './use-schoolar-year-id'
 import { FormikHelpers } from 'formik'
-import createSchoolarYear from 'services/schoolar-year/create-schoolar-year'
 
-const CreateSchoolarYear: FunctionComponent<Props> = ({ className }) => {
+const EditSchoolarYear: FunctionComponent<Props> = ({ className }) => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
+  const schoolarYearId = useSchoolarYearId()
+  const schoolarYear = useSchoolarYearById(schoolarYearId)
 
   const onSubmit = useCallback(
     async (
@@ -29,18 +34,26 @@ const CreateSchoolarYear: FunctionComponent<Props> = ({ className }) => {
         setErrors({})
         setStatus({})
         setSubmitting(true)
+
         const payload = {
           schoolarYear: {
             code: values.code,
             startDate: values.startDate,
             endDate: values.endDate
           },
-          lapses: values.lapses
+          lapses: values.lapses.map((lapse, index) => ({
+            lapseNumber: index + 1,
+            startDate: lapse.startDate,
+            endDate: lapse.endDate,
+            scholarCourts: lapse.scholarCourts
+          }))
         }
-        await createSchoolarYear(payload)
+
+        await editSchoolarYear(schoolarYearId!, payload)
+
         navigate('/schoolar-year')
         dispatch(
-          setSuccessMessage(`Año Escolar ${values.code} creado correctamente`)
+          setSuccessMessage(`Año Escolar ${values.code} editado correctamente`)
         )
       } catch (error) {
         if (error instanceof BackendError) {
@@ -56,7 +69,7 @@ const CreateSchoolarYear: FunctionComponent<Props> = ({ className }) => {
         setSubmitting(false)
       }
     },
-    [dispatch, navigate]
+    [schoolarYearId, navigate, dispatch]
   )
 
   return (
@@ -66,29 +79,26 @@ const CreateSchoolarYear: FunctionComponent<Props> = ({ className }) => {
           Años Escolares
         </Typography>
       </MainCard>
-
-      <Form
-        initialValues={{
-          code: '',
-          startDate: '',
-          endDate: '',
-          lapses: [
-            {
-              startDate: '',
-              endDate: '',
-              scholarCourts: [
-                {
-                  startDate: '',
-                  endDate: ''
-                }
-              ]
-            }
-          ],
-          submit: null
-        }}
-        title={'Crear Año Escolar'}
-        onSubmit={onSubmit}
-      />
+      {schoolarYear && (
+        <Form
+          isUpdate={true}
+          initialValues={{
+            code: schoolarYear.code,
+            startDate: schoolarYear.startDate,
+            endDate: schoolarYear.endDate,
+            lapses: schoolarYear.lapses.map((lapse) => ({
+              startDate: lapse.startDate,
+              endDate: lapse.endDate,
+              scholarCourts: Array.isArray(lapse.scholarCourts)
+                ? lapse.scholarCourts
+                : []
+            })),
+            submit: null
+          }}
+          title={'Editar Año Escolar'}
+          onSubmit={onSubmit}
+        />
+      )}
     </div>
   )
 }
@@ -97,7 +107,7 @@ interface Props {
   className?: string
 }
 
-export default styled(CreateSchoolarYear)`
+export default styled(EditSchoolarYear)`
   display: flex;
   flex-direction: column;
 
