@@ -14,6 +14,7 @@ export default function useUserByDni(id: string | null) {
     try {
       dispatch(setIsLoading(true));
       const response = await getUser(id);
+      console.log('response: ', response);
       setUser(response);
     } catch (error) {
       if (error instanceof BackendError)

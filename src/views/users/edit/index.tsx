@@ -9,7 +9,7 @@ import BackendError from 'exceptions/backend-error';
 import { useAppDispatch } from '../../../store/index';
 import { setIsLoading, setSuccessMessage, setErrorMessage } from 'store/customizationSlice';
 import Form, { FormValues } from '../form';
-import User from 'services/users/edit-user';
+import editUser from 'services/users/edit-user';
 import useUserByDni from './use-user-by-dni';
 import useUserDni from './use-user-dni';
 import { FormikHelpers } from 'formik';
@@ -26,7 +26,7 @@ const EditUser: FunctionComponent<Props> = ({className}) => {
       setErrors({});
       setStatus({});
       setSubmitting(true);
-     // await EditUser(id!, values);
+      await editUser(id!, values);
       navigate('/users');
       dispatch(setSuccessMessage(`Usuario ${values.name} editado correctamente`));
     } catch (error) {
@@ -56,7 +56,6 @@ const EditUser: FunctionComponent<Props> = ({className}) => {
           <Form
             isUpdate={true}
             initialValues={{
-              id: user.id,
               name: user.name,
               email: user.email,
               role: user.role,

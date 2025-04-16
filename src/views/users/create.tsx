@@ -22,7 +22,7 @@ const CreateUser: FunctionComponent<Props> = ({className}) => {
       setSubmitting(true);
       await createUser(values);
       navigate('/users');
-      dispatch(setSuccessMessage(`Usuarios ${values.name} creado correctamente`));
+      dispatch(setSuccessMessage(`Usuario ${values.name} creado correctamente`));
     } catch (error) {
       if (error instanceof BackendError) {
         setErrors({
@@ -48,7 +48,6 @@ const CreateUser: FunctionComponent<Props> = ({className}) => {
 
       <Form
         initialValues={{
-          id: '',
           name: '',
           email: '',
           role: '',

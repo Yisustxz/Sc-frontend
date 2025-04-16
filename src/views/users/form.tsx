@@ -18,7 +18,7 @@ const Form: FunctionComponent<Props> = ({
   isUpdate
 }) => {
   const isCreated = !isUpdate
-
+  console.log('initial values',initialValues);
   return (
     <div className={className}>
       <Formik
@@ -134,7 +134,6 @@ interface Props {
 }
 
 export type FormValues = {
-  id: string
   name: string
   email: string
   role: string
