@@ -6,6 +6,7 @@ import MainCard from 'components/cards/MainCard'
 import { Button, FormControl, FormHelperText, TextField } from '@mui/material'
 import styled from 'styled-components'
 import SelectField from 'components/SelectField'
+import { getRolesAsOptions } from 'core/users/use-user-roles'
 
 const USE_AUTOCOMPLETES = false
 
@@ -38,10 +39,6 @@ const Form: FunctionComponent<Props> = ({
           password: Yup.string()
             .max(30)
             .required('La contraseña del usuario es requerida'),
-          confirmPassword: Yup.string()
-            .max(30)
-            .required('La confirmación de la contraseña del usuario es requerida')
-            .oneOf([Yup.ref('password'), null], 'Las contraseñas deben coincidir'),
           submit: Yup.string().nullable()
         })}
         onSubmit={onSubmit as any}
@@ -74,10 +71,7 @@ const Form: FunctionComponent<Props> = ({
                 <SelectField
                     fullWidth={true}
                     className="field-form"        
-                    options={[
-                      { label: 'profesor', value: 'nya',},
-                      { label: 'empleado', value: 'nya'}
-                      ]}
+                    options={getRolesAsOptions()}
                     helperText={touched.role ? errors.role : ""}
                     label='Rol'
                     onBlur={handleBlur}
@@ -85,6 +79,7 @@ const Form: FunctionComponent<Props> = ({
                     value={values.role}
                     error={touched.role && !!errors.role}
                     name='role'
+                    isAutocomplete={USE_AUTOCOMPLETES}
                   />
                 <FormControl className='field-form' fullWidth>
                   <TextField
@@ -110,19 +105,6 @@ const Form: FunctionComponent<Props> = ({
                     helperText={touched.password ? errors.password : ''}
                     error={touched.password && !!errors.password}
                     name='password'
-                  />
-                </FormControl>
-                <FormControl className='field-form' fullWidth>
-                  <TextField
-                    id='confirmPassword'
-                    label='Confirme contraseña'
-                    variant='outlined'
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    value={values.confirmPassword}
-                    helperText={touched.confirmPassword ? errors.confirmPassword : ''}
-                    error={touched.confirmPassword && !!errors.confirmPassword}
-                    name='confirmPassword'
                   />
                 </FormControl>
               </div>
@@ -157,7 +139,6 @@ export type FormValues = {
   email: string
   role: string
   password: string,
-  confirmPassword: string,
   submit: string | null
 }
 

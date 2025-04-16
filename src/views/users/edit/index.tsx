@@ -61,7 +61,6 @@ const EditUser: FunctionComponent<Props> = ({className}) => {
               email: user.email,
               role: user.role,
               password: user.password,
-              confirmPassword: user.confirmPassword,
               submit: null
             }}
             title={'Editar usuario'}
