@@ -14,6 +14,7 @@ import { IconEdit, IconTrash } from '@tabler/icons'
 import { useNavigate } from 'react-router'
 import DialogDelete from 'components/dialogDelete'
 import { SchoolarYear } from 'core/schoolar-year/types'
+import deleteSchoolarYear from 'services/schoolar-year/delete-schoolar-year'
 
 const Table: FunctionComponent<Prop> = ({
   items,
@@ -41,8 +42,7 @@ const Table: FunctionComponent<Prop> = ({
     async (id: number) => {
       try {
         dispatch(setIsLoading(true))
-        // Aquí deberías llamar a un servicio de eliminación de año escolar
-        // await deleteSchoolarYear(id)
+        await deleteSchoolarYear(id)
         dispatch(setSuccessMessage(`Año escolar eliminado correctamente`))
       } catch (error) {
         if (error instanceof BackendError) {
