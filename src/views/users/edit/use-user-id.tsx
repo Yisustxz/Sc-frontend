@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 
-export default function useUserDni() {
+export default function useUserId() {
   const navigate = useNavigate();
   const params = useParams();
 

@@ -6,7 +6,7 @@ import { useAppDispatch } from '../../../store/index';
 import { User } from 'core/users/types';
 import getUser from 'services/users/get-user';
 
-export default function useUserByDni(id: string | null) {
+export default function useUserById(id: string | null) {
   const dispatch = useAppDispatch();
   const [user, setUser] = useState<User | null>(null);
 

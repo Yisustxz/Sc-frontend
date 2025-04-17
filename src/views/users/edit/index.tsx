@@ -10,15 +10,15 @@ import { useAppDispatch } from '../../../store/index';
 import { setIsLoading, setSuccessMessage, setErrorMessage } from 'store/customizationSlice';
 import Form, { FormValues } from '../form';
 import editUser from 'services/users/edit-user';
-import useUserByDni from './use-user-by-dni';
-import useUserDni from './use-user-dni';
+import useUserById from './use-user-by-id';
+import useUserId from './use-user-id';
 import { FormikHelpers } from 'formik';
 
 const EditUser: FunctionComponent<Props> = ({className}) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const id = useUserDni();
-  const user = useUserByDni(id);
+  const id = useUserId();
+  const user = useUserById(id);
 
   const onSubmit = useCallback(async (values: any, { setErrors, setStatus, setSubmitting }: FormikHelpers<FormValues>) => {
     try {
