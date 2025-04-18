@@ -25,6 +25,7 @@ import EditSchoolarYear from 'views/schoolar-year/edit'
 import Courses from 'views/courses'
 import CreateCourse from 'views/courses/create'
 import EditCourse from 'views/courses/edit'
+import EditClient from 'services/clients/edit-client'
 
 
 const GeneralRoutes: RouteObject[] = [
