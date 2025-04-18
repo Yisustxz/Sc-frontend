@@ -6,6 +6,7 @@ import MainCard from 'components/cards/MainCard'
 import { Button, FormControl, FormHelperText, TextField } from '@mui/material'
 import styled from 'styled-components'
 import SelectField from 'components/SelectField'
+import { getRolesAsOptions } from 'core/users/use-user-roles'
 
 const USE_AUTOCOMPLETES = false
 
@@ -16,7 +17,14 @@ const Form: FunctionComponent<Props> = ({
   initialValues,
   isUpdate
 }) => {
-  const isCreated = !isUpdate
+  const isCreated = !isUpdate;
+
+  const extraValidations: any = isCreated
+    ? {
+        password: Yup.string()
+          .max(30)
+          .required('La contraseña del usuario es requerida')}
+    : {};
 
   return (
     <div className={className}>
@@ -25,7 +33,9 @@ const Form: FunctionComponent<Props> = ({
         validateOnBlur={false}
         validateOnMount={false}
         initialValues={initialValues}
-        validationSchema={Yup.object().shape({
+        validationSchema={
+          Yup.object().shape({
+          ...extraValidations,
           name: Yup.string()
             .max(30)
             .required('El nombre del usuario es requerido'),
@@ -35,13 +45,11 @@ const Form: FunctionComponent<Props> = ({
           role: Yup.string()
             .max(11)
             .required('El rol del usuario es requerido'),
-          password: Yup.string()
-            .max(30)
-            .required('La contraseña del usuario es requerida'),
-          confirmPassword: Yup.string()
-            .max(30)
-            .required('La confirmación de la contraseña del usuario es requerida')
-            .oneOf([Yup.ref('password'), null], 'Las contraseñas deben coincidir'),
+          password: isUpdate
+            ? Yup.string().max(30) 
+            : Yup.string()
+                .max(30)
+                .required('La contraseña del usuario es requerida'),
           submit: Yup.string().nullable()
         })}
         onSubmit={onSubmit as any}
@@ -74,10 +82,7 @@ const Form: FunctionComponent<Props> = ({
                 <SelectField
                     fullWidth={true}
                     className="field-form"        
-                    options={[
-                      { label: 'profesor', value: 'nya',},
-                      { label: 'empleado', value: 'nya'}
-                      ]}
+                    options={getRolesAsOptions()}
                     helperText={touched.role ? errors.role : ""}
                     label='Rol'
                     onBlur={handleBlur}
@@ -85,6 +90,7 @@ const Form: FunctionComponent<Props> = ({
                     value={values.role}
                     error={touched.role && !!errors.role}
                     name='role'
+                    isAutocomplete={USE_AUTOCOMPLETES}
                   />
                 <FormControl className='field-form' fullWidth>
                   <TextField
@@ -110,19 +116,6 @@ const Form: FunctionComponent<Props> = ({
                     helperText={touched.password ? errors.password : ''}
                     error={touched.password && !!errors.password}
                     name='password'
-                  />
-                </FormControl>
-                <FormControl className='field-form' fullWidth>
-                  <TextField
-                    id='confirmPassword'
-                    label='Confirme contraseña'
-                    variant='outlined'
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    value={values.confirmPassword}
-                    helperText={touched.confirmPassword ? errors.confirmPassword : ''}
-                    error={touched.confirmPassword && !!errors.confirmPassword}
-                    name='confirmPassword'
                   />
                 </FormControl>
               </div>
@@ -152,12 +145,10 @@ interface Props {
 }
 
 export type FormValues = {
-  id: string
   name: string
   email: string
   role: string
   password: string,
-  confirmPassword: string,
   submit: string | null
 }
 

@@ -9,7 +9,8 @@ const URL = `${API_BASE_URL}/users`;
 
 export default async function editUser(id: string, body: UserPayload): Promise<User> {
   try {
-    const response = await axios.put<User>(
+    console.log('lo que envio:',id, body);
+    const response = await axios.patch<User>(
         `${URL}/${id}`, body, {
         headers: {
           Authorization: `Bearer ${store.getState().auth.token}`,
