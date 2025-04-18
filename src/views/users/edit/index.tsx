@@ -44,7 +44,6 @@ const EditUser: FunctionComponent<Props> = ({className}) => {
     }
   }, [id, navigate, dispatch]);
 
-  console.log('user: ', user);
   return (
     <div className={className}>
       <MainCard>
