@@ -17,8 +17,15 @@ const Form: FunctionComponent<Props> = ({
   initialValues,
   isUpdate
 }) => {
-  const isCreated = !isUpdate
-  console.log('initial values',initialValues);
+  const isCreated = !isUpdate;
+
+  const extraValidations: any = isCreated
+    ? {
+        password: Yup.string()
+          .max(30)
+          .required('La contraseña del usuario es requerida')}
+    : {};
+
   return (
     <div className={className}>
       <Formik
@@ -26,7 +33,9 @@ const Form: FunctionComponent<Props> = ({
         validateOnBlur={false}
         validateOnMount={false}
         initialValues={initialValues}
-        validationSchema={Yup.object().shape({
+        validationSchema={
+          Yup.object().shape({
+          ...extraValidations,
           name: Yup.string()
             .max(30)
             .required('El nombre del usuario es requerido'),
@@ -36,9 +45,11 @@ const Form: FunctionComponent<Props> = ({
           role: Yup.string()
             .max(11)
             .required('El rol del usuario es requerido'),
-          password: Yup.string()
-            .max(30)
-            .required('La contraseña del usuario es requerida'),
+          password: isUpdate
+            ? Yup.string().max(30) // Optional in edit mode
+            : Yup.string()
+                .max(30)
+                .required('La contraseña del usuario es requerida'), // Required in create mode
           submit: Yup.string().nullable()
         })}
         onSubmit={onSubmit as any}

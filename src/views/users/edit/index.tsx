@@ -44,6 +44,7 @@ const EditUser: FunctionComponent<Props> = ({className}) => {
     }
   }, [id, navigate, dispatch]);
 
+  console.log('user: ', user);
   return (
     <div className={className}>
       <MainCard>
@@ -59,7 +60,7 @@ const EditUser: FunctionComponent<Props> = ({className}) => {
               name: user.name,
               email: user.email,
               role: user.role,
-              password: user.password,
+              password: '',
               submit: null
             }}
             title={'Editar usuario'}
