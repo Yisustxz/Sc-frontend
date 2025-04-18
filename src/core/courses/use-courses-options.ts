@@ -1,5 +1,5 @@
 import { SelectOption } from "components/SelectField";
-import { Subject } from "core/courses/types";
+import { Course } from "core/courses/types";
 import BackendError from "exceptions/backend-error";
 import { useCallback, useEffect, useState } from "react";
 import getAllCourses from "services/courses/get-all-courses";
@@ -7,7 +7,7 @@ import { useAppDispatch } from "store";
 import { setErrorMessage, setIsLoading } from "store/customizationSlice";
 
 export default function useCoursesOptions(): SelectOption[] {
-  const [courses, setCourses] = useState<Subject[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
   const dispatch = useAppDispatch();
 
   const fetchCourses = useCallback(async () => {
@@ -27,8 +27,8 @@ export default function useCoursesOptions(): SelectOption[] {
     fetchCourses();
   }, [fetchCourses]);
 
-  return courses.map(subject => ({
-    label: subject.name,
-    value: subject.id,
+  return courses.map(course => ({
+    label: course.name,
+    value: course.id,
   }));
 }

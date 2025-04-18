@@ -57,7 +57,7 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
                     { columnLabel: 'tipo de asignatura', fieldName: 'subjectType', cellAlignment: 'left' },
                 ]}
                 rows={items} components={[
-                    (row: Subject) =>
+                    (row: Course) =>
                         <Button
                             color="primary"
                             onClick={() => { navigate('/courses/edit/'+row.id) }}
@@ -65,7 +65,7 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
                         >
                             Editar
                         </Button>,
-                    (row: Subject) =>
+                    (row: Course) =>
                         <Button 
                             color="secondary" 
                             onClick={ () => handleOpen(row.id) }
@@ -96,7 +96,7 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
 }
 
 interface Prop {
-    items: Subject[];
+    items: Course[];
     paginate: PaginateData;
     className?: string;
     onChange: (page: number) => void;
