@@ -1,41 +1,21 @@
 // assets
-import { IconUsers } from '@tabler/icons';
+import { 
+  IconUserPlus, 
+  IconUsers, 
+  IconSchool 
+} from '@tabler/icons';
 import { MenuItem, MenuItemType } from './types';
-// constant
 
-const other: MenuItem = {
-  id: 'agencies-crud-category-clientele',
+const people: MenuItem = {
+  id: 'people',
   type: MenuItemType.Group,
-  title: 'Usuarios',
+  title: 'Personas',
   children: [
-    {
-      id: 'clients',
-      title: 'Clientes',
-      type: MenuItemType.Collapse,
-      icon: IconUsers,
-      breadcrumbs: false,
-      children: [
-        {
-          id: 'list-clients',
-          title: 'Lista de clientes',
-          type: MenuItemType.Item,
-          url: '/clients',
-          breadcrumbs: false,
-        },
-        {
-          id: 'create-clients',
-          title: 'Crear cliente',
-          type: MenuItemType.Item,
-          url: '/clients/create',
-          breadcrumbs: false,
-        }
-      ]
-    },
     {
       id: 'representatives',
       title: 'Representantes',
       type: MenuItemType.Collapse,
-      icon: IconUsers,
+      icon: IconUserPlus,
       breadcrumbs: false,
       children: [
         {
@@ -81,7 +61,7 @@ const other: MenuItem = {
       id: "students",
       title: "Estudiantes",
       type: MenuItemType.Collapse,
-      icon: IconUsers,
+      icon: IconSchool,
       breadcrumbs: false,
       children: [
         {
@@ -99,30 +79,8 @@ const other: MenuItem = {
           breadcrumbs: false,
         }
       ]
-    },
-    {
-      id: "AcademicYear",
-      title: "Años escolares",
-      type: MenuItemType.Collapse,
-      icon: IconUsers,
-      breadcrumbs: false,
-      children: [
-        {
-          id: 'list-academic-year',
-          title: 'Lista de años escolares',
-          type: MenuItemType.Item,
-          url: '/schoolar-year',
-          breadcrumbs: false,
-        },
-        {
-          id: 'create-academic-year',
-          title: 'Crear año escolar',
-          type: MenuItemType.Item,
-          url: '/schoolar-year/create',
-          breadcrumbs: false,
-        }
-      ]
     }
   ]
-}
-export default other;
+};
+
+export default people; 

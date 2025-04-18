@@ -1,12 +1,13 @@
-import clientele from './clientele';
 import dashboard from './dashboard';
+import generalities from './generalities';
+import people from './people';
+import school from './school';
 import { MenuItem } from './types';
-import users from './users';
 
 // ==============================|| MENU ITEMS ||============================== //
 
 const menuItems: { items: MenuItem[] } = {
-  items: [dashboard,clientele,users]
+  items: [dashboard, generalities, people, school]
 };
 
 export default menuItems;

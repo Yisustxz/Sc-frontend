@@ -1,11 +1,6 @@
 // project imports
 import { RouteObject } from 'react-router'
 
-//Clients
-import Clients from 'views/clients'
-import CreateClient from 'views/clients/create'
-import EditClient from 'views/clients/edit'
-
 import RepresentativesPage from 'views/representatives'
 import CreateRepresentative from 'views/representatives/create'
 import EditRepresentative from 'views/representatives/edit'
@@ -14,9 +9,9 @@ import EmployeesPage from 'views/employees'
 import CreateEmployee from 'views/employees/create'
 import EditEmployee from 'views/employees/edit'
 //Users
-/* import Users from 'views/users'
+import Users from 'views/users'
 import CreateUser from 'views/users/create'
-import EditUser from 'views/users/edit' */
+import EditUser from 'views/users/edit'
 
 import StudentsPage from 'views/students'
 import CreateStudent from 'views/students/create'
@@ -29,19 +24,6 @@ import EditSchoolarYear from 'views/schoolar-year/edit'
 const GeneralRoutes: RouteObject[] = [
   //aqui se van a añadir las rutas de cada modulo
 
-  //Clientes
-  {
-    path: 'clients',
-    element: <Clients />
-  },
-  {
-    path: 'clients/create',
-    element: <CreateClient />
-  },
-  {
-    path: 'clients/edit/:id',
-    element: <EditClient />
-  },
   //Representantes
   {
     path: 'representatives',
@@ -69,7 +51,7 @@ const GeneralRoutes: RouteObject[] = [
     element: <EditEmployee />
   },
   //Usuarios
-  /*   {
+  {
     path: 'users',
     element: <Users />
   },
@@ -80,8 +62,8 @@ const GeneralRoutes: RouteObject[] = [
   {
     path: 'users/edit/:id',
     element: <EditUser />
-  }, */
-  //estudiantes
+  },
+  //Estudiantes
   {
     path: 'students',
     element: <StudentsPage />

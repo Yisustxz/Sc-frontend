@@ -1,18 +1,17 @@
 // assets
-import { IconUsers } from '@tabler/icons';
+import { IconUser } from '@tabler/icons';
 import { MenuItem, MenuItemType } from './types';
-// constant
 
-const other: MenuItem = {
-  id: 'agencies-crud-category-users',
+const generalities: MenuItem = {
+  id: 'generalities',
   type: MenuItemType.Group,
-  title: 'Usuarios',
+  title: 'Generalidades',
   children: [
     {
-      id: 'usuarios',
+      id: 'users',
       title: 'Usuarios',
       type: MenuItemType.Collapse,
-      icon: IconUsers,
+      icon: IconUser,
       breadcrumbs: false,
       children: [
         {
@@ -34,4 +33,4 @@ const other: MenuItem = {
   ]
 };
 
-export default other;
+export default generalities; 
