@@ -46,10 +46,10 @@ const Form: FunctionComponent<Props> = ({
             .max(11)
             .required('El rol del usuario es requerido'),
           password: isUpdate
-            ? Yup.string().max(30) // Optional in edit mode
+            ? Yup.string().max(30) 
             : Yup.string()
                 .max(30)
-                .required('La contraseña del usuario es requerida'), // Required in create mode
+                .required('La contraseña del usuario es requerida'),
           submit: Yup.string().nullable()
         })}
         onSubmit={onSubmit as any}
