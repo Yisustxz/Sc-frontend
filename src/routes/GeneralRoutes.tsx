@@ -11,6 +11,7 @@ import Courses from 'views/courses'
 import CreateCourse from 'views/courses/create'
 import EditCourse from 'views/courses/edit'
 
+
 const GeneralRoutes: RouteObject[] = [
   //aqui se van a añadir las rutas de cada modulo
 

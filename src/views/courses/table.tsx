@@ -52,9 +52,6 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
                 headers={[
                     { columnLabel: 'Nombre', fieldName: 'name', cellAlignment: 'left' },
                     { columnLabel: 'grado', fieldName: 'grade', cellAlignment: 'left' },
-                    { columnLabel: 'profesor', fieldName: 'teacher', cellAlignment: 'left' },
-                    { columnLabel: 'horas semanales', fieldName: 'weeklyHours', cellAlignment: 'left' },
-                    { columnLabel: 'tipo de asignatura', fieldName: 'subjectType', cellAlignment: 'left' },
                 ]}
                 rows={items} components={[
                     (row: Course) =>

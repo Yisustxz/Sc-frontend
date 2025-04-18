@@ -49,12 +49,8 @@ const CreateCourse: FunctionComponent<Props> = ({className}) => {
 
       <Form
         initialValues={{
-          id: '',
           name: '',
           grade: '',
-          teacher: '',
-          weeklyHours: null,
-          subjectType: '',
           submit: null
         }}
         title={'Crear asignatura'}

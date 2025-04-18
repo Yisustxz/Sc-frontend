@@ -9,6 +9,7 @@ const URL = `${API_BASE_URL}/courses`;
 
 export default async function createCourse(body: CoursePayload): Promise<Course> {
   try {
+    console.log('body',body);
     const response = await axios.post<Course>(
         URL, body, {
         headers: {

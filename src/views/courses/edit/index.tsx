@@ -56,12 +56,8 @@ const EditCourse: FunctionComponent<Props> = ({className}) => {
           <Form
             isUpdate={true}
             initialValues={{
-              id: course.id,
               name: course.name,
               grade: course.grade,
-              teacher: course.teacher,
-              weeklyHours: course.weeklyHours,
-              subjectType: course.subjectType,
               submit: null
             }}
             title={'Editar asignatura'}
