@@ -9,6 +9,8 @@ const URL = `${API_BASE_URL}/users`;
 
 export default async function createUser(body: UserPayload): Promise<User> {
   try {
+    console.log('body: ', body);
+
     const response = await axios.post<User>(
         URL, body, {
         headers: {
@@ -16,8 +18,6 @@ export default async function createUser(body: UserPayload): Promise<User> {
         }
       }
     );
-    console.log('aqui: ',URL);
-
     return response.data;
   } catch (error: unknown) {
     console.log(error);
