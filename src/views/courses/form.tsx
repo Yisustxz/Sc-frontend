@@ -116,7 +116,6 @@ const Form: FunctionComponent<Props> = ({
                       { label: 'cuantitativa', value: 'nya'}
                       ]}
                     helperText={touched.subjectType ? errors.subjectType : ""}
-                    id='subjectType'
                     label='Tipo de asignatura'
                     onBlur={handleBlur}
                     onChange={handleChange}
