@@ -17,9 +17,9 @@ import StudentsPage from 'views/students'
 import CreateStudent from 'views/students/create'
 import EditStudent from 'views/students/edit'
 
-import SchoolarYear from 'views/schoolar-year'
-import CreateSchoolarYear from 'views/schoolar-year/create'
-import EditSchoolarYear from 'views/schoolar-year/edit'
+import SchoolYears from 'views/school-years'
+import CreateSchoolYear from 'views/school-years/create'
+import EditSchoolYear from 'views/school-years/edit'
 
 //Courses
 import Courses from 'views/courses'
@@ -84,16 +84,16 @@ const GeneralRoutes: RouteObject[] = [
   },
   //Años escolares
   {
-    path: 'schoolar-year',
-    element: <SchoolarYear />
+    path: 'school-years',
+    element: <SchoolYears />
   },
   {
-    path: 'schoolar-year/create',
-    element: <CreateSchoolarYear />
+    path: 'school-years/create',
+    element: <CreateSchoolYear />
   },
   {
-    path: 'schoolar-year/edit/:id',
-    element: <EditSchoolarYear />
+    path: 'school-years/edit/:id',
+    element: <EditSchoolYear />
   },
    //Asignaturas
   {

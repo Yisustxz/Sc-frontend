@@ -11,10 +11,11 @@ import {
 import { useAppDispatch } from 'store/index'
 import Form, { FormValues } from './form'
 import { FormikHelpers } from 'formik'
-import createSchoolarYear from 'services/schoolar-year/create-schoolar-year'
+import createSchoolYear from 'services/school-year/create-school-year'
 import BreadcrumbsNav from 'components/BreadcrumbsNav'
+import { SchoolLapse } from 'core/school-year/types'
 
-const CreateSchoolarYear: FunctionComponent<Props> = ({ className }) => {
+const CreateSchoolYear: FunctionComponent<Props> = ({ className }) => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
 
@@ -28,16 +29,28 @@ const CreateSchoolarYear: FunctionComponent<Props> = ({ className }) => {
         setErrors({})
         setStatus({})
         setSubmitting(true)
+        
+        // Transformar las lapses del formulario en schoolLapses con la estructura correcta
+        const schoolLapses: SchoolLapse[] = values.lapses.map(lapse => ({
+          startDate: lapse.startDate,
+          endDate: lapse.endDate,
+          schoolCourts: lapse.scholarCourts.map(court => ({
+            startDate: court.startDate,
+            endDate: court.endDate
+          }))
+        }))
+        
         const payload = {
-          schoolarYear: {
+          schoolYear: {
             code: values.code,
             startDate: values.startDate,
             endDate: values.endDate
           },
-          lapses: values.lapses
+          schoolLapses
         }
-        await createSchoolarYear(payload)
-        navigate('/schoolar-year')
+        
+        await createSchoolYear(payload)
+        navigate('/school-years')
         dispatch(
           setSuccessMessage(`Año Escolar ${values.code} creado correctamente`)
         )
@@ -61,7 +74,7 @@ const CreateSchoolarYear: FunctionComponent<Props> = ({ className }) => {
   const breadcrumbsItems = [
     {
       label: 'Años Escolares',
-      path: '/schoolar-year'
+      path: '/school-years'
     },
     {
       label: 'Crear Año Escolar'
@@ -102,7 +115,7 @@ interface Props {
   className?: string
 }
 
-export default styled(CreateSchoolarYear)`
+export default styled(CreateSchoolYear)`
   display: flex;
   flex-direction: column;
   gap: 0;

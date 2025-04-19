@@ -6,18 +6,18 @@ import { styled } from 'styled-components'
 import { Typography, Paper, Box, Divider } from '@mui/material'
 import Table from './table'
 
-const SchoolarYearPage: FunctionComponent<Props> = ({ className }) => {
+const SchoolYearPage: FunctionComponent<Props> = ({ className }) => {
   const navigate = useNavigate()
-  const { schoolarYear, paginate, setPage, fetchSchoolarYear } = usePaginate()
+  const { schoolYear, paginate, setPage, fetchSchoolYear } = usePaginate()
 
   return (
     <div className={className}>
       <MainCard className="main-container">
         <Table
-          items={schoolarYear}
+          items={schoolYear}
           paginate={paginate}
           onChange={setPage}
-          fetchItems={fetchSchoolarYear}
+          fetchItems={fetchSchoolYear}
         />
       </MainCard>
     </div>
@@ -28,7 +28,7 @@ interface Props {
   className?: string
 }
 
-export default styled(SchoolarYearPage)`
+export default styled(SchoolYearPage)`
   width: 100%;
   height: 100%;
   display: flex;

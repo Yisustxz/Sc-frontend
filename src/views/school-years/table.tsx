@@ -13,8 +13,8 @@ import { PaginateData } from 'services/types'
 import { IconEdit, IconTrash, IconPlus, IconCalendar } from '@tabler/icons'
 import { useNavigate } from 'react-router'
 import DialogDelete from 'components/dialogDelete'
-import { SchoolarYear } from 'core/schoolar-year/types'
-import deleteSchoolarYear from 'services/schoolar-year/delete-schoolar-year'
+import { SchoolYear } from 'core/school-year/types'
+import deleteSchoolYear from 'services/school-year/delete-school-year'
 
 const Table: FunctionComponent<Prop> = ({
   items,
@@ -42,7 +42,7 @@ const Table: FunctionComponent<Prop> = ({
     async (id: number) => {
       try {
         dispatch(setIsLoading(true))
-        await deleteSchoolarYear(id)
+        await deleteSchoolYear(id)
         dispatch(setSuccessMessage(`Año escolar eliminado correctamente`))
       } catch (error) {
         if (error instanceof BackendError) {
@@ -75,7 +75,7 @@ const Table: FunctionComponent<Prop> = ({
           variant="contained" 
           color="primary" 
           startIcon={<IconPlus />}
-          onClick={() => navigate('/schoolar-year/create')}
+          onClick={() => navigate('/school-years/create')}
           className="add-button"
         >
           Agregar
@@ -89,7 +89,7 @@ const Table: FunctionComponent<Prop> = ({
           {
             columnLabel: 'Fecha de inicio',
             cellAlignment: 'left',
-            onRender: (row: SchoolarYear) => (
+            onRender: (row: SchoolYear) => (
               <Box className="date-cell">
                 <IconCalendar size={16} className="date-icon" />
                 <span>{formatDate(row.startDate)}</span>
@@ -99,7 +99,7 @@ const Table: FunctionComponent<Prop> = ({
           {
             columnLabel: 'Fecha de fin',
             cellAlignment: 'left',
-            onRender: (row: SchoolarYear) => (
+            onRender: (row: SchoolYear) => (
               <Box className="date-cell">
                 <IconCalendar size={16} className="date-icon" />
                 <span>{formatDate(row.endDate)}</span>
@@ -109,19 +109,19 @@ const Table: FunctionComponent<Prop> = ({
         ]}
         rows={items}
         components={[
-          (row: SchoolarYear) => (
+          (row: SchoolYear) => (
             <Button
               color='primary'
               variant="outlined"
               size="small"
-              onClick={() => navigate('/schoolar-year/edit/' + row.id)}
+              onClick={() => navigate('/school-years/edit/' + row.id)}
               startIcon={<IconEdit size={18} />}
               className="edit-button"
             >
               Editar
             </Button>
           ),
-          (row: SchoolarYear) => (
+          (row: SchoolYear) => (
             <Button
               color='error'
               variant="outlined"
@@ -141,7 +141,7 @@ const Table: FunctionComponent<Prop> = ({
               variant="contained" 
               color="primary" 
               startIcon={<IconPlus />}
-              onClick={() => navigate('/schoolar-year/create')}
+              onClick={() => navigate('/school-years/create')}
               className="add-button-empty"
             >
               Agregar año escolar
@@ -174,7 +174,7 @@ const Table: FunctionComponent<Prop> = ({
 }
 
 interface Prop {
-  items: SchoolarYear[]
+  items: SchoolYear[]
   paginate: PaginateData
   className?: string
   onChange: (page: number) => void
@@ -248,6 +248,5 @@ export default styled(Table)`
     padding: 16px 0;
     display: flex;
     justify-content: center;
-    flex-direction: row;
   }
 `

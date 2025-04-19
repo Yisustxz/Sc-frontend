@@ -1,27 +1,30 @@
-import { FunctionComponent, useCallback } from 'react'
+import { FunctionComponent, useCallback, useEffect } from 'react'
 // material-ui
 import styled from 'styled-components'
 import { useNavigate } from 'react-router'
 // own
 import BackendError from 'exceptions/backend-error'
-import { useAppDispatch } from '../../../store/index'
+import { useAppDispatch } from 'store/index'
 import {
   setIsLoading,
   setSuccessMessage,
   setErrorMessage
 } from 'store/customizationSlice'
-import Form, { FormValues } from '../form'
-import editSchoolarYear from 'services/schoolar-year/edit-schoolar-year'
-import useSchoolarYearById from './use-schoolar-year-by-id'
-import useSchoolarYearId from './use-schoolar-year-id'
+import Form from '../form'
 import { FormikHelpers } from 'formik'
+import { FormValues } from '../form'
+import editSchoolYear from 'services/school-year/edit-school-year'
+import useSchoolYearById from './use-school-year-by-id'
+import useSchoolYearId from './use-school-year-id'
 import BreadcrumbsNav from 'components/BreadcrumbsNav'
+import { SchoolLapse } from 'core/school-year/types'
 
-const EditSchoolarYear: FunctionComponent<Props> = ({ className }) => {
+const EditSchoolYear: FunctionComponent<Props> = ({ className }) => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  const schoolarYearId = useSchoolarYearId()
-  const schoolarYear = useSchoolarYearById(schoolarYearId)
+
+  const schoolYearId = useSchoolYearId()
+  const schoolYear = useSchoolYearById(schoolYearId)
 
   const onSubmit = useCallback(
     async (
@@ -33,24 +36,29 @@ const EditSchoolarYear: FunctionComponent<Props> = ({ className }) => {
         setErrors({})
         setStatus({})
         setSubmitting(true)
-
+        
+        // Transformar las lapses del formulario en schoolLapses con la estructura correcta
+        const schoolLapses: SchoolLapse[] = values.lapses.map(lapse => ({
+          startDate: lapse.startDate,
+          endDate: lapse.endDate,
+          schoolCourts: lapse.scholarCourts.map(court => ({
+            startDate: court.startDate,
+            endDate: court.endDate
+          }))
+        }))
+        
         const payload = {
-          schoolarYear: {
+          schoolYear: {
             code: values.code,
             startDate: values.startDate,
             endDate: values.endDate
           },
-          lapses: values.lapses.map((lapse, index) => ({
-            lapseNumber: index + 1,
-            startDate: lapse.startDate,
-            endDate: lapse.endDate,
-            scholarCourts: lapse.scholarCourts
-          }))
+          schoolLapses
         }
+        
+        await editSchoolYear(schoolYearId!, payload)
 
-        await editSchoolarYear(schoolarYearId!, payload)
-
-        navigate('/schoolar-year')
+        navigate('/school-years')
         dispatch(
           setSuccessMessage(`Año Escolar ${values.code} editado correctamente`)
         )
@@ -68,13 +76,13 @@ const EditSchoolarYear: FunctionComponent<Props> = ({ className }) => {
         setSubmitting(false)
       }
     },
-    [schoolarYearId, navigate, dispatch]
+    [schoolYearId, navigate, dispatch]
   )
 
   const breadcrumbsItems = [
     {
       label: 'Años Escolares',
-      path: '/schoolar-year'
+      path: '/school-years'
     },
     {
       label: 'Editar Año Escolar'
@@ -85,24 +93,25 @@ const EditSchoolarYear: FunctionComponent<Props> = ({ className }) => {
     <div className={className}>
       <BreadcrumbsNav items={breadcrumbsItems} />
       
-      {schoolarYear && (
+      {schoolYear && (
         <Form
-          isUpdate={true}
           initialValues={{
-            code: schoolarYear.code,
-            startDate: schoolarYear.startDate,
-            endDate: schoolarYear.endDate,
-            lapses: schoolarYear.lapses.map((lapse) => ({
+            code: schoolYear.code,
+            startDate: schoolYear.startDate,
+            endDate: schoolYear.endDate,
+            lapses: schoolYear.schoolLapses.map((lapse) => ({
               startDate: lapse.startDate,
               endDate: lapse.endDate,
-              scholarCourts: Array.isArray(lapse.scholarCourts)
-                ? lapse.scholarCourts
-                : []
+              scholarCourts: lapse.schoolCourts.map((court) => ({
+                startDate: court.startDate,
+                endDate: court.endDate
+              }))
             })),
             submit: null
           }}
           title={'Editar Año Escolar'}
           onSubmit={onSubmit}
+          isUpdate={true}
         />
       )}
     </div>
@@ -113,7 +122,7 @@ interface Props {
   className?: string
 }
 
-export default styled(EditSchoolarYear)`
+export default styled(EditSchoolYear)`
   display: flex;
   flex-direction: column;
   gap: 0;

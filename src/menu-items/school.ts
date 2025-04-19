@@ -1,11 +1,11 @@
 // assets
-import { IconCalendar, IconBook2, IconBooks } from '@tabler/icons';
-import { MenuItem, MenuItemType } from './types';
+import { IconCalendar, IconBook2, IconBooks } from "@tabler/icons";
+import { MenuItem, MenuItemType } from "./types";
 
 const school: MenuItem = {
-  id: 'school',
+  id: "school",
   type: MenuItemType.Group,
-  title: 'Escuela',
+  title: "Escuela",
   children: [
     {
       id: "academicYear",
@@ -15,45 +15,45 @@ const school: MenuItem = {
       breadcrumbs: false,
       children: [
         {
-          id: 'list-academic-year',
-          title: 'Lista de años escolares',
+          id: "list-academic-year",
+          title: "Lista de años escolares",
           type: MenuItemType.Item,
-          url: '/schoolar-year',
+          url: "/school-years",
           breadcrumbs: false,
         },
         {
-          id: 'create-academic-year',
-          title: 'Crear año escolar',
+          id: "create-academic-year",
+          title: "Crear año escolar",
           type: MenuItemType.Item,
-          url: '/schoolar-year/create',
+          url: "/school-years/create",
           breadcrumbs: false,
-        }
-      ]
+        },
+      ],
     },
     {
-      id: 'asignaturas',
-      title: 'Asignaturas',
+      id: "asignaturas",
+      title: "Asignaturas",
       type: MenuItemType.Collapse,
       icon: IconBooks,
       breadcrumbs: false,
       children: [
         {
-          id: 'list-courses',
-          title: 'Lista de asignaturas',
+          id: "list-courses",
+          title: "Lista de asignaturas",
           type: MenuItemType.Item,
-          url: '/courses',
+          url: "/courses",
           breadcrumbs: false,
         },
         {
-          id: 'create-courses',
-          title: 'Crear asignatura',
+          id: "create-courses",
+          title: "Crear asignatura",
           type: MenuItemType.Item,
-          url: '/courses/create',
+          url: "/courses/create",
           breadcrumbs: false,
-        }
-      ]
-    }
-  ]
+        },
+      ],
+    },
+  ],
 };
 
-export default school; 
+export default school;
