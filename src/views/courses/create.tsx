@@ -50,7 +50,7 @@ const CreateCourse: FunctionComponent<Props> = ({className}) => {
       <Form
         initialValues={{
           name: '',
-          grade: '',
+          grade: 0,
           submit: null
         }}
         title={'Crear asignatura'}

@@ -18,11 +18,7 @@ const Form: FunctionComponent<Props> = ({
   const isCreated = !isUpdate
 
   const extraValidations: any = isCreated
-    ? {
-        dni: Yup.string()
-          .max(8)
-          .required('La cedula del Representante es requerida')
-      }
+    ? {}
     : {}
 
   return (
@@ -34,6 +30,9 @@ const Form: FunctionComponent<Props> = ({
         initialValues={initialValues}
         validationSchema={Yup.object().shape({
           ...extraValidations,
+          dni: Yup.string()
+          .max(8)
+          .required('La cedula del Representante es requerida'),
           name: Yup.string()
             .max(30)
             .required('El nombre del Representante es requerido'),

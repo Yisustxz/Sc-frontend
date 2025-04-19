@@ -24,7 +24,10 @@ const Form: FunctionComponent<Props> = ({
         password: Yup.string()
           .max(30)
           .required('La contraseña del usuario es requerida')}
-    : {};
+    : {
+      password: Yup.string()
+          .max(30)
+    };
 
   return (
     <div className={className}>
@@ -45,11 +48,6 @@ const Form: FunctionComponent<Props> = ({
           role: Yup.string()
             .max(11)
             .required('El rol del usuario es requerido'),
-          password: isUpdate
-            ? Yup.string().max(30) 
-            : Yup.string()
-                .max(30)
-                .required('La contraseña del usuario es requerida'),
           submit: Yup.string().nullable()
         })}
         onSubmit={onSubmit as any}

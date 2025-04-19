@@ -20,11 +20,7 @@ const Form: FunctionComponent<Props> = ({
   const isCreated = !isUpdate
 
   const extraValidations: any = isCreated
-    ? {
-        Name: Yup.string()
-          .max(8)
-          .required('El nombre de la asignatura es requerido')
-      }
+    ? {}
     : {}
 
   return (
@@ -39,9 +35,11 @@ const Form: FunctionComponent<Props> = ({
           name: Yup.string()
             .max(30)
             .required('El nombre de la asignatura es requerido'),
-          grade: Yup.string()
-            .max(30)
-            .required('El grado de la asignatura es requerido'),
+          grade: Yup.number()
+            .typeError('El grado debe ser un número')
+            .required('El grado de la asignatura es requerido')
+            .nullable(false)
+            .min(1, 'El grado debe ser un número positivo'),
         })}
         onSubmit={onSubmit as any}
       >
@@ -52,7 +50,8 @@ const Form: FunctionComponent<Props> = ({
           handleSubmit,
           isSubmitting,
           touched,
-          values
+          values,
+          setFieldValue
         }) => (
           <form noValidate onSubmit={handleSubmit}>
             <MainCard className={'form-data'} title={title}>
@@ -77,7 +76,11 @@ const Form: FunctionComponent<Props> = ({
                     helperText={touched.grade ? errors.grade : ""}
                     label='Grado'
                     onBlur={handleBlur}
-                    onChange={handleChange}
+                    onChange={(e) => {
+                      // Convertir a número el valor seleccionado
+                      const numValue = Number(e.target.value);
+                      setFieldValue('grade', numValue);
+                    }}
                     error={touched.grade && !!errors.grade}
                     name='grade'
                     value={values.grade}
@@ -110,7 +113,7 @@ interface Props {
 
 export type FormValues = {
   name: string
-  grade: string
+  grade: number
   submit: string | null
 }
 

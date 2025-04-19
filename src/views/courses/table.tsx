@@ -13,6 +13,20 @@ import { useNavigate } from 'react-router';
 import deleteCourse from 'services/courses/delete-course';
 import DialogDelete from 'components/dialogDelete';
 
+const gradeMapping: { [key: number]: string } = {
+    1: '1 Grado',
+    2: '2 Grado',
+    3: '3 Grado',
+    4: '4 Grado',
+    5: '5 Grado',
+    6: '6 Grado',
+    7: 'Primer año',
+    8: 'Segundo año',
+    9: 'Tercer año',
+    10: 'Cuarto año',
+    11: 'Quinto año',
+};
+
 const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, fetchItems }) => {
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
@@ -46,14 +60,19 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
         }
     }, [dispatch, fetchItems, handleClose]);
 
+    const transformedItems = items.map(item => ({
+        ...item,
+        grade: gradeMapping[item.grade] || item.grade.toString()
+    }));
+
     return (
         <div className={className}>
             <DynamicTable
                 headers={[
                     { columnLabel: 'Nombre', fieldName: 'name', cellAlignment: 'left' },
-                    { columnLabel: 'grado', fieldName: 'grade', cellAlignment: 'left' },
+                    { columnLabel: 'Grado', fieldName: 'grade', cellAlignment: 'left' },
                 ]}
-                rows={items} components={[
+                rows={transformedItems} components={[
                     (row: Course) =>
                         <Button
                             color="primary"
