@@ -1,7 +1,5 @@
 import { FunctionComponent, useCallback } from 'react';
 // material-ui
-import MainCard from 'components/cards/MainCard';
-import {  Typography } from '@mui/material';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router';
 //own
@@ -13,6 +11,7 @@ import editCourse from 'services/courses/edit-course';
 import useCourseById from './use-course-by-id';
 import useCourseId from './use-course-id';
 import { FormikHelpers } from 'formik';
+import BreadcrumbsNav from 'components/BreadcrumbsNav';
 
 const EditCourse: FunctionComponent<Props> = ({className}) => {
   const navigate = useNavigate();
@@ -44,13 +43,20 @@ const EditCourse: FunctionComponent<Props> = ({className}) => {
     }
   }, [courseId, navigate, dispatch]);
 
+  const breadcrumbsItems = [
+    {
+      label: 'Asignaturas',
+      path: '/courses'
+    },
+    {
+      label: 'Editar Asignatura'
+    }
+  ];
+
   return (
     <div className={className}>
-      <MainCard>
-        <Typography variant="h3" component="h3">
-          Asignaturas
-        </Typography>
-      </MainCard>
+      <BreadcrumbsNav items={breadcrumbsItems} />
+      
       {
         course && (
           <Form
@@ -76,24 +82,7 @@ interface Props {
 export default styled(EditCourse)`
   display: flex;
   flex-direction: column;
-
-  .flex-column {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .form-data {
-    margin-top: 16px;
-  }
-
-  .form-header-card {
-    width: 100%;
-  }
-
-  .form-header {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-  }
+  gap: 0;
+  padding: 0;
 `;
 

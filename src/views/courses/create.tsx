@@ -1,7 +1,5 @@
 import { FunctionComponent, useCallback } from 'react';
 // material-ui
-import MainCard from 'components/cards/MainCard';
-import {  Typography } from '@mui/material';
 import styled from 'styled-components';
 import BackendError from 'exceptions/backend-error';
 import createCourse from 'services/courses/create-course';
@@ -10,6 +8,7 @@ import { setErrorMessage, setIsLoading, setSuccessMessage } from 'store/customiz
 import { useAppDispatch } from '../../store/index';
 import Form, { FormValues } from './form';
 import { FormikHelpers } from 'formik';
+import BreadcrumbsNav from 'components/BreadcrumbsNav';
 
 const CreateCourse: FunctionComponent<Props> = ({className}) => {
   const navigate = useNavigate();
@@ -39,13 +38,19 @@ const CreateCourse: FunctionComponent<Props> = ({className}) => {
     }
   }, [dispatch, navigate]);
 
+  const breadcrumbsItems = [
+    {
+      label: 'Asignaturas',
+      path: '/courses'
+    },
+    {
+      label: 'Crear Asignatura'
+    }
+  ];
+
   return (
     <div className={className}>
-      <MainCard>
-        <Typography variant="h3" component="h3">
-          Asignaturas
-        </Typography>
-      </MainCard>
+      <BreadcrumbsNav items={breadcrumbsItems} />
 
       <Form
         initialValues={{
@@ -67,23 +72,6 @@ interface Props {
 export default styled(CreateCourse)`
   display: flex;
   flex-direction: column;
-
-  .flex-column {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .form-data {
-    margin-top: 16px;
-  }
-
-  .form-header-card {
-    width: 100%;
-  }
-
-  .form-header {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-  }
+  gap: 0;
+  padding: 0;
 `;

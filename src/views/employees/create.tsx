@@ -1,7 +1,5 @@
 import { FunctionComponent, useCallback } from 'react'
 // material-ui
-import MainCard from 'components/cards/MainCard'
-import { Typography } from '@mui/material'
 import styled from 'styled-components'
 import BackendError from 'exceptions/backend-error'
 import createEmployee from 'services/employees/create-employee'
@@ -14,6 +12,7 @@ import {
 import { useAppDispatch } from '../../store/index'
 import Form, { FormValues } from './form'
 import { FormikHelpers } from 'formik'
+import BreadcrumbsNav from 'components/BreadcrumbsNav'
 
 const CreateEmployee: FunctionComponent<Props> = ({ className }) => {
   const navigate = useNavigate()
@@ -53,13 +52,19 @@ const CreateEmployee: FunctionComponent<Props> = ({ className }) => {
     [dispatch, navigate]
   )
 
+  const breadcrumbsItems = [
+    {
+      label: 'Empleados',
+      path: '/employees'
+    },
+    {
+      label: 'Crear Empleado'
+    }
+  ];
+
   return (
     <div className={className}>
-      <MainCard>
-        <Typography variant='h3' component='h3'>
-          Empleados
-        </Typography>
-      </MainCard>
+      <BreadcrumbsNav items={breadcrumbsItems} />
 
       <Form
         initialValues={{
@@ -92,23 +97,6 @@ export enum TypeEmployee {
 export default styled(CreateEmployee)`
   display: flex;
   flex-direction: column;
-
-  .flex-column {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .form-data {
-    margin-top: 16px;
-  }
-
-  .form-header-card {
-    width: 100%;
-  }
-
-  .form-header {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-  }
+  gap: 0;
+  padding: 0;
 `

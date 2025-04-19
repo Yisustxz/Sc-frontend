@@ -1,7 +1,5 @@
 import { FunctionComponent, useCallback } from 'react'
 // material-ui
-import MainCard from 'components/cards/MainCard'
-import { Typography, Box, Paper, Breadcrumbs, Link } from '@mui/material'
 import styled from 'styled-components'
 import BackendError from 'exceptions/backend-error'
 import { useNavigate } from 'react-router'
@@ -14,7 +12,7 @@ import { useAppDispatch } from 'store/index'
 import Form, { FormValues } from './form'
 import { FormikHelpers } from 'formik'
 import createSchoolarYear from 'services/schoolar-year/create-schoolar-year'
-import { IconHome, IconChevronRight } from '@tabler/icons'
+import BreadcrumbsNav from 'components/BreadcrumbsNav'
 
 const CreateSchoolarYear: FunctionComponent<Props> = ({ className }) => {
   const navigate = useNavigate()
@@ -60,61 +58,42 @@ const CreateSchoolarYear: FunctionComponent<Props> = ({ className }) => {
     [dispatch, navigate]
   )
 
+  const breadcrumbsItems = [
+    {
+      label: 'Años Escolares',
+      path: '/schoolar-year'
+    },
+    {
+      label: 'Crear Año Escolar'
+    }
+  ];
+
   return (
     <div className={className}>
-      <Paper className="breadcrumbs-container">
-        <Breadcrumbs aria-label="breadcrumb" separator={<IconChevronRight size={16} />}>
-          <Link
-            color="inherit"
-            href="/"
-            className="breadcrumb-link"
-            onClick={(e) => {
-              e.preventDefault();
-              navigate('/');
-            }}
-          >
-            <IconHome size={16} />
-            <span>Inicio</span>
-          </Link>
-          <Link
-            color="inherit"
-            href="/schoolar-year"
-            className="breadcrumb-link"
-            onClick={(e) => {
-              e.preventDefault();
-              navigate('/schoolar-year');
-            }}
-          >
-            Años Escolares
-          </Link>
-          <Typography color="text.primary">Crear Año Escolar</Typography>
-        </Breadcrumbs>
-      </Paper>
+      <BreadcrumbsNav items={breadcrumbsItems} />
 
-      <MainCard className="main-container">
-        <Form
-          initialValues={{
-            code: '',
-            startDate: '',
-            endDate: '',
-            lapses: [
-              {
-                startDate: '',
-                endDate: '',
-                scholarCourts: [
-                  {
-                    startDate: '',
-                    endDate: ''
-                  }
-                ]
-              }
-            ],
-            submit: null
-          }}
-          title={'Crear Año Escolar'}
-          onSubmit={onSubmit}
-        />
-      </MainCard>
+      <Form
+        initialValues={{
+          code: '',
+          startDate: '',
+          endDate: '',
+          lapses: [
+            {
+              startDate: '',
+              endDate: '',
+              scholarCourts: [
+                {
+                  startDate: '',
+                  endDate: ''
+                }
+              ]
+            }
+          ],
+          submit: null
+        }}
+        title={'Crear Año Escolar'}
+        onSubmit={onSubmit}
+      />
     </div>
   )
 }
@@ -126,31 +105,6 @@ interface Props {
 export default styled(CreateSchoolarYear)`
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 12px 0;
-
-  .breadcrumbs-container {
-    padding: 16px 24px;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  }
-
-  .breadcrumb-link {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    padding: 4px 0;
-    
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-
-  .main-container {
-    padding: 0;
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-  }
+  gap: 0;
+  padding: 0;
 `

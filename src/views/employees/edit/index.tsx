@@ -1,7 +1,5 @@
 import { FunctionComponent, useCallback } from 'react'
 // material-ui
-import MainCard from 'components/cards/MainCard'
-import { Typography } from '@mui/material'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router'
 //own
@@ -17,6 +15,7 @@ import editEmployee from 'services/employees/edit-employee'
 import useEmployeeById from './use-employee-by-id'
 import useEmployeeId from './use-employee-id'
 import { FormikHelpers } from 'formik'
+import BreadcrumbsNav from 'components/BreadcrumbsNav'
 
 const EditEmployee: FunctionComponent<Props> = ({ className }) => {
   const navigate = useNavigate()
@@ -58,13 +57,20 @@ const EditEmployee: FunctionComponent<Props> = ({ className }) => {
     [employeeId, navigate, dispatch]
   )
 
+  const breadcrumbsItems = [
+    {
+      label: 'Empleados',
+      path: '/employees'
+    },
+    {
+      label: 'Editar Empleado'
+    }
+  ];
+
   return (
     <div className={className}>
-      <MainCard>
-        <Typography variant='h3' component='h3'>
-          Empleados
-        </Typography>
-      </MainCard>
+      <BreadcrumbsNav items={breadcrumbsItems} />
+      
       {employee && (
         <Form
           isUpdate={true}
@@ -93,23 +99,6 @@ interface Props {
 export default styled(EditEmployee)`
   display: flex;
   flex-direction: column;
-
-  .flex-column {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .form-data {
-    margin-top: 16px;
-  }
-
-  .form-header-card {
-    width: 100%;
-  }
-
-  .form-header {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-  }
+  gap: 0;
+  padding: 0;
 `

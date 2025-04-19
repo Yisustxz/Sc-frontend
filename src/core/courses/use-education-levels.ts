@@ -1,26 +1,43 @@
 import { SelectOption } from "components/SelectField";
 
-enum EducationLevels {
-    'PrimerGrado' = 1,
-    'SegundoGrado' = 2,
-    'TercerGrado' = 3,
-    'CuartoGrado' = 4,
-    'QuintoGrado' = 5,
-    'SextoGrado' = 6,
-    'PrimerAño' = 7,
-    'SegundoAño' = 8,
-    'TercerAño' = 9,
-    'CuartoAño' = 10,
-    'QuintoAño' = 11
+export enum EducationLevels {
+  PrimerGrado = 1,
+  SegundoGrado = 2,
+  TercerGrado = 3,
+  CuartoGrado = 4,
+  QuintoGrado = 5,
+  SextoGrado = 6,
+  SeptimoGrado = 7,
+  OctavoGrado = 8,
+  NovenoGrado = 9,
+  DecimoGrado = 10,
+  UndecimoGrado = 11,
 }
 
-export function getLevelsAsOptions(): SelectOption[] {
-  const levelsArray = Object.entries(EducationLevels)
-    .filter(([key]) => isNaN(Number(key))) // Filtrar las claves numéricas (mapeo inverso)
-    .map(([key]) => ({
-      value: EducationLevels[key as keyof typeof EducationLevels],
-      label: key.replace(/([A-Z])/g, " $1").trim(), // Formatear el nombre (e.g., "PrimerGrado" -> "Primer Grado")
-    }));
+export const gradeMapping: Record<EducationLevels, string> = {
+  [EducationLevels.PrimerGrado]: "1 Grado",
+  [EducationLevels.SegundoGrado]: "2 Grado",
+  [EducationLevels.TercerGrado]: "3 Grado",
+  [EducationLevels.CuartoGrado]: "4 Grado",
+  [EducationLevels.QuintoGrado]: "5 Grado",
+  [EducationLevels.SextoGrado]: "6 Grado",
+  [EducationLevels.SeptimoGrado]: "Primer año",
+  [EducationLevels.OctavoGrado]: "Segundo año",
+  [EducationLevels.NovenoGrado]: "Tercer año",
+  [EducationLevels.DecimoGrado]: "Cuarto año",
+  [EducationLevels.UndecimoGrado]: "Quinto año",
+};
 
-  return levelsArray;
+export function getLevelsAsOptions(): SelectOption[] {
+  return Object.values(EducationLevels)
+    .filter((value) => typeof value === "number") 
+    .map((value) => ({
+      value,
+      label: gradeMapping[value as EducationLevels], 
+    }))
+    .sort((a, b) => {
+      const aVal = Number(a.value);
+      const bVal = Number(b.value);
+      return aVal - bVal;
+    });
 }

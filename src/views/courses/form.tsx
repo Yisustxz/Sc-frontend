@@ -74,7 +74,7 @@ const Form: FunctionComponent<Props> = ({
                     className="field-form"        
                     options={getLevelsAsOptions()}
                     helperText={touched.grade ? errors.grade : ""}
-                    label='Grado'
+                    label='Grado por defecto'
                     onBlur={handleBlur}
                     onChange={(e) => {
                       // Convertir a número el valor seleccionado

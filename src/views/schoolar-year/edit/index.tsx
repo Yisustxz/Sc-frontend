@@ -1,7 +1,5 @@
 import { FunctionComponent, useCallback } from 'react'
 // material-ui
-import MainCard from 'components/cards/MainCard'
-import { Typography } from '@mui/material'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router'
 // own
@@ -17,6 +15,7 @@ import editSchoolarYear from 'services/schoolar-year/edit-schoolar-year'
 import useSchoolarYearById from './use-schoolar-year-by-id'
 import useSchoolarYearId from './use-schoolar-year-id'
 import { FormikHelpers } from 'formik'
+import BreadcrumbsNav from 'components/BreadcrumbsNav'
 
 const EditSchoolarYear: FunctionComponent<Props> = ({ className }) => {
   const navigate = useNavigate()
@@ -72,13 +71,20 @@ const EditSchoolarYear: FunctionComponent<Props> = ({ className }) => {
     [schoolarYearId, navigate, dispatch]
   )
 
+  const breadcrumbsItems = [
+    {
+      label: 'Años Escolares',
+      path: '/schoolar-year'
+    },
+    {
+      label: 'Editar Año Escolar'
+    }
+  ];
+
   return (
     <div className={className}>
-      <MainCard>
-        <Typography variant='h3' component='h3'>
-          Años Escolares
-        </Typography>
-      </MainCard>
+      <BreadcrumbsNav items={breadcrumbsItems} />
+      
       {schoolarYear && (
         <Form
           isUpdate={true}
@@ -110,23 +116,6 @@ interface Props {
 export default styled(EditSchoolarYear)`
   display: flex;
   flex-direction: column;
-
-  .flex-column {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .form-data {
-    margin-top: 16px;
-  }
-
-  .form-header-card {
-    width: 100%;
-  }
-
-  .form-header {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-  }
+  gap: 0;
+  padding: 0;
 `

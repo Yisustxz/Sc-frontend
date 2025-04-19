@@ -129,22 +129,6 @@ const Form: FunctionComponent<Props> = ({
             <MainCard className={'form-data lapsos-container'}>
               <Box className="section-header">
                 <Typography variant="h5" className="section-title">Lapsos</Typography>
-                <IconButton 
-                  color="primary" 
-                  className="add-button"
-                  onClick={() => {
-                    const { setFieldValue } = values as any;
-                    const newLapses = [...values.lapses];
-                    newLapses.push({
-                      startDate: '',
-                      endDate: '',
-                      scholarCourts: [{ startDate: '', endDate: '' }]
-                    });
-                    setFieldValue?.('lapses', newLapses);
-                  }}
-                >
-                  <Add />
-                </IconButton>
               </Box>
               
               <FieldArray name='lapses'>
@@ -220,12 +204,7 @@ const Form: FunctionComponent<Props> = ({
                                     startIcon={<Add />} 
                                     size="small"
                                     color="primary"
-                                    onClick={() => {
-                                      const { setFieldValue } = values as any;
-                                      const newLapses = [...values.lapses];
-                                      newLapses[i].scholarCourts.push({ startDate: '', endDate: '' });
-                                      setFieldValue?.('lapses', newLapses);
-                                    }}
+                                    onClick={() => push({ startDate: '', endDate: '' })}
                                     className="add-court-button"
                                   >
                                     Añadir
@@ -288,18 +267,6 @@ const Form: FunctionComponent<Props> = ({
                                           </div>
                                         </Paper>
                                       ))}
-                                      
-                                      <Button
-                                        variant='outlined'
-                                        color='primary'
-                                        type='button'
-                                        onClick={() => push({ startDate: '', endDate: '' })}
-                                        className="add-court-button-bottom"
-                                        startIcon={<Add />}
-                                        size="small"
-                                      >
-                                        Añadir Corte
-                                      </Button>
                                     </div>
                                   )}
                                 </FieldArray>
@@ -336,7 +303,7 @@ const Form: FunctionComponent<Props> = ({
                 <FormHelperText error>{errors.submit}</FormHelperText>
               )}
               <Button
-                variant='contained'
+                variant='outlined'
                 type='submit'
                 color='primary'
                 disabled={isSubmitting}
@@ -389,28 +356,28 @@ export default styled(Form)`
   flex-direction: column;
 
   .section-title {
-    margin-bottom: 24px;
+    margin-bottom: 16px;
     font-weight: 500;
-    font-size: 1.25rem;
+    font-size: 1.1rem;
   }
 
   .section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
-    padding: 0 4px;
+    margin-bottom: 16px;
+    padding: 0;
   }
 
   .form-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
+    gap: 16px;
   }
 
   .form-data {
-    margin-top: 20px;
-    padding: 28px 32px;
+    margin-top: 16px;
+    padding: 16px;
     border-radius: 12px;
   }
   
@@ -423,34 +390,29 @@ export default styled(Form)`
   }
   
   .calendar-icon {
-    margin-right: 10px;
+    margin-right: 8px;
     color: #757575;
   }
 
   .field-form {
-    margin: 4px 0px;
+    margin: 12px 0px;
   }
 
   /* Lapses styling */
   .lapsos-container {
-    padding: 28px 32px 32px;
+    padding: 16px;
   }
   
   .lapses-list {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
   }
 
   .lapse-card {
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     overflow: hidden;
-    transition: all 0.3s ease;
-    
-    &:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
   }
   
   .lapse-content {
@@ -467,15 +429,15 @@ export default styled(Form)`
 
   .lapse-header {
     display: flex;
-    padding: 16px 24px;
-    min-height: 60px;
+    padding: 12px 16px;
+    min-height: 48px;
     background-color: #f5f5f5;
   }
 
   .lapse-title {
     flex-grow: 1;
     font-weight: 500;
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 
   .lapse-actions {
@@ -485,36 +447,36 @@ export default styled(Form)`
   }
 
   .lapse-details {
-    padding: 24px 28px;
+    padding: 16px;
   }
 
   /* Courts styling */
   .courts-container {
-    margin-top: 24px;
-    padding: 0 4px;
+    margin-top: 16px;
+    padding: 0;
   }
 
   .courts-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
-    padding: 0 4px;
+    margin-bottom: 12px;
+    padding: 0;
   }
 
   .courts-title {
     font-weight: 500;
-    font-size: 1.05rem;
+    font-size: 1rem;
   }
 
   .courts-list {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
   }
 
   .court-card {
-    padding: 16px 20px;
+    padding: 12px 16px;
     border-radius: 8px;
     border: 1px solid #e0e0e0;
   }
@@ -523,33 +485,26 @@ export default styled(Form)`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
-    padding: 0 4px;
+    margin-bottom: 8px;
+    padding: A0;
   }
 
   .court-title {
     font-weight: 500;
+    font-size: 0.9rem;
   }
 
   .court-form-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+    gap: 12px;
   }
 
-  .add-lapse-button, .add-court-button-bottom {
-    margin-top: 16px;
+  .add-lapse-button, .add-court-button {
+    margin-top: 12px;
     align-self: flex-start;
-    padding: 8px 16px;
-  }
-  
-  .add-button {
-    background-color: #f0f0f0;
-    width: 40px;
-    height: 40px;
-    &:hover {
-      background-color: #e0e0e0;
-    }
+    padding: 6px 12px;
+    font-size: 0.875rem;
   }
   
   .delete-button, .delete-court-button {
@@ -560,10 +515,9 @@ export default styled(Form)`
   }
   
   .guardar-button {
-    margin-top: 8px;
+    margin-top: 0;
     align-self: flex-start;
-    padding: 12px 32px;
-    font-weight: 500;
-    border-radius: 8px;
+    padding: 6px 16px;
+    font-weight: 400;
   }
 `

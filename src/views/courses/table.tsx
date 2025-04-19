@@ -12,20 +12,9 @@ import { IconEdit, IconTrash } from '@tabler/icons';
 import { useNavigate } from 'react-router';
 import deleteCourse from 'services/courses/delete-course';
 import DialogDelete from 'components/dialogDelete';
+import { gradeMapping, EducationLevels } from 'core/courses/use-education-levels';
 
-const gradeMapping: { [key: number]: string } = {
-    1: '1 Grado',
-    2: '2 Grado',
-    3: '3 Grado',
-    4: '4 Grado',
-    5: '5 Grado',
-    6: '6 Grado',
-    7: 'Primer año',
-    8: 'Segundo año',
-    9: 'Tercer año',
-    10: 'Cuarto año',
-    11: 'Quinto año',
-};
+
 
 const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, fetchItems }) => {
     const navigate = useNavigate();
@@ -60,9 +49,16 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
         }
     }, [dispatch, fetchItems, handleClose]);
 
+    const getGradeLabel = (grade: number): string => {
+        if (grade >= 1 && grade <= 11) {
+            return gradeMapping[grade as EducationLevels] || grade.toString();
+        }
+        return grade.toString();
+    };
+
     const transformedItems = items.map(item => ({
         ...item,
-        grade: gradeMapping[item.grade] || item.grade.toString()
+        grade: getGradeLabel(item.grade)
     }));
 
     return (
@@ -70,7 +66,7 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
             <DynamicTable
                 headers={[
                     { columnLabel: 'Nombre', fieldName: 'name', cellAlignment: 'left' },
-                    { columnLabel: 'Grado', fieldName: 'grade', cellAlignment: 'left' },
+                    { columnLabel: 'Grado por defecto', fieldName: 'grade', cellAlignment: 'left' },
                 ]}
                 rows={transformedItems} components={[
                     (row: Course) =>

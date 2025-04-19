@@ -1,7 +1,5 @@
 import { FunctionComponent, useCallback } from 'react';
 // material-ui
-import MainCard from 'components/cards/MainCard';
-import {  Typography } from '@mui/material';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router';
 //own
@@ -13,6 +11,7 @@ import editUser from 'services/users/edit-user';
 import useUserById from './use-user-by-id';
 import useUserId from './use-user-id';
 import { FormikHelpers } from 'formik';
+import BreadcrumbsNav from 'components/BreadcrumbsNav';
 
 const EditUser: FunctionComponent<Props> = ({className}) => {
   const navigate = useNavigate();
@@ -44,13 +43,20 @@ const EditUser: FunctionComponent<Props> = ({className}) => {
     }
   }, [id, navigate, dispatch]);
 
+  const breadcrumbsItems = [
+    {
+      label: 'Usuarios',
+      path: '/users'
+    },
+    {
+      label: 'Editar Usuario'
+    }
+  ];
+
   return (
     <div className={className}>
-      <MainCard>
-        <Typography variant="h3" component="h3">
-          Usuarios
-        </Typography>
-      </MainCard>
+      <BreadcrumbsNav items={breadcrumbsItems} />
+      
       {
         user && (
           <Form
@@ -78,24 +84,7 @@ interface Props {
 export default styled(EditUser)`
   display: flex;
   flex-direction: column;
-
-  .flex-column {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .form-data {
-    margin-top: 16px;
-  }
-
-  .form-header-card {
-    width: 100%;
-  }
-
-  .form-header {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-  }
+  gap: 0;
+  padding: 0;
 `;
 

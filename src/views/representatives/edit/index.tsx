@@ -1,7 +1,5 @@
 import { FunctionComponent, useCallback } from 'react'
 // material-ui
-import MainCard from 'components/cards/MainCard'
-import { Typography } from '@mui/material'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router'
 //own
@@ -17,6 +15,7 @@ import editRepresentative from 'services/representatives/edit-representatives'
 import useRepresentativeById from './use-representative-by-id'
 import useRepresentativeId from './use-representative-id'
 import { FormikHelpers } from 'formik'
+import BreadcrumbsNav from 'components/BreadcrumbsNav'
 
 const EditRepresentative: FunctionComponent<Props> = ({ className }) => {
   const navigate = useNavigate()
@@ -58,13 +57,20 @@ const EditRepresentative: FunctionComponent<Props> = ({ className }) => {
     [representativeId, navigate, dispatch]
   )
 
+  const breadcrumbsItems = [
+    {
+      label: 'Representantes',
+      path: '/representatives'
+    },
+    {
+      label: 'Editar Representante'
+    }
+  ];
+
   return (
     <div className={className}>
-      <MainCard>
-        <Typography variant='h3' component='h3'>
-          Clientes
-        </Typography>
-      </MainCard>
+      <BreadcrumbsNav items={breadcrumbsItems} />
+      
       {representative && (
         <Form
           isUpdate={true}
@@ -92,23 +98,6 @@ interface Props {
 export default styled(EditRepresentative)`
   display: flex;
   flex-direction: column;
-
-  .flex-column {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .form-data {
-    margin-top: 16px;
-  }
-
-  .form-header-card {
-    width: 100%;
-  }
-
-  .form-header {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-  }
+  gap: 0;
+  padding: 0;
 `

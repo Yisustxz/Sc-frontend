@@ -1,7 +1,5 @@
 import { FunctionComponent, useCallback } from 'react'
 // material-ui
-import MainCard from 'components/cards/MainCard'
-import { Typography } from '@mui/material'
 import styled from 'styled-components'
 import BackendError from 'exceptions/backend-error'
 import createRepresentative from 'services/representatives/create-representatives'
@@ -14,6 +12,7 @@ import {
 import { useAppDispatch } from '../../store/index'
 import Form, { FormValues } from './form'
 import { FormikHelpers } from 'formik'
+import BreadcrumbsNav from 'components/BreadcrumbsNav'
 
 const CreateRepresentative: FunctionComponent<Props> = ({ className }) => {
   const navigate = useNavigate()
@@ -53,13 +52,19 @@ const CreateRepresentative: FunctionComponent<Props> = ({ className }) => {
     [dispatch, navigate]
   )
 
+  const breadcrumbsItems = [
+    {
+      label: 'Representantes',
+      path: '/representatives'
+    },
+    {
+      label: 'Crear Representante'
+    }
+  ];
+
   return (
     <div className={className}>
-      <MainCard>
-        <Typography variant='h3' component='h3'>
-          Representantes
-        </Typography>
-      </MainCard>
+      <BreadcrumbsNav items={breadcrumbsItems} />
 
       <Form
         initialValues={{
@@ -85,23 +90,6 @@ interface Props {
 export default styled(CreateRepresentative)`
   display: flex;
   flex-direction: column;
-
-  .flex-column {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .form-data {
-    margin-top: 16px;
-  }
-
-  .form-header-card {
-    width: 100%;
-  }
-
-  .form-header {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-  }
+  gap: 0;
+  padding: 0;
 `
