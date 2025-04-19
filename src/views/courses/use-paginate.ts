@@ -12,10 +12,10 @@ export default function usePaginate() {
   const [page, setPage] = useState(1);
   const [courses, setCourses] = useState<Course[]>([]);
   const [paginate, setPaginate] = useState<PaginateData>({
-    total: 0,
+    totalItems: 0,
     page: 1,
     perPage: 5,
-    pages: 0,
+    totalPages: 0,
   });
 
   const fetchCourses = useCallback(async () => {

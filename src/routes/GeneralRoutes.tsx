@@ -25,7 +25,6 @@ import EditSchoolarYear from 'views/schoolar-year/edit'
 import Courses from 'views/courses'
 import CreateCourse from 'views/courses/create'
 import EditCourse from 'views/courses/edit'
-import EditClient from 'services/clients/edit-client'
 
 
 const GeneralRoutes: RouteObject[] = [
@@ -95,10 +94,6 @@ const GeneralRoutes: RouteObject[] = [
   {
     path: 'schoolar-year/edit/:id',
     element: <EditSchoolarYear />
-  },
-  {
-    path: 'clients/edit/:id',
-    element: <EditClient />
   },
    //Asignaturas
   {
