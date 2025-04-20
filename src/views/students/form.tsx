@@ -8,13 +8,8 @@ import {
   FormControl,
   FormHelperText,
   TextField,
-  Select,
-  MenuItem,
-  InputLabel
 } from '@mui/material'
 import styled from 'styled-components'
-
-const USE_AUTOCOMPLETES = false
 
 const Form: FunctionComponent<Props> = ({
   className,

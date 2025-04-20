@@ -21,9 +21,9 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
     const [open, setOpen] = useState<boolean>(false)
-    const [subjectId, setSubjectId] = useState<string>('')
+    const [subjectId, setSubjectId] = useState<string | number>('')
 
-    const handleOpen = useCallback((subjectId: string) => {
+    const handleOpen = useCallback((subjectId: string | number) => {
         setOpen(true);
         setSubjectId(subjectId);
     }, []);
@@ -33,11 +33,10 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
         setSubjectId('');
     }, []);
 
-    const onDelete = useCallback(async (subjectId: string) => {
+    const onDelete = useCallback(async (subjectId: string | number) => {
         try {
             dispatch(setIsLoading(true));
-            await deleteCourse(subjectId!);
-            //navigate('/courses');
+            await deleteCourse(subjectId);
             dispatch(setSuccessMessage(`Asignatura eliminada correctamente`));
         } catch (error) {
             if (error instanceof BackendError) {
@@ -79,6 +78,7 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
                 headers={[
                     { columnLabel: 'ID', fieldName: 'id', cellAlignment: 'left' },
                     { columnLabel: 'Nombre', fieldName: 'name', cellAlignment: 'left' },
+                    { columnLabel: 'Nombre de boletín', fieldName: 'publicName', cellAlignment: 'left' },
                     { columnLabel: 'Grado por defecto', fieldName: 'grade', cellAlignment: 'left' },
                     { columnLabel: 'Fecha de creación', cellAlignment: 'left', onRender: (row: Course) => (
                         <Box className="date-cell">

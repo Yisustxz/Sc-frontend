@@ -64,6 +64,7 @@ const EditCourse: FunctionComponent<Props> = ({className}) => {
             initialValues={{
               name: course.name,
               grade: course.grade,
+              publicName: course.publicName || '',
               submit: null
             }}
             title={'Editar asignatura'}

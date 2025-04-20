@@ -1,6 +1,7 @@
 export interface Course {
-  id: string;
+  id: number;
   name: string;
   grade: number;
+  publicName?: string;
   createdAt: string;
 }

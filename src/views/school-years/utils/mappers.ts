@@ -1,5 +1,5 @@
 import { SchoolYear, SchoolLapse, SchoolCourt } from '../../../core/school-year/types';
-import { SchoolLapseForm, SchoolCourtForm, FormValues } from '../form/types';
+import { SchoolLapseForm, SchoolCourtForm, FormValues, SchoolCourseForm } from '../form/types';
 
 /**
  * Convierte un SchoolCourtForm (vista) a SchoolCourt (core)
@@ -74,6 +74,7 @@ export const mapFormValuesToPayload = (values: FormValues): {
     endDate: string;
   };
   schoolLapses: any[];
+  courseSchoolYears: any[];
 } => {
   return {
     schoolYear: {
@@ -96,6 +97,17 @@ export const mapFormValuesToPayload = (values: FormValues): {
             startDate: court.startDate,
             endDate: court.endDate
           }))
+      })),
+    courseSchoolYears: values.courseSchoolYears
+      .filter((course: SchoolCourseForm) => !course.localDeleted)
+      .map((course: SchoolCourseForm) => ({
+        // Si tiene courseSchoolYearId, enviarlo como id para identificar el curso existente
+        ...(course.courseSchoolYearId && { id: course.courseSchoolYearId }),
+        grade: Number(course.grade),
+        courseId: Number(course.courseId),
+        // Si hay professorId, convertirlo a número, de lo contrario null
+        professorId: course.professorId ? Number(course.professorId) : null,
+        weeklyHours: course.weeklyHours || 0
       }))
   };
 };
@@ -122,6 +134,19 @@ export const mapSchoolYearToFormValues = (schoolYear: SchoolYear): FormValues =>
         isDirty: false
       }))
     })),
+    courseSchoolYears: schoolYear.courseSchoolYears ? schoolYear.courseSchoolYears.map(course => ({
+      courseId: Number(course.courseId),
+      grade: Number(course.grade),
+      professorId: course.professorId !== null ? Number(course.professorId) : undefined,
+      weeklyHours: course.weeklyHours || 0,
+      courseSchoolYearId: course.id,
+      isNew: false,
+      isDirty: false,
+      relationsInfo: {
+        courseName: course.courseName || course.course?.name || "",
+        professorName: course.professorName || (course.professor ? `${course.professor.name}` : "")
+      }
+    })) : [],
     submit: null
   };
 }; 

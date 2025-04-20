@@ -40,6 +40,10 @@ const Form: FunctionComponent<Props> = ({
             .required('El grado de la asignatura es requerido')
             .nullable(false)
             .min(1, 'El grado debe ser un número positivo'),
+          publicName: Yup.string()
+            .max(50)
+            .nullable()
+            .optional()
         })}
         onSubmit={onSubmit as any}
       >
@@ -85,6 +89,19 @@ const Form: FunctionComponent<Props> = ({
                     name='grade'
                     value={values.grade}
                   />
+                <FormControl className='field-form' fullWidth>
+                  <TextField
+                    id='publicName'
+                    label='Nombre de boletín'
+                    variant='outlined'
+                    onBlur={handleBlur}
+                    onChange={handleChange}
+                    value={values.publicName || ''}
+                    helperText={touched.publicName ? errors.publicName : ''}
+                    error={touched.publicName && !!errors.publicName}
+                    name='publicName'
+                  />
+                </FormControl>
               </div>
             </MainCard>
 
@@ -114,6 +131,7 @@ interface Props {
 export type FormValues = {
   name: string
   grade: number
+  publicName?: string
   submit: string | null
 }
 

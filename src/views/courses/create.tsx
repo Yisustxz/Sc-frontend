@@ -56,6 +56,7 @@ const CreateCourse: FunctionComponent<Props> = ({className}) => {
         initialValues={{
           name: '',
           grade: 0,
+          publicName: '',
           submit: null
         }}
         title={'Crear asignatura'}

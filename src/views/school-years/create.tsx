@@ -31,6 +31,7 @@ const initialValues: FormValues = {
   startDate: '',
   endDate: '',
   lapses: [],
+  courseSchoolYears: [],
   submit: null
 }
 

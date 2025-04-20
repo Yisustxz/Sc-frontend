@@ -1,13 +1,16 @@
-import { FunctionComponent, useRef } from 'react';
+import { FunctionComponent, useRef, useState, useCallback, useMemo } from 'react';
 import { Formik, FormikProps } from 'formik';
 import * as Yup from 'yup';
 import styled from 'styled-components';
-import { Box, Button, CircularProgress, FormHelperText, Grid } from '@mui/material';
+import { Box, Button, CircularProgress, FormHelperText, Grid, Typography } from '@mui/material';
 import MainCard from 'components/cards/MainCard';
 import SchoolYearForm from './SchoolYearForm';
 import LapsesCrud from './lapses/lapses-crud';
-import { FormValues, SchoolLapseForm } from './types';
+import CoursesCrud from './courses/courses-crud';
+import { FormValues, SchoolLapseForm, SchoolCourseForm } from './types';
 import type { OnSubmit } from './types';
+import { IconCirclePlus } from '@tabler/icons';
+import { mapBackendCoursesToFrontend, mapFrontendCoursesToBackend, getCoursesToDelete } from './courses/mapper';
 
 interface Props {
   className?: string;
@@ -27,12 +30,83 @@ const SchoolYearFormContainer: FunctionComponent<Props> = ({
   // Utilizamos una referencia para almacenar el formulario
   const formRef = useRef<FormikProps<FormValues>>(null);
   
+  // Estado para controlar la apertura del modal de cursos
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Funciones para manejar el estado del modal
+  const openModal = useCallback(() => setIsModalOpen(true), []);
+  const closeModal = useCallback(() => setIsModalOpen(false), []);
+  
+  // Transformamos los valores iniciales si tienen formato backend
+  const transformedInitialValues = useMemo(() => {
+    const values = { ...initialValues };
+    
+    console.log("Valores iniciales recibidos:", values);
+    
+    // Verificamos si courseSchoolYears tiene formato backend
+    if (values.courseSchoolYears?.length) {
+      console.log("courseSchoolYears antes de transformar:", values.courseSchoolYears);
+      
+      // Verificar si algún elemento tiene la estructura del backend (con course o professor)
+      // Usamos 'any' para evitar errores de TypeScript ya que estamos verificando propiedades
+      // que no están en la interfaz SchoolCourseForm
+      const hasBackendFormat = values.courseSchoolYears.some((item: any) => 
+        item?.course || item?.professor || 
+        ('course' in (item || {})) || ('professor' in (item || {}))
+      );
+      
+      if (hasBackendFormat) {
+        console.log("Detectado formato de backend, transformando...");
+        values.courseSchoolYears = mapBackendCoursesToFrontend(values.courseSchoolYears as any);
+        console.log("courseSchoolYears después de transformar:", values.courseSchoolYears);
+      } else {
+        console.log("No se detectó formato de backend, manteniendo valores originales");
+      }
+    }
+    
+    return values;
+  }, [initialValues]);
+  
   // Esta función se crea una sola vez durante el ciclo de vida del componente
-  const handleLapsesChange = (lapses: SchoolLapseForm[]) => {
+  const handleLapsesChange = useCallback((lapses: SchoolLapseForm[]) => {
     if (formRef.current) {
       formRef.current.setFieldValue('lapses', lapses);
     }
-  };
+  }, []);
+
+  // Función para actualizar cursos
+  const handleCoursesChange = useCallback((courses: SchoolCourseForm[]) => {
+    if (formRef.current) {
+      formRef.current.setFieldValue('courseSchoolYears', courses);
+    }
+  }, []);
+  
+  // Función personalizada para manejar el envío del formulario
+  const handleSubmit = useCallback<OnSubmit>((values, helpers) => {
+    // Crear una copia de los valores
+    const submittingValues = { ...values };
+    
+    // Transformar los courseSchoolYears a formato backend
+    if (submittingValues.courseSchoolYears?.length) {
+      // Obtener los IDs de cursos a eliminar para enviarlos por separado si es necesario
+      const courseIdsToDelete = getCoursesToDelete(submittingValues.courseSchoolYears);
+      
+      // Transformar los cursos al formato backend y asignarlos a una nueva propiedad
+      // para evitar problemas de tipado
+      const transformedCourses = mapFrontendCoursesToBackend(submittingValues.courseSchoolYears);
+      
+      // Usar 'as any' para evitar el error de tipos al asignar
+      (submittingValues as any).courseSchoolYears = transformedCourses;
+      
+      // Añadir los IDs a eliminar si la API lo requiere
+      if (courseIdsToDelete.length) {
+        (submittingValues as any).courseSchoolYearsToDelete = courseIdsToDelete;
+      }
+    }
+    
+    // Llamar al onSubmit original con los valores transformados
+    return onSubmit(submittingValues, helpers);
+  }, [onSubmit]);
   
   return (
     <div className={className}>
@@ -40,7 +114,7 @@ const SchoolYearFormContainer: FunctionComponent<Props> = ({
         validateOnChange={true}
         validateOnBlur={false}
         validateOnMount={false}
-        initialValues={initialValues}
+        initialValues={transformedInitialValues}
         validationSchema={Yup.object().shape({
           code: Yup.string()
             .max(10, 'El código no puede tener más de 10 caracteres')
@@ -97,9 +171,20 @@ const SchoolYearFormContainer: FunctionComponent<Props> = ({
                 return !value || value.localDeleted || 
                   (value.startDate && value.endDate && new Date(value.endDate) >= new Date(value.startDate));
               })
+          ),
+          courseSchoolYears: Yup.array().of(
+            Yup.object().shape({
+              courseId: Yup.string().required('Debes seleccionar una asignatura'),
+              grade: Yup.string().required('Debes especificar un grado'),
+              weeklyHours: Yup.number().min(0, 'Las horas semanales no pueden ser negativas')
+            }).test('not-deleted', 'No se validan las asignaturas eliminadas', 
+              function(value) {
+                // No validamos los elementos marcados como eliminados
+                return !value || value.localDeleted || (value.courseId && value.grade);
+              })
           )
         })}
-        onSubmit={onSubmit}
+        onSubmit={handleSubmit}
         innerRef={formRef}
       >
         {({
@@ -113,6 +198,7 @@ const SchoolYearFormContainer: FunctionComponent<Props> = ({
         }) => (
           <form noValidate onSubmit={handleSubmit}>
             <Grid container spacing={3}>
+              {/* Primera fila: Información del año escolar y Lapsos */}
               <Grid item xs={12} md={4}>
                 <MainCard className="form-data" title={title}>
                   <SchoolYearForm
@@ -132,6 +218,37 @@ const SchoolYearFormContainer: FunctionComponent<Props> = ({
                   formErrors={errors}
                   formTouched={touched}
                 />
+              </Grid>
+
+              {/* Segunda fila: Asignaturas (ancho completo) */}
+              <Grid item xs={12}>
+                <MainCard 
+                  className="courses-card" 
+                  title={'Asignaturas por grado'}
+                  secondary={
+                    values.courseSchoolYears.length === 0 ? (
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        size="small"
+                        startIcon={<IconCirclePlus size={20} />}
+                        onClick={openModal}
+                      >
+                        Añadir Asignatura
+                      </Button>
+                    ) : null
+                  }
+                >
+                  <CoursesCrud
+                    courses={values.courseSchoolYears}
+                    onChange={handleCoursesChange}
+                    errors={errors}
+                    externalModalOpen={isModalOpen}
+                    onExternalModalClose={closeModal}
+                    onExternalModalOpen={openModal}
+                    isCreateMode={!isUpdate}
+                  />
+                </MainCard>
               </Grid>
             </Grid>
 
@@ -168,8 +285,8 @@ export default styled(SchoolYearFormContainer)`
     margin-top: 16px;
   }
 
-  .lapses-card {
-    height: 100%;
+  .lapses-card, .courses-card {
+    margin-top: 16px;
   }
 
   .lapses-section {

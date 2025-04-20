@@ -25,6 +25,7 @@ export interface SchoolYear {
   startDate: string;
   endDate: string;
   schoolLapses: SchoolLapse[];
+  courseSchoolYears?: CourseSchoolYear[];
 }
 
 export interface SchoolYearPayload {
@@ -34,4 +35,32 @@ export interface SchoolYearPayload {
     endDate: string;
   };
   schoolLapses: SchoolLapse[];
+}
+
+export interface CourseSchoolYear {
+  id?: number;
+  grade: number;
+  weeklyHours?: number;
+  professorId?: number | null;
+  courseId: number;
+  schoolYearId?: number;
+  isNew?: boolean;
+  isDirty?: boolean;
+  localDeleted?: boolean;
+  onlineState?: any;
+  
+  // Propiedades expandidas
+  course?: {
+    id: number;
+    name: string;
+  };
+  
+  professor?: {
+    id: number;
+    name: string;
+  };
+  
+  // Propiedades para mostrar en UI
+  courseName?: string;
+  professorName?: string;
 } 
