@@ -30,18 +30,7 @@ const initialValues: FormValues = {
   code: '',
   startDate: '',
   endDate: '',
-  lapses: [
-    {
-      startDate: '',
-      endDate: '',
-      schoolCourts: [
-        {
-          startDate: '',
-          endDate: ''
-        }
-      ]
-    }
-  ],
+  lapses: [],
   submit: null
 }
 

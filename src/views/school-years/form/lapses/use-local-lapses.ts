@@ -31,12 +31,17 @@ const useLocalLapses = (
     transformInputLapses(inputLapses)
   );
 
+  // Bandera para controlar si los lapsos fueron eliminados intencionalmente
+  const [manuallyEmptied, setManuallyEmptied] = useState<boolean>(false);
+
   // Actualizar estado local cuando cambian los lapsos de entrada
   useEffect(() => {
-    if (inputLapses.length > 0 && localLapses.length === 0) {
+    // Solo actualizamos cuando hay lapsos en la entrada y el estado local está vacío
+    // pero no ha sido vaciado manualmente
+    if (inputLapses.length > 0 && localLapses.length === 0 && !manuallyEmptied) {
       setLocalLapses(transformInputLapses(inputLapses));
     }
-  }, [inputLapses, localLapses.length, transformInputLapses]);
+  }, [inputLapses, localLapses.length, transformInputLapses, manuallyEmptied]);
 
   // Notificar cambios hacia arriba
   useEffect(() => {
@@ -52,6 +57,11 @@ const useLocalLapses = (
       // Hard delete para lapsos nuevos
       if (lapse.isNew) {
         newLapses.splice(index, 1);
+        
+        // Si este era el último lapso, marcar que se vació manualmente
+        if (newLapses.length === 0) {
+          setManuallyEmptied(true);
+        }
       } else {
         // Soft delete para lapsos existentes
         newLapses[index] = {
@@ -106,6 +116,11 @@ const useLocalLapses = (
 
   // Crear un nuevo lapso
   const onCreate = useCallback((newLapse: SchoolLapseForm) => {
+    // Si se estaba vacío por eliminación manual, resetear la bandera
+    if (manuallyEmptied) {
+      setManuallyEmptied(false);
+    }
+    
     setLocalLapses(prev => {
       return [
         ...prev,
@@ -117,7 +132,7 @@ const useLocalLapses = (
         }
       ];
     });
-  }, []);
+  }, [manuallyEmptied]);
 
   // Actualizar un corte dentro de un lapso
   const onUpdateCourt = useCallback((lapseIndex: number, courtIndex: number, updatedCourt: Partial<SchoolCourtForm>) => {

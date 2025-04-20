@@ -225,136 +225,154 @@ const LapsesCrud: FunctionComponent<Props> = ({
         secondary={<LapseActionButton />}
       >
         <div className="lapses-list">
-          {localLapses.map((lapse, index) => (
-            <Card 
-              key={index} 
-              className={getLapseClassName(lapse)}
-            >
-              <CardContent className="lapse-content">
-                <Accordion defaultExpanded className="lapse-accordion">
-                  <AccordionSummary
-                    expandIcon={<ExpandMore />}
-                    className="lapse-header"
-                  >
-                    <Typography variant="h6" className="lapse-title">
-                      Lapso #{index + 1}
-                      {lapse.lapseId ? (
-                        <span className="id-label">(ID: {lapse.lapseId})</span>
-                      ) : (
-                        <span className="id-label" title="Sin ID (se creará al guardar)">(Sin Id)</span>
-                      )}
-                      {lapse.localDeleted && (
-                        <Chip 
-                          label="Eliminado" 
-                          size="small" 
-                          color="error" 
-                          variant="outlined"
-                          className="status-chip deleted-chip"
-                        />
-                      )}
-                      {lapse.isNew && !lapse.localDeleted && (
-                        <Chip 
-                          label="Nuevo" 
-                          size="small" 
-                          color="success" 
-                          variant="outlined"
-                          className="status-chip new-chip"
-                        />
-                      )}
-                      {lapse.isDirty && !lapse.isNew && !lapse.localDeleted && (
-                        <Chip 
-                          label="Modificado" 
-                          size="small" 
-                          color="warning" 
-                          variant="outlined"
-                          className="status-chip modified-chip"
-                        />
-                      )}
-                    </Typography>
-                    <Box className="lapse-actions">
-                      {lapse.localDeleted ? (
-                        <IconButton
-                          color="primary"
-                          onClick={() => onRevertDelete(index)}
-                          size="small"
-                          className="restore-button"
-                          title="Restaurar"
-                        >
-                          <Restore fontSize="small" />
-                        </IconButton>
-                      ) : (
-                        <IconButton
-                          color="error"
-                          onClick={() => onDelete(index)}
-                          size="small"
-                          className="delete-button"
-                          title="Eliminar"
-                        >
-                          <Delete fontSize="small" />
-                        </IconButton>
-                      )}
-                    </Box>
-                  </AccordionSummary>
-
-                  {!lapse.localDeleted && (
-                    <AccordionDetails className="lapse-details">
-                      <div className="form-grid">
-                        <FormControl className="field-form" fullWidth error={hasLapseError(index, 'startDate')}>
-                          <TextField
-                            label="Fecha de Inicio"
-                            type="date"
-                            value={lapse.startDate || ''}
-                            onChange={(e) => handleUpdateLapse(index, 'startDate', e.target.value)}
-                            InputLabelProps={{ shrink: true }}
-                            InputProps={{
-                              className: 'input-field',
-                              startAdornment: <CalendarToday fontSize="small" className="calendar-icon" />
-                            }}
-                            error={hasLapseError(index, 'startDate')}
+          {localLapses.length === 0 ? (
+            <div className="empty-lapses">
+              <Typography variant="body1" className="empty-text">
+                No hay lapsos académicos añadidos. Configura el primer lapso para el año escolar.
+              </Typography>
+              <Button 
+                variant="outlined" 
+                color="primary" 
+                size="medium"
+                startIcon={<Add />}
+                onClick={handleAddLapse}
+                className="add-first-lapse-button"
+              >
+                Añadir Lapso
+              </Button>
+            </div>
+          ) : (
+            localLapses.map((lapse, index) => (
+              <Card 
+                key={index} 
+                className={getLapseClassName(lapse)}
+              >
+                <CardContent className="lapse-content">
+                  <Accordion defaultExpanded className="lapse-accordion">
+                    <AccordionSummary
+                      expandIcon={<ExpandMore />}
+                      className="lapse-header"
+                    >
+                      <Typography variant="h6" className="lapse-title">
+                        Lapso #{index + 1}
+                        {lapse.lapseId ? (
+                          <span className="id-label">(ID: {lapse.lapseId})</span>
+                        ) : (
+                          <span className="id-label" title="Sin ID (se creará al guardar)">(Sin Id)</span>
+                        )}
+                        {lapse.localDeleted && (
+                          <Chip 
+                            label="Eliminado" 
+                            size="small" 
+                            color="error" 
+                            variant="outlined"
+                            className="status-chip deleted-chip"
                           />
-                          {hasLapseError(index, 'startDate') && (
-                            <FormHelperText error>{getLapseError(index, 'startDate')}</FormHelperText>
-                          )}
-                        </FormControl>
-
-                        <FormControl className="field-form" fullWidth error={hasLapseError(index, 'endDate')}>
-                          <TextField
-                            label="Fecha de Fin"
-                            type="date"
-                            value={lapse.endDate || ''}
-                            onChange={(e) => handleUpdateLapse(index, 'endDate', e.target.value)}
-                            InputLabelProps={{ shrink: true }}
-                            InputProps={{
-                              className: 'input-field',
-                              startAdornment: <CalendarToday fontSize="small" className="calendar-icon" />
-                            }}
-                            error={hasLapseError(index, 'endDate')}
+                        )}
+                        {lapse.isNew && !lapse.localDeleted && (
+                          <Chip 
+                            label="Nuevo" 
+                            size="small" 
+                            color="success" 
+                            variant="outlined"
+                            className="status-chip new-chip"
                           />
-                          {hasLapseError(index, 'endDate') && (
-                            <FormHelperText error>{getLapseError(index, 'endDate')}</FormHelperText>
-                          )}
-                        </FormControl>
-                      </div>
+                        )}
+                        {lapse.isDirty && !lapse.isNew && !lapse.localDeleted && (
+                          <Chip 
+                            label="Modificado" 
+                            size="small" 
+                            color="warning" 
+                            variant="outlined"
+                            className="status-chip modified-chip"
+                          />
+                        )}
+                      </Typography>
+                      <Box className="lapse-actions">
+                        {lapse.localDeleted ? (
+                          <IconButton
+                            color="primary"
+                            onClick={() => onRevertDelete(index)}
+                            size="small"
+                            className="restore-button"
+                            title="Restaurar"
+                          >
+                            <Restore fontSize="small" />
+                          </IconButton>
+                        ) : (
+                          <IconButton
+                            color="error"
+                            onClick={() => onDelete(index)}
+                            size="small"
+                            className="delete-button"
+                            title="Eliminar"
+                          >
+                            <Delete fontSize="small" />
+                          </IconButton>
+                        )}
+                      </Box>
+                    </AccordionSummary>
 
-                      <CourtsCrud 
-                        courts={lapse.schoolCourts}
-                        onUpdate={(courtIndex: number, updatedCourt: Partial<SchoolCourtForm>) => 
-                          onUpdateCourt(index, courtIndex, updatedCourt)
-                        }
-                        onCreate={(court: SchoolCourtForm) => onCreateCourt(index, court)}
-                        onDelete={(courtIndex: number) => onDeleteCourt(index, courtIndex)}
-                        onRevertDelete={(courtIndex: number) => 
-                          onRevertDeleteCourt(index, courtIndex)
-                        }
-                        formErrors={getCourtErrors(index)}
-                        formTouched={getCourtTouched(index)}
-                      />
-                    </AccordionDetails>
-                  )}
-                </Accordion>
-              </CardContent>
-            </Card>
-          ))}
+                    {!lapse.localDeleted && (
+                      <AccordionDetails className="lapse-details">
+                        <div className="form-grid">
+                          <FormControl className="field-form" fullWidth error={hasLapseError(index, 'startDate')}>
+                            <TextField
+                              label="Fecha de Inicio"
+                              type="date"
+                              value={lapse.startDate || ''}
+                              onChange={(e) => handleUpdateLapse(index, 'startDate', e.target.value)}
+                              InputLabelProps={{ shrink: true }}
+                              InputProps={{
+                                className: 'input-field',
+                                startAdornment: <CalendarToday fontSize="small" className="calendar-icon" />
+                              }}
+                              error={hasLapseError(index, 'startDate')}
+                            />
+                            {hasLapseError(index, 'startDate') && (
+                              <FormHelperText error>{getLapseError(index, 'startDate')}</FormHelperText>
+                            )}
+                          </FormControl>
+
+                          <FormControl className="field-form" fullWidth error={hasLapseError(index, 'endDate')}>
+                            <TextField
+                              label="Fecha de Fin"
+                              type="date"
+                              value={lapse.endDate || ''}
+                              onChange={(e) => handleUpdateLapse(index, 'endDate', e.target.value)}
+                              InputLabelProps={{ shrink: true }}
+                              InputProps={{
+                                className: 'input-field',
+                                startAdornment: <CalendarToday fontSize="small" className="calendar-icon" />
+                              }}
+                              error={hasLapseError(index, 'endDate')}
+                            />
+                            {hasLapseError(index, 'endDate') && (
+                              <FormHelperText error>{getLapseError(index, 'endDate')}</FormHelperText>
+                            )}
+                          </FormControl>
+                        </div>
+
+                        <CourtsCrud 
+                          courts={lapse.schoolCourts}
+                          onUpdate={(courtIndex: number, updatedCourt: Partial<SchoolCourtForm>) => 
+                            onUpdateCourt(index, courtIndex, updatedCourt)
+                          }
+                          onCreate={(court: SchoolCourtForm) => onCreateCourt(index, court)}
+                          onDelete={(courtIndex: number) => onDeleteCourt(index, courtIndex)}
+                          onRevertDelete={(courtIndex: number) => 
+                            onRevertDeleteCourt(index, courtIndex)
+                          }
+                          formErrors={getCourtErrors(index)}
+                          formTouched={getCourtTouched(index)}
+                        />
+                      </AccordionDetails>
+                    )}
+                  </Accordion>
+                </CardContent>
+              </Card>
+            ))
+          )}
         </div>
       </MainCard>
     </div>
@@ -377,6 +395,28 @@ export default styled(LapsesCrud)`
 
   .add-lapse-button {
     margin-left: auto;
+  }
+
+  .empty-lapses {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+    text-align: center;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border: 1px dashed #ccc;
+  }
+  
+  .empty-text {
+    margin-bottom: 24px;
+    color: #666;
+    font-size: 1.1rem;
+  }
+  
+  .add-first-lapse-button {
+    padding: 8px 24px;
   }
 
   .lapses-list {
