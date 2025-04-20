@@ -13,7 +13,8 @@ import { useNavigate } from 'react-router';
 import deleteCourse from 'services/courses/delete-course';
 import DialogDelete from 'components/dialogDelete';
 import { gradeMapping, EducationLevels } from 'core/courses/use-education-levels';
-
+import { Box } from '@mui/material';
+import { IconCalendar } from '@tabler/icons';   
 
 
 const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, fetchItems }) => {
@@ -56,6 +57,17 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
         return grade.toString();
     };
 
+    // Formato de fecha para mostrar en la tabla
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    };
+
+
     const transformedItems = items.map(item => ({
         ...item,
         grade: getGradeLabel(item.grade)
@@ -65,8 +77,15 @@ const Table: FunctionComponent<Prop> = ({ items, paginate, className, onChange, 
         <div className={className}>
             <DynamicTable
                 headers={[
+                    { columnLabel: 'ID', fieldName: 'id', cellAlignment: 'left' },
                     { columnLabel: 'Nombre', fieldName: 'name', cellAlignment: 'left' },
                     { columnLabel: 'Grado por defecto', fieldName: 'grade', cellAlignment: 'left' },
+                    { columnLabel: 'Fecha de creación', cellAlignment: 'left', onRender: (row: Course) => (
+                        <Box className="date-cell">
+                            <IconCalendar size={16} className="date-icon" />
+                            <span>{formatDate(row.createdAt)}</span>
+                        </Box>
+                    ) },
                 ]}
                 rows={transformedItems} components={[
                     (row: Course) =>

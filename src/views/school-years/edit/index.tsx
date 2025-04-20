@@ -1,30 +1,62 @@
-import { FunctionComponent, useCallback, useEffect } from 'react'
-// material-ui
-import styled from 'styled-components'
-import { useNavigate } from 'react-router'
-// own
-import BackendError from 'exceptions/backend-error'
-import { useAppDispatch } from 'store/index'
-import {
-  setIsLoading,
-  setSuccessMessage,
-  setErrorMessage
-} from 'store/customizationSlice'
-import Form from '../form'
-import { FormikHelpers } from 'formik'
-import { FormValues } from '../form'
-import editSchoolYear from 'services/school-year/edit-school-year'
-import useSchoolYearById from './use-school-year-by-id'
-import useSchoolYearId from './use-school-year-id'
+import { FunctionComponent, useEffect, useMemo, useState, useCallback } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import BreadcrumbsNav from 'components/BreadcrumbsNav'
-import { SchoolLapse } from 'core/school-year/types'
+import Form, { FormValues } from '../form'
+import { CircularProgress, Box } from '@mui/material'
+import styled from 'styled-components'
+import getSchoolYear from 'services/school-year/get-school-year'
+import editSchoolYear from 'services/school-year/edit-school-year'
+import { mapSchoolYearToFormValues, mapFormValuesToPayload } from '../utils/mappers'
+import { SchoolYear } from 'core/school-year/types'
+import { FormikHelpers } from 'formik'
+import { useAppDispatch } from 'store'
+import { setErrorMessage, setIsLoading, setSuccessMessage } from 'store/customizationSlice'
+import BackendError from 'exceptions/backend-error'
+
+interface Props {
+  className?: string
+}
 
 const EditSchoolYear: FunctionComponent<Props> = ({ className }) => {
+  const params = useParams<{id: string}>()
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
+  const id = parseInt(params.id as string)
 
-  const schoolYearId = useSchoolYearId()
-  const schoolYear = useSchoolYearById(schoolYearId)
+  const [loading, setLoading] = useState(true)
+  const [schoolYear, setSchoolYear] = useState<SchoolYear | null>(null)
+
+  useEffect(() => {
+    if (isNaN(id)) {
+      navigate('/school-year')
+      return
+    }
+
+    const fetchData = async () => {
+      try {
+        const data = await getSchoolYear(id)
+        setSchoolYear(data)
+        setLoading(false)
+      } catch (error) {
+        console.error('Error fetching school year:', error)
+        navigate('/school-year')
+      }
+    }
+
+    fetchData()
+  }, [id, navigate])
+
+  const breadcrumbsItems = useMemo(() => [
+    {
+      label: 'Año Escolar',
+      path: '/school-years'
+    },
+    {
+      label: 'Editar Año Escolar',
+      path: `/school-years/edit/${id}`,
+      active: true
+    }
+  ], [id])
 
   const onSubmit = useCallback(
     async (
@@ -36,31 +68,13 @@ const EditSchoolYear: FunctionComponent<Props> = ({ className }) => {
         setErrors({})
         setStatus({})
         setSubmitting(true)
-        
-        // Transformar las lapses del formulario en schoolLapses con la estructura correcta
-        const schoolLapses: SchoolLapse[] = values.lapses.map(lapse => ({
-          startDate: lapse.startDate,
-          endDate: lapse.endDate,
-          schoolCourts: lapse.scholarCourts.map(court => ({
-            startDate: court.startDate,
-            endDate: court.endDate
-          }))
-        }))
-        
-        const payload = {
-          schoolYear: {
-            code: values.code,
-            startDate: values.startDate,
-            endDate: values.endDate
-          },
-          schoolLapses
-        }
-        
-        await editSchoolYear(schoolYearId!, payload)
-
+        const payload = mapFormValuesToPayload(values)
+        await editSchoolYear(id, payload)
         navigate('/school-years')
         dispatch(
-          setSuccessMessage(`Año Escolar ${values.code} editado correctamente`)
+          setSuccessMessage(
+            `Año escolar ${values.code} actualizado correctamente`
+          )
         )
       } catch (error) {
         if (error instanceof BackendError) {
@@ -69,6 +83,11 @@ const EditSchoolYear: FunctionComponent<Props> = ({ className }) => {
             submit: error.getMessage()
           })
           dispatch(setErrorMessage(error.getMessage()))
+        } else {
+          setErrors({
+            submit: 'Error al actualizar el año escolar'
+          })
+          dispatch(setErrorMessage('Error al actualizar el año escolar'))
         }
         setStatus({ success: 'false' })
       } finally {
@@ -76,18 +95,16 @@ const EditSchoolYear: FunctionComponent<Props> = ({ className }) => {
         setSubmitting(false)
       }
     },
-    [schoolYearId, navigate, dispatch]
+    [dispatch, navigate, id]
   )
 
-  const breadcrumbsItems = [
-    {
-      label: 'Años Escolares',
-      path: '/school-years'
-    },
-    {
-      label: 'Editar Año Escolar'
-    }
-  ];
+  if (loading) {
+    return (
+      <Box className={className} display="flex" justifyContent="center" alignItems="center" height="80vh">
+        <CircularProgress />
+      </Box>
+    )
+  }
 
   return (
     <div className={className}>
@@ -95,20 +112,7 @@ const EditSchoolYear: FunctionComponent<Props> = ({ className }) => {
       
       {schoolYear && (
         <Form
-          initialValues={{
-            code: schoolYear.code,
-            startDate: schoolYear.startDate,
-            endDate: schoolYear.endDate,
-            lapses: schoolYear.schoolLapses.map((lapse) => ({
-              startDate: lapse.startDate,
-              endDate: lapse.endDate,
-              scholarCourts: lapse.schoolCourts.map((court) => ({
-                startDate: court.startDate,
-                endDate: court.endDate
-              }))
-            })),
-            submit: null
-          }}
+          initialValues={mapSchoolYearToFormValues(schoolYear)}
           title={'Editar Año Escolar'}
           onSubmit={onSubmit}
           isUpdate={true}
@@ -118,13 +122,10 @@ const EditSchoolYear: FunctionComponent<Props> = ({ className }) => {
   )
 }
 
-interface Props {
-  className?: string
-}
-
 export default styled(EditSchoolYear)`
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  padding: 0;
+  width: 100%;
+  
+  .MuiCircularProgress-root {
+    color: #3f51b5;
+  }
 `

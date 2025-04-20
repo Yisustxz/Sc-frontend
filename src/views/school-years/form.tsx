@@ -11,14 +11,13 @@ import {
   IconButton,
   Card,
   CardContent,
-  Divider,
   Box,
   Accordion,
   AccordionSummary,
   AccordionDetails,
   Paper
 } from '@mui/material'
-import { Delete, Add, Edit, ExpandMore, CalendarToday } from '@mui/icons-material'
+import { Delete, Add, ExpandMore, CalendarToday } from '@mui/icons-material'
 import styled from 'styled-components'
 
 const Form: FunctionComponent<Props> = ({
@@ -126,11 +125,7 @@ const Form: FunctionComponent<Props> = ({
             </MainCard>
             
             {/* Lapses Section */}
-            <MainCard className={'form-data lapsos-container'}>
-              <Box className="section-header">
-                <Typography variant="h5" className="section-title">Lapsos</Typography>
-              </Box>
-              
+            <MainCard className={'form-data'} title={'Gestion de lapsos'}>
               <FieldArray name='lapses'>
                 {({ push, remove }) => (
                   <div className="lapses-list">
@@ -204,17 +199,32 @@ const Form: FunctionComponent<Props> = ({
                                     startIcon={<Add />} 
                                     size="small"
                                     color="primary"
-                                    onClick={() => push({ startDate: '', endDate: '' })}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      const schoolCourts = [...lapse.schoolCourts];
+                                      schoolCourts.push({ startDate: '', endDate: '' });
+                                      const newValues = [...values.lapses];
+                                      newValues[i] = {
+                                        ...lapse,
+                                        schoolCourts
+                                      };
+                                      handleChange({
+                                        target: {
+                                          name: `lapses[${i}].schoolCourts`,
+                                          value: schoolCourts
+                                        }
+                                      } as any);
+                                    }}
                                     className="add-court-button"
                                   >
                                     Añadir
                                   </Button>
                                 </Box>
 
-                                <FieldArray name={`lapses[${i}].scholarCourts`}>
+                                <FieldArray name={`lapses[${i}].schoolCourts`}>
                                   {({ push, remove }) => (
                                     <div className="courts-list">
-                                      {lapse.scholarCourts.map((court, j) => (
+                                      {lapse.schoolCourts.map((court, j) => (
                                         <Paper key={j} elevation={1} className='court-card'>
                                           <Box className='court-header'>
                                             <Typography variant='subtitle2' className="court-title">
@@ -235,7 +245,7 @@ const Form: FunctionComponent<Props> = ({
                                               <TextField
                                                 label='Fecha de Inicio'
                                                 type='date'
-                                                name={`lapses[${i}].scholarCourts[${j}].startDate`}
+                                                name={`lapses[${i}].schoolCourts[${j}].startDate`}
                                                 value={court.startDate}
                                                 onChange={handleChange}
                                                 onBlur={handleBlur}
@@ -252,7 +262,7 @@ const Form: FunctionComponent<Props> = ({
                                               <TextField
                                                 label='Fecha de Fin'
                                                 type='date'
-                                                name={`lapses[${i}].scholarCourts[${j}].endDate`}
+                                                name={`lapses[${i}].schoolCourts[${j}].endDate`}
                                                 value={court.endDate}
                                                 onChange={handleChange}
                                                 onBlur={handleBlur}
@@ -276,7 +286,6 @@ const Form: FunctionComponent<Props> = ({
                         </CardContent>
                       </Card>
                     ))}
-
                     <Button
                       variant='outlined'
                       color='primary'
@@ -285,7 +294,7 @@ const Form: FunctionComponent<Props> = ({
                         push({
                           startDate: '',
                           endDate: '',
-                          scholarCourts: [{ startDate: '', endDate: '' }]
+                          schoolCourts: [{ startDate: '', endDate: '' }]
                         })
                       }
                       className="add-lapse-button"
@@ -327,21 +336,31 @@ interface Props {
   initialValues: FormValues
 }
 
-export interface ScholarCourt {
+export interface SchoolCourtForm {
   startDate: string
   endDate: string
+  courtId?: number | null
+  onlineState?: SchoolCourtForm
+  localDeleted?: boolean
+  isNew?: boolean
+  isDirty?: boolean
 }
 
-export interface Lapse {
+export interface SchoolLapseForm {
   startDate: string
   endDate: string
-  scholarCourts: ScholarCourt[]
+  schoolCourts: SchoolCourtForm[]
+  lapseId?: number | null
+  onlineState?: SchoolLapseForm
+  localDeleted?: boolean
+  isNew?: boolean
+  isDirty?: boolean
 }
 
 export type FormValues = {
   code: string
   startDate: string
-  lapses: Lapse[]
+  lapses: SchoolLapseForm[]
   endDate: string
   submit: string | null
 }
@@ -372,13 +391,11 @@ export default styled(Form)`
   .form-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+    gap: 16px; /* Espacio entre columnas */
   }
 
   .form-data {
     margin-top: 16px;
-    padding: 16px;
-    border-radius: 12px;
   }
   
   .input-field {
@@ -397,11 +414,6 @@ export default styled(Form)`
   .field-form {
     margin: 12px 0px;
   }
-
-  /* Lapses styling */
-  .lapsos-container {
-    padding: 16px;
-  }
   
   .lapses-list {
     display: flex;
@@ -411,7 +423,6 @@ export default styled(Form)`
 
   .lapse-card {
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     overflow: hidden;
   }
   
@@ -429,9 +440,15 @@ export default styled(Form)`
 
   .lapse-header {
     display: flex;
-    padding: 12px 16px;
-    min-height: 48px;
     background-color: #f5f5f5;
+    margin: 0px;
+    min-height: inherit;
+    padding-top: 12px;
+    padding-bottom: 12px;
+
+    div {
+      margin: 0px;
+    }
   }
 
   .lapse-title {
