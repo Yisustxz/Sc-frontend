@@ -3,12 +3,11 @@ import {
   FormControl, 
   FormHelperText, 
   TextField,
-  Grid
 } from '@mui/material';
 import { FormikErrors, FormikTouched } from 'formik';
 import styled from 'styled-components';
 import { CalendarToday } from '@mui/icons-material';
-import { FormValues } from '../form';
+import { FormValues } from './types';
 
 interface Props {
   className?: string;
@@ -28,9 +27,9 @@ const SchoolYearForm: FunctionComponent<Props> = ({
   handleChange
 }) => {
   return (
-    <Grid container spacing={3} className={className}>
-      <Grid item xs={12} md={4}>
-        <FormControl fullWidth>
+    <div className={className}>
+      <div className='form-grid'>
+        <FormControl className='field-form' fullWidth>
           <TextField
             id="code"
             name="code"
@@ -43,12 +42,13 @@ const SchoolYearForm: FunctionComponent<Props> = ({
             helperText={touched.code && errors.code}
             inputProps={{ maxLength: 10 }}
             placeholder="Ej: 2023-2024"
+            InputProps={{
+              className: 'input-field'
+            }}
           />
         </FormControl>
-      </Grid>
 
-      <Grid item xs={12} md={4}>
-        <FormControl fullWidth>
+        <FormControl className='field-form' fullWidth>
           <TextField
             id="startDate"
             name="startDate"
@@ -64,14 +64,13 @@ const SchoolYearForm: FunctionComponent<Props> = ({
               shrink: true
             }}
             InputProps={{
+              className: 'input-field',
               startAdornment: <CalendarToday fontSize="small" className="calendar-icon" />
             }}
           />
         </FormControl>
-      </Grid>
 
-      <Grid item xs={12} md={4}>
-        <FormControl fullWidth>
+        <FormControl className='field-form' fullWidth>
           <TextField
             id="endDate"
             name="endDate"
@@ -87,20 +86,58 @@ const SchoolYearForm: FunctionComponent<Props> = ({
               shrink: true
             }}
             InputProps={{
+              className: 'input-field',
               startAdornment: <CalendarToday fontSize="small" className="calendar-icon" />
             }}
           />
         </FormControl>
-      </Grid>
-    </Grid>
+      </div>
+    </div>
   );
 };
 
 export default styled(SchoolYearForm)`
-  margin-bottom: 24px;
+  width: 100%;
+
+  .form-data {
+    margin-top: 16px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px; /* Espacio entre columnas */
+    margin-bottom: 24px;
+  }
+
+  .field-form {
+    margin-bottom: 8px;
+  }
 
   .calendar-icon {
     margin-right: 8px;
     color: rgba(0, 0, 0, 0.54);
   }
-`; 
+
+  .input-field {
+    background-color: #f8f9fa;
+  }
+
+  /* Responsive */
+  @media (min-width: 768px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+`;
+
+
+
+
+  

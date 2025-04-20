@@ -1,7 +1,8 @@
 import { FunctionComponent, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import BreadcrumbsNav from 'components/BreadcrumbsNav'
-import Form, { FormValues } from './form'
+import Form from './form/index'
+import { FormValues } from './form/types'
 import styled from 'styled-components'
 import createSchoolYear from 'services/school-year/create-school-year'
 import { mapFormValuesToPayload } from './utils/mappers'
@@ -53,6 +54,7 @@ const CreateSchoolYear: FunctionComponent<Props> = ({ className }) => {
       values: FormValues,
       { setErrors, setStatus, setSubmitting }: FormikHelpers<FormValues>
     ) => {
+      
       try {
         dispatch(setIsLoading(true))
         setErrors({})

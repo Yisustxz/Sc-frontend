@@ -1,5 +1,5 @@
 import { SchoolYear, SchoolLapse, SchoolCourt } from '../../../core/school-year/types';
-import { SchoolLapseForm, SchoolCourtForm, FormValues } from '../form';
+import { SchoolLapseForm, SchoolCourtForm, FormValues } from '../form/types';
 
 /**
  * Convierte un SchoolCourtForm (vista) a SchoolCourt (core)
@@ -25,7 +25,7 @@ export const mapCourtToFormCourt = (court: SchoolCourt): SchoolCourtForm => {
   return {
     startDate: court.startDate,
     endDate: court.endDate,
-    courtId: court.id || null,
+    courtId: court.id || undefined,
     isNew: !court.id,
     isDirty: false
   };
@@ -57,7 +57,7 @@ export const mapLapseToFormLapse = (lapse: SchoolLapse): SchoolLapseForm => {
   return {
     startDate: lapse.startDate,
     endDate: lapse.endDate,
-    lapseId: lapse.id || null,
+    lapseId: lapse.id || undefined,
     isNew: !lapse.id,
     isDirty: false,
     schoolCourts: lapse.schoolCourts.map(mapCourtToFormCourt)
@@ -82,15 +82,15 @@ export const mapFormValuesToPayload = (values: FormValues): {
       endDate: values.endDate
     },
     schoolLapses: values.lapses
-      .filter(lapse => !lapse.localDeleted)
-      .map((lapse) => ({
+      .filter((lapse: SchoolLapseForm) => !lapse.localDeleted)
+      .map((lapse: SchoolLapseForm) => ({
         // Si tiene lapseId, enviarlo como id para identificar el lapso existente
         ...(lapse.lapseId && { id: lapse.lapseId }),
         startDate: lapse.startDate,
         endDate: lapse.endDate,
         schoolCourts: lapse.schoolCourts
-          .filter(court => !court.localDeleted)
-          .map((court) => ({
+          .filter((court: SchoolCourtForm) => !court.localDeleted)
+          .map((court: SchoolCourtForm) => ({
             // Si tiene courtId, enviarlo como id para identificar el corte existente
             ...(court.courtId && { id: court.courtId }),
             startDate: court.startDate,
@@ -111,13 +111,13 @@ export const mapSchoolYearToFormValues = (schoolYear: SchoolYear): FormValues =>
     lapses: schoolYear.schoolLapses.map(lapse => ({
       startDate: lapse.startDate,
       endDate: lapse.endDate,
-      lapseId: lapse.id || null,
+      lapseId: lapse.id || undefined,
       isNew: false,
       isDirty: false,
       schoolCourts: lapse.schoolCourts.map(court => ({
         startDate: court.startDate,
         endDate: court.endDate,
-        courtId: court.id || null,
+        courtId: court.id || undefined,
         isNew: false,
         isDirty: false
       }))
