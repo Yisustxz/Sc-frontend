@@ -227,17 +227,15 @@ const SchoolYearFormContainer: FunctionComponent<Props> = ({
                   className="courses-card" 
                   title={'Asignaturas por grado'}
                   secondary={
-                    values.courseSchoolYears.length === 0 ? (
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                        size="small"
-                        startIcon={<IconCirclePlus size={20} />}
-                        onClick={openModal}
-                      >
-                        Añadir Asignatura
-                      </Button>
-                    ) : null
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      size="small"
+                      startIcon={<IconCirclePlus size={20} />}
+                      onClick={openModal}
+                    >
+                      Añadir Asignatura
+                    </Button>
                   }
                 >
                   <CoursesCrud
