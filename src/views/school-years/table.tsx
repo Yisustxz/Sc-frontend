@@ -1,4 +1,4 @@
-import { Button, Pagination, Chip, Typography, Box } from '@mui/material'
+import { Button, Pagination, Box, Typography } from '@mui/material'
 import DynamicTable from 'components/DynamicTable'
 import styled from 'styled-components'
 import { useAppDispatch } from 'store/index'
@@ -69,19 +69,6 @@ const Table: FunctionComponent<Prop> = ({
 
   return (
     <div className={className}>
-      <Box className="table-header">
-        <Typography variant="h5" className="table-title">Años escolares</Typography>
-        <Button 
-          variant="contained" 
-          color="primary" 
-          startIcon={<IconPlus />}
-          onClick={() => navigate('/school-years/create')}
-          className="add-button"
-        >
-          Agregar
-        </Button>
-      </Box>
-      
       <DynamicTable
         headers={[
           { columnLabel: 'ID', fieldName: 'id', cellAlignment: 'center' },
@@ -112,23 +99,17 @@ const Table: FunctionComponent<Prop> = ({
           (row: SchoolYear) => (
             <Button
               color='primary'
-              variant="outlined"
-              size="small"
               onClick={() => navigate('/school-years/edit/' + row.id)}
-              startIcon={<IconEdit size={18} />}
-              className="edit-button"
+              startIcon={<IconEdit />}
             >
               Editar
             </Button>
           ),
           (row: SchoolYear) => (
             <Button
-              color='error'
-              variant="outlined"
-              size="small"
+              color='secondary'
               onClick={() => handleOpen(row.id)}
-              startIcon={<IconTrash size={18} />}
-              className="delete-button"
+              startIcon={<IconTrash />}
             >
               Eliminar
             </Button>
@@ -138,13 +119,12 @@ const Table: FunctionComponent<Prop> = ({
           <Box className="empty-state">
             <Typography variant="subtitle1">No hay años escolares registrados</Typography>
             <Button 
-              variant="contained" 
-              color="primary" 
+              color='primary'
+              variant='outlined'
               startIcon={<IconPlus />}
               onClick={() => navigate('/school-years/create')}
-              className="add-button-empty"
             >
-              Agregar año escolar
+              Agregar
             </Button>
           </Box>
         }
@@ -185,46 +165,14 @@ export default styled(Table)`
   display: flex;
   flex-direction: column;
 
-  .table-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 32px;
-    padding: 0 4px;
-  }
-
-  .table-title {
-    font-weight: 500;
-    font-size: 1.3rem;
-  }
-
-  .add-button {
-    text-transform: none;
-    border-radius: 8px;
-    padding: 8px 24px;
-    font-weight: 500;
-  }
-
   .date-cell {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 8px 0;
+    gap: 8px;
   }
 
   .date-icon {
-    color: #616161;
-  }
-  
-  .edit-button, .delete-button {
-    border-radius: 6px;
-    text-transform: none;
-    margin: 0 6px;
-    padding: 6px 16px;
-    
-    &:hover {
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    }
+    color: #757575;
   }
 
   .empty-state {
@@ -232,21 +180,14 @@ export default styled(Table)`
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 60px 0;
-    gap: 24px;
-  }
-
-  .add-button-empty {
-    text-transform: none;
-    border-radius: 8px;
-    padding: 10px 24px;
-    font-weight: 500;
+    padding: 40px 0;
+    gap: 16px;
   }
 
   .paginator-container {
-    margin-top: 32px;
-    padding: 16px 0;
+    margin-top: 12px;
     display: flex;
     justify-content: center;
+    flex-direction: row;
   }
 `

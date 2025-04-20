@@ -1,125 +1,64 @@
-import { FunctionComponent, useEffect, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Box, Button } from '@mui/material';
-import { Add as AddIcon } from '@mui/icons-material';
-import styled from 'styled-components';
-import BreadcrumbsNav from 'components/BreadcrumbsNav';
-import MainCard from 'components/cards/MainCard';
-import DynamicTable, { Header } from 'components/DynamicTable';
-import { useAppDispatch } from 'store';
-import { setErrorMessage, setIsLoading } from 'store/customizationSlice';
-import BackendError from 'exceptions/backend-error';
-import getPaginate from 'services/school-year/get-paginate';
-import { SchoolYear } from 'core/school-year/types';
-import { PaginateBody } from 'services/types';
+import { FunctionComponent, useCallback } from 'react'
+import MainCard from 'components/cards/MainCard'
+import Table from './table'
+import { useNavigate } from 'react-router'
+import { styled } from 'styled-components'
+import { Button, Typography } from '@mui/material'
+import { IconCirclePlus } from '@tabler/icons'
+import usePaginate from './use-paginate'
 
-interface Props {
-  className?: string;
+const SchoolYearsPage = ({ className }: Props) => {
+  const navigate = useNavigate()
+  const { schoolYear, paginate, setPage, fetchSchoolYear } = usePaginate()
+  
+  const goToCreate = useCallback(() => {
+    navigate('/school-years/create')
+  }, [navigate])
+  
+  return (
+    <MainCard
+      className={className}
+      headerClass={'page-header'}
+      title={
+        <div className={'page-header'}>
+          <Typography variant='h3' className={'title-header'}>
+            Años Escolares
+          </Typography>
+          <Button
+            color='primary'
+            variant={'outlined'}
+            onClick={goToCreate}
+            startIcon={<IconCirclePlus />}
+          >
+            Crear
+          </Button>
+        </div>
+      }
+    >
+      <Table
+        items={schoolYear}
+        paginate={paginate}
+        onChange={setPage}
+        fetchItems={fetchSchoolYear}
+      />
+    </MainCard>
+  )
 }
 
-const breadcrumbsItems = [
-  {
-    label: 'Años Escolares',
-    active: true
-  }
-];
+interface Props {
+  className?: string
+}
 
-const SchoolYears: FunctionComponent<Props> = ({ className }) => {
-  const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-  const [schoolYears, setSchoolYears] = useState<SchoolYear[]>([]);
-  const [pageSize, setPageSize] = useState(10);
-  const [page, setPage] = useState(0);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
-
-  const headers: Header<SchoolYear>[] = [
-    { columnLabel: 'ID', fieldName: 'id' },
-    { columnLabel: 'Código', fieldName: 'code' },
-    { columnLabel: 'Fecha Inicio', fieldName: 'startDate' },
-    { columnLabel: 'Fecha Fin', fieldName: 'endDate' },
-  ];
-
-  const fetchSchoolYears = useCallback(async () => {
-    try {
-      setLoading(true);
-      dispatch(setIsLoading(true));
-      const paginateParams: PaginateBody = {
-        page: page + 1,
-        size: pageSize
-      };
-      const response = await getPaginate(paginateParams);
-      setSchoolYears(response.items);
-      setTotal(response.paginate.totalItems);
-    } catch (error) {
-      if (error instanceof BackendError) {
-        dispatch(setErrorMessage(error.getMessage()));
-      } else {
-        dispatch(setErrorMessage('Error al obtener los años escolares'));
-      }
-    } finally {
-      setLoading(false);
-      dispatch(setIsLoading(false));
-    }
-  }, [dispatch, page, pageSize]);
-
-  useEffect(() => {
-    fetchSchoolYears();
-  }, [fetchSchoolYears]);
-
-  const handleCreateClick = () => {
-    navigate('/school-years/create');
-  };
-
-  const handleRowClick = (row: SchoolYear) => {
-    navigate(`/school-years/edit/${row.id}`);
-  };
-
-  return (
-    <div className={className}>
-      <BreadcrumbsNav items={breadcrumbsItems} />
-      
-      <MainCard title="Años Escolares">
-        <Box mb={2} display="flex" justifyContent="flex-end">
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<AddIcon />}
-            onClick={handleCreateClick}
-          >
-            Crear Año Escolar
-          </Button>
-        </Box>
-        
-        <DynamicTable
-          headers={headers}
-          rows={schoolYears}
-          emptyState="No hay años escolares registrados"
-          renderColumnClass={(row) => row.isDeleted ? 'deleted-row' : ''}
-          components={[
-            (row) => (
-              <Button
-                key={`edit-${row.id}`}
-                variant="contained"
-                color="primary"
-                size="small"
-                onClick={() => handleRowClick(row)}
-              >
-                Editar
-              </Button>
-            )
-          ]}
-        />
-      </MainCard>
-    </div>
-  );
-};
-
-export default styled(SchoolYears)`
+export default styled(SchoolYearsPage)`
   width: 100%;
-  
-  .deleted-row {
-    opacity: 0.5;
-    text-decoration: line-through;
+  display: flex;
+  flex-direction: column;
+
+  .page-header {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
   }
-`; 
+` 
