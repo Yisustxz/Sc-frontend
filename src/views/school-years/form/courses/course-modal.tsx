@@ -82,17 +82,20 @@ const CourseModal: FunctionComponent<CourseModalProps> = ({
   const gradeOptions = getGradeOptions();
 
   // Cargar datos de cursos y profesores
-  const { data: backendCourses = [], isLoading: coursesLoading } = useGetCourses();
-  const { data: backendProfessors = [], isLoading: professorsLoading } = useGetEmployees({
-    role: TypeEmployee.Professor,
-  });
+  const { data: courses = [], isLoading: coursesLoading } = useGetCourses();
+
+  // Usar el hook mejorado de useGetEmployees con el filtro por rol 'PROFESSOR'
+  const { data: professors = [], isLoading: professorsLoading } =
+    useGetEmployees({
+      role: "PROFESSOR", // Esto se convertirá a lowercase en el hook
+    });
 
   // Generar lista extendida de cursos usando useMemo
   const extendedCourses = useMemo(() => {
-    let result = [...backendCourses];
+    let result = [...courses];
     
     // Si estamos en modo edición y hay un curso seleccionado
-    if (course?.courseId && !backendCourses.some(c => c.id === course.courseId) && course.relationsInfo?.courseName) {
+    if (course?.courseId && !courses.some(c => c.id === course.courseId) && course.relationsInfo?.courseName) {
       console.log("Añadiendo curso que no está en las opciones: ", course.courseId, course.relationsInfo.courseName);
       
       // Crear un objeto Course temporal para añadirlo a las opciones
@@ -108,14 +111,14 @@ const CourseModal: FunctionComponent<CourseModalProps> = ({
     }
     
     return result;
-  }, [backendCourses, course, grade]);
+  }, [courses, course, grade]);
   
   // Generar lista extendida de profesores usando useMemo
   const extendedProfessors = useMemo(() => {
-    let result = [...backendProfessors];
+    let result = [...professors];
     
     // Si estamos en modo edición y hay un profesor seleccionado
-    if (course?.professorId && !backendProfessors.some(p => p.id === course.professorId) && course.relationsInfo?.professorName) {
+    if (course?.professorId && !professors.some(p => p.id === course.professorId) && course.relationsInfo?.professorName) {
       console.log("Añadiendo profesor que no está en las opciones: ", course.professorId, course.relationsInfo.professorName);
       
       // Extraer nombre y apellido si es posible
@@ -146,7 +149,7 @@ const CourseModal: FunctionComponent<CourseModalProps> = ({
     }
     
     return result;
-  }, [backendProfessors, course]);
+  }, [professors, course]);
 
   // Función para actualizar formData cuando cambian las props
   useEffect(() => {

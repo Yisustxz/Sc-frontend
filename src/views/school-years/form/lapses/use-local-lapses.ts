@@ -122,10 +122,20 @@ const useLocalLapses = (
     }
     
     setLocalLapses(prev => {
+      // Aseguramos que si hay cortes, el primer corte tenga la misma fecha de inicio que el lapso
+      const lapseToAdd = { ...newLapse };
+      
+      if (lapseToAdd.startDate && lapseToAdd.schoolCourts && lapseToAdd.schoolCourts.length > 0) {
+        lapseToAdd.schoolCourts[0] = {
+          ...lapseToAdd.schoolCourts[0],
+          startDate: lapseToAdd.startDate
+        };
+      }
+      
       return [
         ...prev,
         {
-          ...newLapse,
+          ...lapseToAdd,
           lapseId: undefined, // Usamos undefined en lugar de null para respetar el tipo
           isNew: true, // Marcar como nuevo
           isDirty: true
@@ -165,12 +175,18 @@ const useLocalLapses = (
       const currentLapse = {...newLapses[lapseIndex]};
       const currentCourts = [...currentLapse.schoolCourts];
       
-      const courtToAdd = {
+      // Preparar el corte a añadir
+      let courtToAdd = {
         ...newCourt,
         courtId: undefined, // Usamos undefined en lugar de null para respetar el tipo
         isNew: true, // Marcar como nuevo
         isDirty: true
       };
+      
+      // Si es el primer corte y el lapso tiene fecha de inicio, establecer la misma fecha
+      if (currentCourts.length === 0 && currentLapse.startDate) {
+        courtToAdd.startDate = currentLapse.startDate;
+      }
       
       newLapses[lapseIndex] = {
         ...currentLapse,

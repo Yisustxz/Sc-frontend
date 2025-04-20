@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import getPaginate from "services/employees/get-paginate";
 import { Employees } from "core/employees/types";
 import { useAppDispatch } from "store";
 import { setErrorMessage, setIsLoading } from "store/customizationSlice";
 import BackendError from "exceptions/backend-error";
-import { PaginateBody } from "services/types";
+import getAllEmployees, { GetAllEmployeesParams } from "services/employees/get-all-employees";
 
 interface UseGetEmployeesProps {
   role?: string; // PROFESSOR, ADMIN, etc.
@@ -12,7 +11,7 @@ interface UseGetEmployeesProps {
 }
 
 /**
- * Hook para obtener empleados
+ * Hook para obtener empleados, usando el endpoint getAllEmployees
  * @param props Propiedades para filtrar empleados
  * @returns Lista de empleados y estado de carga
  */
@@ -27,23 +26,23 @@ export const useGetEmployees = (props?: UseGetEmployeesProps) => {
       setIsLoadingState(true);
       dispatch(setIsLoading(true));
 
-      const filters: Partial<PaginateBody> = {
-        page: 1,
-        size: 100,
-      };
+      // Crear objeto de parámetros para la llamada a la API
+      const params: GetAllEmployeesParams = {};
 
+      // Si hay un rol especificado, mapearlo al formato del backend
       if (role) {
-        // @ts-ignore - La API soporta role como filtro opcional
-        filters.role = role;
+        // Convertir PROFESSOR a lowercase para que coincida con el enum del backend
+        params.employeeType = role.toLowerCase();
       }
 
+      // Si hay un término de búsqueda, añadirlo a los parámetros
       if (searchTerm) {
-        // @ts-ignore - La API soporta name como filtro opcional
-        filters.name = searchTerm;
+        params.name = searchTerm;
       }
 
-      const response = await getPaginate(filters as PaginateBody);
-      setData(response.items);
+      // Llamar a getAllEmployees con los parámetros
+      const response = await getAllEmployees(params);
+      setData(response);
     } catch (error) {
       if (error instanceof BackendError) {
         dispatch(setErrorMessage(error.getMessage()));

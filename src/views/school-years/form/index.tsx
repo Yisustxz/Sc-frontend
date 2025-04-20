@@ -217,6 +217,7 @@ const SchoolYearFormContainer: FunctionComponent<Props> = ({
                   onChange={handleLapsesChange}
                   formErrors={errors}
                   formTouched={touched}
+                  isCreateMode={!isUpdate}
                 />
               </Grid>
 

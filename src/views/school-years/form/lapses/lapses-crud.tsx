@@ -12,22 +12,27 @@ import {
   TextField,
   FormControl,
   FormHelperText,
-  Chip
+  Chip,
+  Link,
+  Stack
 } from '@mui/material';
 import { Add, Delete, ExpandMore, CalendarToday, Restore } from '@mui/icons-material';
+import { IconWand } from '@tabler/icons';
 import styled from 'styled-components';
 import { SchoolLapseForm, SchoolCourtForm, FormValues } from '../../form/types';
 import useLocalLapses from './use-local-lapses';
 import CourtsCrud from 'views/school-years/form/courts/courts-crud';
 import MainCard from 'components/cards/MainCard';
 import { FormikErrors, FormikTouched } from 'formik';
+import { generateSchoolYear, getAcademicYearOptions } from './auto-generate-school-year';
 
 interface Props {
   className?: string;
   lapses: SchoolLapseForm[];
   onChange: (lapses: SchoolLapseForm[]) => void;
   formErrors?: FormikErrors<FormValues>;
-  formTouched?: FormikTouched<FormValues>; 
+  formTouched?: FormikTouched<FormValues>;
+  isCreateMode?: boolean;
 }
 
 const LapsesCrud: FunctionComponent<Props> = ({ 
@@ -35,10 +40,13 @@ const LapsesCrud: FunctionComponent<Props> = ({
   lapses, 
   onChange,
   formErrors,
-  formTouched
+  formTouched,
+  isCreateMode = false
 }) => {
   // Estado para controlar los errores de validación
   const [lapsesErrors, setLapsesErrors] = useState<{ [key: string]: { startDate?: string; endDate?: string } }>({});
+  // Estado para rastrear si los botones de generación automática ya fueron usados
+  const [autoGenerateUsed, setAutoGenerateUsed] = useState<boolean>(false);
 
   const {
     localLapses,
@@ -51,6 +59,9 @@ const LapsesCrud: FunctionComponent<Props> = ({
     onDeleteCourt,
     onRevertDeleteCourt
   } = useLocalLapses(lapses, onChange);
+
+  // Obtener las opciones de años académicos
+  const academicYearOptions = getAcademicYearOptions();
 
   // Función auxiliar para verificar si una fecha es válida
   const isValidDate = (date: string | null | undefined): boolean => {
@@ -97,9 +108,25 @@ const LapsesCrud: FunctionComponent<Props> = ({
     });
   }, [onCreate]);
 
+  // Función para generar automáticamente años escolares
+  const handleAutoGenerate = useCallback((pivotYear: number) => {
+    // Marcar que la generación automática ya fue usada
+    setAutoGenerateUsed(true);
+    
+    const generatedLapses = generateSchoolYear(pivotYear);
+    // Reemplazamos todos los lapsos actuales con los generados
+    onChange(generatedLapses);
+  }, [onChange]);
+
   const handleUpdateLapse = useCallback((index: number, field: string, value: string) => {
     // Actualizamos el valor
     onUpdate(index, { [field]: value });
+    
+    // Si estamos actualizando la fecha de inicio del lapso, actualizar también la fecha de inicio del primer corte
+    if (field === 'startDate' && localLapses[index]?.schoolCourts?.length > 0) {
+      // Actualizar la fecha de inicio del primer corte para que coincida con la del lapso
+      onUpdateCourt(index, 0, { startDate: value });
+    }
     
     // Validamos después de la actualización
     setLapsesErrors(prev => {
@@ -150,7 +177,7 @@ const LapsesCrud: FunctionComponent<Props> = ({
       
       return newErrors;
     });
-  }, [onUpdate, localLapses]);
+  }, [onUpdate, localLapses, onUpdateCourt]);
 
   // Devuelve el nombre de clase CSS según el estado del lapso
   const getLapseClassName = useCallback((lapse: SchoolLapseForm) => {
@@ -217,6 +244,9 @@ const LapsesCrud: FunctionComponent<Props> = ({
     return undefined;
   };
 
+  // Mostrar opciones de generación automática solo en modo crear y si no hay lapsos
+  const showAutoGenerateOptions = isCreateMode && localLapses.length === 0;
+
   return (
     <div className={className}>
       <MainCard 
@@ -240,6 +270,46 @@ const LapsesCrud: FunctionComponent<Props> = ({
               >
                 Añadir Lapso
               </Button>
+              
+              {showAutoGenerateOptions && (
+                <Box className="auto-generate-options">
+                  <Typography variant="body2" sx={{ mt: 3, mb: 1, color: 'text.secondary' }}>
+                    O generar automáticamente:
+                  </Typography>
+                  <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+                    {academicYearOptions.map((option) => (
+                      <Link
+                        key={option.year}
+                        component="button"
+                        variant="body2"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleAutoGenerate(option.year);
+                        }}
+                        sx={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          color: autoGenerateUsed ? 'text.disabled' : 'secondary.main', 
+                          cursor: autoGenerateUsed ? 'not-allowed' : 'pointer',
+                          pointerEvents: autoGenerateUsed ? 'none' : 'auto',
+                          textDecoration: 'none'
+                        }}
+                        underline="hover"
+                        className="auto-generate-link"
+                        disabled={autoGenerateUsed}
+                      >
+                        <IconWand size={18} style={{ marginRight: '8px', opacity: autoGenerateUsed ? 0.5 : 1 }} />
+                        Año {option.label}
+                        {autoGenerateUsed && 
+                          <Typography variant="caption" sx={{ ml: 1, color: 'text.disabled' }}>
+                            (Ya generado)
+                          </Typography>
+                        }
+                      </Link>
+                    ))}
+                  </Stack>
+                </Box>
+              )}
             </div>
           ) : (
             localLapses.map((lapse, index) => (
@@ -417,6 +487,21 @@ export default styled(LapsesCrud)`
   
   .add-first-lapse-button {
     padding: 8px 24px;
+  }
+
+  .auto-generate-options {
+    margin-top: 16px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .auto-generate-link {
+    transition: all 0.2s ease;
+    &:hover {
+      transform: translateY(-2px);
+    }
   }
 
   .lapses-list {
