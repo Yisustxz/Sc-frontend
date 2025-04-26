@@ -9,7 +9,6 @@ import {
   FormControl,
   InputLabel,
   FormHelperText,
-  Autocomplete,
   MenuItem,
   Select,
   Box,
@@ -17,12 +16,16 @@ import {
 } from "@mui/material";
 import { SchoolCourseForm } from "../types";
 import { FormikErrors } from "formik";
-import { useGetCourses } from "services/hooks/courses";
-import { useGetEmployees } from "services/hooks/employees";
+import useGetCourses from "services/hooks/use-get-courses";
+import useGetEmployees from "services/hooks/use-get-employees";
 import { EducationLevels, gradeMapping } from "core/courses/use-education-levels";
 import { TypeEmployee } from "core/employees/types";
 import { Course } from "core/courses/types";
 import { Employees } from "core/employees/types";
+import OnlineAutocomplete from "components/OnlineAutocomplete";
+
+const PROFESSOR_SEARCH_LIMIT = 20;
+const COURSE_SEARCH_LIMIT = 20;
 
 interface CourseModalProps {
   open: boolean;
@@ -41,7 +44,6 @@ function getGradeOptions() {
   }));
 }
 
-// Interfaz para errores locales del formulario
 interface FormErrors {
   courseId?: string;
   grade?: string;
@@ -58,121 +60,77 @@ const CourseModal: FunctionComponent<CourseModalProps> = ({
   allowGradeEdit = false,
   error,
 }) => {
-  // Estado del formulario
   const [formData, setFormData] = useState<Partial<SchoolCourseForm>>({
     courseId: undefined,
     grade: grade,
     weeklyHours: 0,
   });
-  
-  // Estado para errores locales
   const [localErrors, setLocalErrors] = useState<FormErrors>({});
-  // Estado para controlar si ya se intentó enviar el formulario
   const [attempted, setAttempted] = useState(false);
+  const [professorSearchTerm, setProfessorSearchTerm] = useState("");
+  const [courseSearchTerm, setCourseSearchTerm] = useState("");
 
-  // Determinar si estamos en modo edición o creación
-  const isUpdateMode = useMemo(() => {
-    return !!course?.id;
-  }, [course]);
+  const isUpdateMode = useMemo(() => !!course?.id, [course]);
 
-  const modalTitle = useMemo(() => {
-    return isUpdateMode ? "Editar Asignatura" : "Añadir Asignatura";
-  }, [isUpdateMode]);
+  const modalTitle = useMemo(() => (isUpdateMode ? "Editar Asignatura" : "Añadir Asignatura"), [isUpdateMode]);
 
   const gradeOptions = getGradeOptions();
 
-  // Cargar datos de cursos y profesores
-  const { data: courses = [], isLoading: coursesLoading } = useGetCourses();
-
-  // Usar el hook mejorado de useGetEmployees con el filtro por rol 'PROFESSOR'
-  const { data: professors = [], isLoading: professorsLoading } =
-    useGetEmployees({
-      role: "PROFESSOR", // Esto se convertirá a lowercase en el hook
-    });
-
-  // Generar lista extendida de cursos usando useMemo
-  const extendedCourses = useMemo(() => {
-    let result = [...courses];
-    
-    // Si estamos en modo edición y hay un curso seleccionado
-    if (course?.courseId && !courses.some(c => c.id === course.courseId) && course.relationsInfo?.courseName) {
-      console.log("Añadiendo curso que no está en las opciones: ", course.courseId, course.relationsInfo.courseName);
-      
-      // Crear un objeto Course temporal para añadirlo a las opciones
-      const missingCourse: Course = {
+  const courseForceItems = useMemo(() => {
+    if (course?.courseId && course.relationsInfo?.courseName) {
+      return [{
         id: course.courseId,
         name: course.relationsInfo.courseName,
-        grade: grade,
-        createdAt: new Date().toISOString()
-      };
-      
-      // Añadir el curso al principio para que sea más visible
-      result = [missingCourse, ...result];
+        grade: grade
+      }];
     }
-    
-    return result;
-  }, [courses, course, grade]);
-  
-  // Generar lista extendida de profesores usando useMemo
-  const extendedProfessors = useMemo(() => {
-    let result = [...professors];
-    
-    // Si estamos en modo edición y hay un profesor seleccionado
-    if (course?.professorId && !professors.some(p => p.id === course.professorId) && course.relationsInfo?.professorName) {
-      console.log("Añadiendo profesor que no está en las opciones: ", course.professorId, course.relationsInfo.professorName);
-      
-      // Extraer nombre y apellido si es posible
+    return [];
+  }, [course, grade]);
+
+  const professorForceItems = useMemo(() => {
+    if (course?.professorId && course.relationsInfo?.professorName) {
       let name = course.relationsInfo.professorName;
       let lastName = "";
-      
-      // Intentar separar el nombre completo en nombre y apellido
       const nameParts = course.relationsInfo.professorName.split(' ');
       if (nameParts.length > 1) {
         name = nameParts[0];
         lastName = nameParts.slice(1).join(' ');
       }
-      
-      // Crear un objeto Employee temporal para añadirlo a las opciones
-      const missingProfessor: Employees = {
+      return [{
         id: course.professorId,
-        name: name,
-        lastName: lastName,
-        dni: "",
-        phone: "",
-        direction: "",
-        birthDate: "",
+        name,
+        lastName,
         employeeType: TypeEmployee.Professor
-      };
-      
-      // Añadir el profesor al principio para que sea más visible
-      result = [missingProfessor, ...result];
+      }];
     }
-    
-    return result;
-  }, [professors, course]);
 
-  // Función para actualizar formData cuando cambian las props
+    return [];
+  }, [course]);
+
+  const { data: courses = [], isLoading: isLoadingCourses } = useGetCourses(courseForceItems, courseSearchTerm, COURSE_SEARCH_LIMIT, null);
+  const { data: professors = [], isLoading: isLoadingProfessors } =
+    useGetEmployees(professorForceItems, professorSearchTerm, PROFESSOR_SEARCH_LIMIT, TypeEmployee.Professor);
+
   useEffect(() => {
     if (course) {
       setFormData(course);
+      setProfessorSearchTerm("");
+      setCourseSearchTerm("");
     } else {
       setFormData({
         courseId: undefined,
         grade: grade,
         weeklyHours: 0,
       });
+      setProfessorSearchTerm("");
+      setCourseSearchTerm("");
     }
-    
-    // Resetear los errores y el estado de intento cuando cambia el modal
     setLocalErrors({});
     setAttempted(false);
   }, [course, grade, open]);
 
-
-  // Validar un campo específico
   const validateField = useCallback((field: keyof SchoolCourseForm, value: any) => {
     const newErrors = { ...localErrors };
-    
     switch (field) {
       case 'courseId':
         if (!value) {
@@ -198,40 +156,28 @@ const CourseModal: FunctionComponent<CourseModalProps> = ({
         }
         break;
     }
-    
     setLocalErrors(newErrors);
     return newErrors;
   }, [localErrors]);
-  
-  // Manejar cambios en el formulario (con useCallback)
+
   const handleChange = useCallback((field: keyof SchoolCourseForm, value: any) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
-    
-    // Si ya hubo un intento de envío, validamos en tiempo real
     if (attempted) {
       validateField(field, value);
     }
   }, [attempted, validateField]);
-  
 
-  // Validar todo el formulario
   const validateForm = useCallback(() => {
     const newErrors: FormErrors = {};
-    
-    // Validar courseId (obligatorio)
     if (!formData.courseId) {
       newErrors.courseId = 'La asignatura es requerida';
     }
-    
-    // Validar grade (obligatorio)
     if (formData.grade === undefined || formData.grade === null) {
       newErrors.grade = 'El grado es requerido';
     }
-    
-    // Validar weeklyHours
     if (formData.weeklyHours !== undefined) {
       if (formData.weeklyHours < 0) {
         newErrors.weeklyHours = 'Las horas semanales deben ser un número positivo';
@@ -239,38 +185,28 @@ const CourseModal: FunctionComponent<CourseModalProps> = ({
         newErrors.weeklyHours = 'Las horas semanales no pueden exceder 40';
       }
     }
-    
     setLocalErrors(newErrors);
     return newErrors;
   }, [formData]);
 
-  // Manejar submit del formulario (con useCallback)
   const handleSubmit = useCallback(() => {
     setAttempted(true);
     const errors = validateForm();
-    
-    // Si hay errores, no enviamos el formulario
     if (Object.keys(errors).length > 0) {
       return;
     }
-    
-    // Buscar datos adicionales del curso y profesor seleccionados
-    const selectedCourse = extendedCourses.find((c) => c.id === formData.courseId);
-    const selectedProfessor = extendedProfessors.find(
-      (p) => p.id === formData.professorId
+    const selectedCourse = courses.find((c) => c.id === formData.courseId);
+    const selectedProfessor = professors.find(
+      (p: Employees) => p.id === formData.professorId
     );
-
-    // Verificar que courseId sea un número válido
     if (!formData.courseId) {
       setLocalErrors({ ...localErrors, courseId: 'La asignatura es requerida' });
       return;
     }
-
-    // Estructura con relationsInfo separado
     const finalData: SchoolCourseForm = {
       ...(formData as any),
       courseId: formData.courseId as number,
-      grade: formData.grade as number || 1, // Valor por defecto para evitar undefined
+      grade: formData.grade as number || 1,
       professorId: formData.professorId as number | undefined,
       weeklyHours: formData.weeklyHours || 0,
       relationsInfo: {
@@ -280,15 +216,31 @@ const CourseModal: FunctionComponent<CourseModalProps> = ({
           : formData.relationsInfo?.professorName || "(Sin nombre)",
       }
     };
-
     onSave(finalData);
     onClose();
-  }, [formData, extendedCourses, extendedProfessors, onSave, onClose, validateForm, localErrors]);
+  }, [
+    formData, 
+    courses, 
+    professors, 
+    onSave, 
+    onClose, 
+    validateForm, 
+    localErrors, 
+    setAttempted, 
+    setLocalErrors
+  ]);
 
-  // Determinar qué errores mostrar (priorizar errores locales sobre los externos)
   const getError = useCallback((field: keyof FormErrors) => {
     return localErrors[field] || (error && error[field as keyof FormikErrors<SchoolCourseForm>] as string);
   }, [localErrors, error]);
+
+  const handleProfessorSelect = useCallback((newValue: Employees | null) => {
+    handleChange("professorId", newValue?.id || null);
+  }, [handleChange]);
+
+  const handleCourseSelect = useCallback((newValue: Course | null) => {
+    handleChange("courseId", newValue?.id || null);
+  }, [handleChange]);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -296,7 +248,6 @@ const CourseModal: FunctionComponent<CourseModalProps> = ({
         {modalTitle}
         {isUpdateMode && (
           <Box component="span" sx={{ ml: 1, fontSize: '0.9rem', color: 'text.secondary' }}>
-            {/* Mostrar información útil en modo edición */}
             {formData.relationsInfo?.courseName && (
               <Typography variant="caption" component="span" sx={{ fontStyle: 'italic' }}>
                 - ID: {formData.courseSchoolYearId || 'Nuevo'}
@@ -307,26 +258,22 @@ const CourseModal: FunctionComponent<CourseModalProps> = ({
       </DialogTitle>
 
       <DialogContent>
-        <FormControl fullWidth margin="normal" error={!!getError('courseId')}>
-          <Autocomplete
-            options={extendedCourses}
-            getOptionLabel={(option) => option.name}
-            loading={coursesLoading}
-            value={extendedCourses.find((c) => c.id === formData.courseId) || null}
-            onChange={(_, newValue) => {
-              handleChange("courseId", newValue?.id || null);
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Asignatura"
-                required
-                error={!!getError('courseId')}
-                helperText={getError('courseId')}
-              />
-            )}
-          />
-        </FormControl>
+        <OnlineAutocomplete
+          options={courses}
+          value={courses.find((c) => c.id === formData.courseId) || null}
+          onChange={handleCourseSelect}
+          getOptionLabel={(option) => option.name}
+          label="Asignatura"
+          required={true}
+          loading={isLoadingCourses}
+          searchFn={setCourseSearchTerm}
+          error={getError('courseId')}
+          noOptionsText="No se encontraron asignaturas"
+          loadingText="Buscando asignaturas..."
+          currentSelectionLabel={formData.relationsInfo?.courseName}
+          originalValue={course?.courseId}
+          currentValue={formData.courseId}
+        />
 
         {allowGradeEdit && (
           <FormControl fullWidth margin="normal" error={!!getError('grade')}>
@@ -348,29 +295,21 @@ const CourseModal: FunctionComponent<CourseModalProps> = ({
           </FormControl>
         )}
 
-        <FormControl fullWidth margin="normal" error={!!getError('professorId')}>
-          <Autocomplete
-            options={extendedProfessors}
-            getOptionLabel={(option) =>
-              `${option.name} ${option.lastName}`
-            }
-            loading={professorsLoading}
-            value={
-              extendedProfessors.find((p) => p.id === formData.professorId) || null
-            }
-            onChange={(_, newValue) => {
-              handleChange("professorId", newValue?.id || null);
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Profesor"
-                error={!!getError('professorId')}
-                helperText={getError('professorId')}
-              />
-            )}
-          />
-        </FormControl>
+        <OnlineAutocomplete
+          options={professors}
+          value={professors.find((p) => p.id === formData.professorId) || null}
+          onChange={handleProfessorSelect}
+          getOptionLabel={(option) => `${option.name} ${option.lastName}`}
+          label="Profesor"
+          loading={isLoadingProfessors}
+          searchFn={setProfessorSearchTerm}
+          error={getError('professorId')}
+          noOptionsText="No se encontraron profesores"
+          loadingText="Buscando profesores..."
+          currentSelectionLabel={formData.relationsInfo?.professorName}
+          originalValue={course?.professorId}
+          currentValue={formData.professorId}
+        />
 
         <FormControl fullWidth margin="normal" error={!!getError('weeklyHours')}>
           <TextField
@@ -403,4 +342,4 @@ const CourseModal: FunctionComponent<CourseModalProps> = ({
   );
 };
 
-export default CourseModal; 
+export default CourseModal;

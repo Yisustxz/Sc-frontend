@@ -30,26 +30,17 @@ const SchoolYearFormContainer: FunctionComponent<Props> = ({
   // Utilizamos una referencia para almacenar el formulario
   const formRef = useRef<FormikProps<FormValues>>(null);
   
-  // Estado para controlar la apertura del modal de cursos
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  
-  // Funciones para manejar el estado del modal
-  const openModal = useCallback(() => setIsModalOpen(true), []);
-  const closeModal = useCallback(() => setIsModalOpen(false), []);
+  // Estado para controlar el curso que está siendo editado
+  const [editingCourse, setEditingCourse] = useState<SchoolCourseForm | undefined>();
   
   // Transformamos los valores iniciales si tienen formato backend
   const transformedInitialValues = useMemo(() => {
     const values = { ...initialValues };
     
-    console.log("Valores iniciales recibidos:", values);
-    
     // Verificamos si courseSchoolYears tiene formato backend
     if (values.courseSchoolYears?.length) {
-      console.log("courseSchoolYears antes de transformar:", values.courseSchoolYears);
+      //console.log("courseSchoolYears antes de transformar:", values.courseSchoolYears);
       
-      // Verificar si algún elemento tiene la estructura del backend (con course o professor)
-      // Usamos 'any' para evitar errores de TypeScript ya que estamos verificando propiedades
-      // que no están en la interfaz SchoolCourseForm
       const hasBackendFormat = values.courseSchoolYears.some((item: any) => 
         item?.course || item?.professor || 
         ('course' in (item || {})) || ('professor' in (item || {}))
@@ -58,15 +49,17 @@ const SchoolYearFormContainer: FunctionComponent<Props> = ({
       if (hasBackendFormat) {
         console.log("Detectado formato de backend, transformando...");
         values.courseSchoolYears = mapBackendCoursesToFrontend(values.courseSchoolYears as any);
-        console.log("courseSchoolYears después de transformar:", values.courseSchoolYears);
+        //console.log("courseSchoolYears después de transformar:", values.courseSchoolYears);
       } else {
-        console.log("No se detectó formato de backend, manteniendo valores originales");
+        //console.log("No se detectó formato de backend, manteniendo valores originales");
       }
     }
     
     return values;
   }, [initialValues]);
   
+  const [currentGrade, setCurrentGrade] = useState<number>(1);
+
   // Esta función se crea una sola vez durante el ciclo de vida del componente
   const handleLapsesChange = useCallback((lapses: SchoolLapseForm[]) => {
     if (formRef.current) {
@@ -232,7 +225,15 @@ const SchoolYearFormContainer: FunctionComponent<Props> = ({
                       color="primary"
                       size="small"
                       startIcon={<IconCirclePlus size={20} />}
-                      onClick={openModal}
+                      onClick={() => setEditingCourse({
+                              courseId: 0,
+                              grade: currentGrade,
+                              weeklyHours: 0,
+                              professorId: undefined,
+                              isNew: true,
+                              isDirty: false,
+                              localDeleted: false,
+                      })}
                     >
                       Añadir Asignatura
                     </Button>
@@ -242,10 +243,11 @@ const SchoolYearFormContainer: FunctionComponent<Props> = ({
                     courses={values.courseSchoolYears}
                     onChange={handleCoursesChange}
                     errors={errors}
-                    externalModalOpen={isModalOpen}
-                    onExternalModalClose={closeModal}
-                    onExternalModalOpen={openModal}
                     isCreateMode={!isUpdate}
+                    editingCourse={editingCourse}
+                    setEditingCourse={setEditingCourse}
+                    currentGrade={currentGrade}
+                    setCurrentGrade={setCurrentGrade}
                   />
                 </MainCard>
               </Grid>

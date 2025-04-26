@@ -6,6 +6,10 @@ interface UseLocalCoursesProps {
   onChange: (courses: SchoolCourseForm[]) => void;
 }
 
+/*function deepCompare(a: any, b: any): boolean {
+  return JSON.stringify(a) === JSON.stringify(b);
+}*/
+
 /**
  * Hook para gestionar el estado local de los cursos por año escolar y sus operaciones CRUD
  */
@@ -19,7 +23,7 @@ const useLocalCourses = ({ courses, onChange }: UseLocalCoursesProps) => {
   useEffect(() => {
     // Si recibimos nuevos cursos del padre, actualizamos el estado local
     // pero debemos preservar los metadatos como isNew, isDirty, localDeleted
-    if (courses && courses !== localCourses) {
+    if (courses && courses !== localCourses/* && !deepCompare(courses, localCourses)*/) {
       const newLocalCourses = courses.map(newCourse => {
         // Buscar el curso correspondiente en nuestro estado local
         const existingCourse = localCourses.find(localCourse => 
@@ -52,22 +56,23 @@ const useLocalCourses = ({ courses, onChange }: UseLocalCoursesProps) => {
         };
       });
       
-      setLocalCourses(newLocalCourses);
+      //if (!deepCompare(newLocalCourses, localCourses)) {
+        console.log("<<<<<<<<<<<<< HUBO UNA ACTAULIZACION DEEEP DE CURSOS >>>>>>>>><<");
+        setLocalCourses(newLocalCourses);
+      //}
     }
-  }, [courses]);
+  }, [courses, localCourses]);
 
   // Obtener cursos filtrados por grado
   const getCoursesByGrade = useCallback(
     (grade: number) => {
       console.log("Buscando cursos para grado:", grade);
-      console.log("Cursos disponibles:", localCourses);
       
       // Filtrar cursos para el grado especificado
       const filteredCourses = localCourses.filter((course) => {
         return course.grade === grade;
       });
-      
-      console.log("Cursos filtrados:", filteredCourses);
+
       return filteredCourses;
     },
     [localCourses]

@@ -11,6 +11,7 @@ const URL = `${API_BASE_URL}/courses/all`;
 interface GetAllCoursesParams {
   grade?: number;
   name?: string;
+  limit?: number;
 }
 
 export default async function getAllCourses(params?: GetAllCoursesParams): Promise<Course[]> {
@@ -28,6 +29,11 @@ export default async function getAllCourses(params?: GetAllCoursesParams): Promi
       if (params.name) {
         queryParams.name = params.name;
       }
+      
+      // Añadir el parámetro limit si existe
+      if (params.limit) {
+        queryParams.limit = Number(params.limit);
+      }
     }
     
     // Añadir los parámetros a la URL
@@ -35,7 +41,7 @@ export default async function getAllCourses(params?: GetAllCoursesParams): Promi
       ? addQueryParams(URL, queryParams) 
       : URL;
     
-    console.log('course request url', urlWithParams);
+    console.log('Course request URL:', urlWithParams);
     
     const response = await axios.get<Course[]>(
       urlWithParams, {

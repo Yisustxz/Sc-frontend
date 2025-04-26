@@ -30,27 +30,27 @@ interface CoursesCrudProps {
   errors?: FormikErrors<{ courseSchoolYears: SchoolCourseForm[] }>;
   className?: string;
   cardTitle?: React.ReactNode;
-  // Propiedades para el control externo del modal
-  externalModalOpen?: boolean;
-  onExternalModalClose?: () => void;
-  onExternalModalOpen?: () => void;
+  // Nuevo estado compartido con el componente padre
+  editingCourse?: SchoolCourseForm | undefined;
+  setEditingCourse: (course: SchoolCourseForm | undefined) => void;
   // Nueva propiedad para determinar si es una operación de CREAR o EDITAR
   isCreateMode?: boolean;
+  currentGrade: number;
+  setCurrentGrade: (grade: number) => void;
 }
 
-const CoursesCrud = ({ 
+const CoursesCrud = ({
   courses, 
   onChange, 
   errors, 
-  className, 
-  cardTitle,
-  externalModalOpen,
-  onExternalModalClose,
-  onExternalModalOpen,
-  isCreateMode = false
+  className,
+  editingCourse,
+  setEditingCourse,
+  isCreateMode = false,
+  currentGrade,
+  setCurrentGrade
 }: CoursesCrudProps) => {
   // Inicialización de estados con detección de primer grado con cursos
-  const [internalModalOpen, setInternalModalOpen] = useState(false);
   const [isLoadingCourses, setIsLoadingCourses] = useState(false);
   const dispatch = useAppDispatch();
 
@@ -76,24 +76,11 @@ const CoursesCrud = ({
     }
   }, [courses]); // Solo se ejecuta cuando cambian los cursos
 
-  const [currentGrade, setCurrentGrade] = useState<number>(1);
-  const [editingCourse, setEditingCourse] = useState<SchoolCourseForm | undefined>();
   const [tabValue, setTabValue] = useState(0);
 
-  // Determinar si el modal está controlado externamente
-  const isExternallyControlled = externalModalOpen !== undefined && onExternalModalClose !== undefined;
-  
-  // Estado efectivo del modal
-  const modalOpen = isExternallyControlled ? externalModalOpen : internalModalOpen;
-  
-  // Función para cerrar el modal, respetando el tipo de control
-  const closeModal = () => {
-    if (isExternallyControlled) {
-      onExternalModalClose?.();
-    } else {
-      setInternalModalOpen(false);
-    }
-  };
+  const handleModalClose = useCallback(() => {
+    setEditingCourse(undefined);
+  }, [setEditingCourse]);
 
   // Hook para gestionar el estado local de los cursos
   const { 
@@ -109,11 +96,12 @@ const CoursesCrud = ({
   });
 
   // Log para depurar los cursos recibidos
-  console.log("CoursesCrud - Cursos recibidos:", courses);
-  console.log("CoursesCrud - Estado inicial localCourses:", localCourses);
+  //console.log("CoursesCrud - Cursos recibidos:", courses);
+  //console.log("CoursesCrud - Estado inicial localCourses:", localCourses);
 
   // Añadir un useEffect para detectar cambios en la lista de cursos
   useEffect(() => {
+    console.log('HUBO UN CAMBIO!!!')
     console.log("CoursesCrud - Cursos actualizados:", courses);
     console.log("CoursesCrud - localCourses actualizado:", localCourses);
   }, [courses, localCourses]);
@@ -123,16 +111,19 @@ const CoursesCrud = ({
     Array.from({ length: 11 }, (_, i) => i + 1), 
   []);
 
+
   // Función para abrir el modal de creación
-  const handleAddCourse = () => {
-    setEditingCourse(undefined);
-    
-    if (isExternallyControlled) {
-      onExternalModalOpen?.();
-    } else {
-      setInternalModalOpen(true);
-    }
-  };
+  const handleAddCourse = useCallback(() => {
+    setEditingCourse({
+      courseId: 0,
+      grade: currentGrade,
+      weeklyHours: 0,
+      professorId: undefined,
+      isNew: true,
+      isDirty: false,
+      localDeleted: false,
+    });
+  }, [currentGrade, setEditingCourse]);
 
   // Función para rellenar automáticamente todas las asignaturas
   const handleAutoFill = useCallback(async () => {
@@ -182,20 +173,8 @@ const CoursesCrud = ({
   // Crear una referencia al botón que se puede activar externamente
   const addCourseRef = React.useRef<HTMLButtonElement>(null);
   
-  // Para mantener compatibilidad con el código existente, seguimos exponiendo el método
-  // pero sólo si no está controlado externamente
-  useEffect(() => {
-    if (!isExternallyControlled && typeof window !== 'undefined') {
-      (window as any).openCourseModal = handleAddCourse;
-      
-      return () => {
-        delete (window as any).openCourseModal;
-      };
-    }
-  }, [isExternallyControlled]);
-
   // Función para abrir el modal de edición
-  const handleEditCourse = (course: SchoolCourseForm) => {
+  const handleEditCourse = useCallback((course: SchoolCourseForm) => {
     console.log("Editando curso:", course);
     // Nos aseguramos de que el curso tenga todos los datos necesarios
     const courseToEdit = {
@@ -208,24 +187,20 @@ const CoursesCrud = ({
     };
     
     setEditingCourse(courseToEdit);
-    
-    if (isExternallyControlled) {
-      onExternalModalOpen?.();
-    } else {
-      setInternalModalOpen(true);
-    }
-  };
+  }, [setEditingCourse]);
 
   // Función para guardar un curso (nuevo o editado)
-  const handleSaveCourse = (course: SchoolCourseForm) => {
-    if (editingCourse) {
+  const handleSaveCourse = useCallback((course: SchoolCourseForm) => {
+    console.log("handleSaveCourse - Curso a guardar:", course);
+
+    if (editingCourse?.id || editingCourse?.courseSchoolYearId) {
       // Encontrar el índice del curso que estamos editando
       const index = localCourses.findIndex(c => 
         c === editingCourse || 
         (c.id && c.id === editingCourse.id) ||
         (c.courseSchoolYearId && c.courseSchoolYearId === editingCourse.courseSchoolYearId)
       );
-      
+
       if (index !== -1) {
         onUpdate(index, course);
       }
@@ -233,8 +208,8 @@ const CoursesCrud = ({
       onCreate(course);
     }
     
-    closeModal();
-  };
+    setEditingCourse(undefined);
+  }, [editingCourse, localCourses, onCreate, onUpdate, setEditingCourse]);
 
   // Cambiar de pestaña (grado)
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
@@ -411,19 +386,16 @@ const CoursesCrud = ({
       )}
 
       {/* Modal para crear/editar cursos */}
-      {modalOpen && (
+      {!!editingCourse && (<>
         <CourseModal
-          open={modalOpen}
-          onClose={() => {
-            closeModal();
-            setEditingCourse(undefined);
-          }}
+          open={!!editingCourse}
+          onClose={handleModalClose}
           onSave={handleSaveCourse}
           course={editingCourse}
           grade={currentGrade}
           allowGradeEdit={true}
           error={currentError}
-        />
+        /></>
       )}
     </div>
   );
@@ -434,4 +406,4 @@ export default styled(CoursesCrud)`
     display: flex;
     flex-direction: column;
   }
-`; 
+`;
