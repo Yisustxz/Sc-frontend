@@ -65,6 +65,7 @@ const CourseModal: FunctionComponent<CourseModalProps> = ({
     grade: grade,
     weeklyHours: 0,
   });
+  console.log('form data course modal', formData);
   const [localErrors, setLocalErrors] = useState<FormErrors>({});
   const [attempted, setAttempted] = useState(false);
   const [professorSearchTerm, setProfessorSearchTerm] = useState("");
@@ -76,42 +77,40 @@ const CourseModal: FunctionComponent<CourseModalProps> = ({
 
   const gradeOptions = getGradeOptions();
 
-  const courseForceItems = useMemo(() => {
-    if (course?.courseId && course.relationsInfo?.courseName) {
-      return [{
-        id: course.courseId,
-        name: course.relationsInfo.courseName,
-        grade: grade
-      }];
-    }
-    return [];
-  }, [course, grade]);
+  const courseForceItemsIds = useMemo(() => {
+    const coursesToForce = [];
 
-  const professorForceItems = useMemo(() => {
-    if (course?.professorId && course.relationsInfo?.professorName) {
-      let name = course.relationsInfo.professorName;
-      let lastName = "";
-      const nameParts = course.relationsInfo.professorName.split(' ');
-      if (nameParts.length > 1) {
-        name = nameParts[0];
-        lastName = nameParts.slice(1).join(' ');
-      }
-      return [{
-        id: course.professorId,
-        name,
-        lastName,
-        employeeType: TypeEmployee.Professor
-      }];
+    if (course?.courseId) {
+      coursesToForce.push(course.courseId);
     }
 
-    return [];
-  }, [course]);
+    if (formData.courseId) {
+      coursesToForce.push(formData.courseId);
+    }
 
-  const { data: courses = [], isLoading: isLoadingCourses } = useGetCourses(courseForceItems, courseSearchTerm, COURSE_SEARCH_LIMIT, null);
+    return coursesToForce;
+  }, [course?.courseId, formData.courseId]);
+
+  const professorForceItemsIds = useMemo(() => {
+    const professorsToForce = [];
+
+    if (course?.professorId) {
+      professorsToForce.push(course.professorId);
+    }
+
+    if (formData.professorId) {
+      professorsToForce.push(formData.professorId);
+    }
+
+    return professorsToForce;
+  }, [course?.professorId, formData.professorId]);
+
+  const { data: courses = [], isLoading: isLoadingCourses } = useGetCourses(courseForceItemsIds, courseSearchTerm, COURSE_SEARCH_LIMIT, null);
   const { data: professors = [], isLoading: isLoadingProfessors } =
-    useGetEmployees(professorForceItems, professorSearchTerm, PROFESSOR_SEARCH_LIMIT, TypeEmployee.Professor);
+    useGetEmployees(professorForceItemsIds, professorSearchTerm, PROFESSOR_SEARCH_LIMIT, TypeEmployee.Professor);
 
   useEffect(() => {
+    console.log('LOG DE INICIALIZACION DEL COURSE MODAL');
     if (course) {
       setFormData(course);
       setProfessorSearchTerm("");
@@ -125,6 +124,7 @@ const CourseModal: FunctionComponent<CourseModalProps> = ({
       setProfessorSearchTerm("");
       setCourseSearchTerm("");
     }
+
     setLocalErrors({});
     setAttempted(false);
   }, [course, grade, open]);
@@ -242,6 +242,7 @@ const CourseModal: FunctionComponent<CourseModalProps> = ({
     handleChange("courseId", newValue?.id || null);
   }, [handleChange]);
 
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -260,7 +261,6 @@ const CourseModal: FunctionComponent<CourseModalProps> = ({
       <DialogContent>
         <OnlineAutocomplete
           options={courses}
-          value={courses.find((c) => c.id === formData.courseId) || null}
           onChange={handleCourseSelect}
           getOptionLabel={(option) => option.name}
           label="Asignatura"
@@ -270,7 +270,6 @@ const CourseModal: FunctionComponent<CourseModalProps> = ({
           error={getError('courseId')}
           noOptionsText="No se encontraron asignaturas"
           loadingText="Buscando asignaturas..."
-          currentSelectionLabel={formData.relationsInfo?.courseName}
           originalValue={course?.courseId}
           currentValue={formData.courseId}
         />
@@ -297,7 +296,6 @@ const CourseModal: FunctionComponent<CourseModalProps> = ({
 
         <OnlineAutocomplete
           options={professors}
-          value={professors.find((p) => p.id === formData.professorId) || null}
           onChange={handleProfessorSelect}
           getOptionLabel={(option) => `${option.name} ${option.lastName}`}
           label="Profesor"
@@ -306,9 +304,8 @@ const CourseModal: FunctionComponent<CourseModalProps> = ({
           error={getError('professorId')}
           noOptionsText="No se encontraron profesores"
           loadingText="Buscando profesores..."
-          currentSelectionLabel={formData.relationsInfo?.professorName}
           originalValue={course?.professorId}
-          currentValue={formData.professorId}
+          currentValue={formData.professorId} 
         />
 
         <FormControl fullWidth margin="normal" error={!!getError('weeklyHours')}>

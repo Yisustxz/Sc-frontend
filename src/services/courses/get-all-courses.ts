@@ -12,6 +12,7 @@ interface GetAllCoursesParams {
   grade?: number;
   name?: string;
   limit?: number;
+  forceItemsIds?: number[];
 }
 
 export default async function getAllCourses(params?: GetAllCoursesParams): Promise<Course[]> {
@@ -34,6 +35,10 @@ export default async function getAllCourses(params?: GetAllCoursesParams): Promi
       if (params.limit) {
         queryParams.limit = Number(params.limit);
       }
+
+      if (params.forceItemsIds) {
+        queryParams.forceItemsIds = params.forceItemsIds;
+      } 
     }
     
     // Añadir los parámetros a la URL

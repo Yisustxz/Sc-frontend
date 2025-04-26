@@ -1,16 +1,12 @@
-import { useCallback, useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useState } from "react";
 import getAllCourses from "services/courses/get-all-courses";
 import { Course } from "core/courses/types";
 import { useAppDispatch } from "store";
 import { setErrorMessage, setIsLoading } from "store/customizationSlice";
 import BackendError from "exceptions/backend-error";
 
-// Interfaz para los elementos forzados usando Partial para hacer opcional todos los campos excepto id
-interface ForcedCourse extends Partial<Omit<Course, 'id'>> {
-  id: number;
-}
 
-export default function useGetCourses(forceItems: ForcedCourse[],  searchTerm: string | null, limit: number | null, grade: number | null) {
+export default function useGetCourses(forceItemsIds: number[],  searchTerm: string | null, limit: number | null, grade: number | null) {
   const [rawData, setRawData] = useState<Course[]>([]);
   const dispatch = useAppDispatch();
   const { isLoading, setLoading } = useMixedLoading();
@@ -18,7 +14,7 @@ export default function useGetCourses(forceItems: ForcedCourse[],  searchTerm: s
   const fetchCourses = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await executeGetCourses(grade, searchTerm, limit);
+      const response = await executeGetCourses(grade, searchTerm, limit, forceItemsIds);
       setRawData(response);
     } catch (error) {
       if (error instanceof BackendError) {
@@ -28,41 +24,17 @@ export default function useGetCourses(forceItems: ForcedCourse[],  searchTerm: s
     } finally {
       setLoading(false);
     }
-  }, [dispatch, grade, searchTerm, limit, setLoading]);
+  }, [setLoading, grade, searchTerm, limit, forceItemsIds, dispatch]);
 
   useEffect(() => {
     fetchCourses();
   }, [fetchCourses]);
 
-  // Utiliza la función extraída para procesar los items forzados
-  const data = useItemsWithForcedItems(rawData, forceItems || []);
-
   return {
-    data,
+    data: rawData,
     isLoading,
     refetch: fetchCourses,
   };
-}
-
-function useItemsWithForcedItems(rawData: Course[], forceItems: ForcedCourse[]) {
-  return useMemo(() => {
-    let result = [...rawData];
-
-    forceItems.forEach(forcedItem => {
-      const exists = result.some(item => item.id === forcedItem.id);
-
-      if (!exists) {
-        result.push({
-          name: forcedItem.name || "(Sin nombre)",
-          grade: forcedItem.grade || 1,
-          createdAt: forcedItem.createdAt || new Date().toISOString(),
-          ...forcedItem,
-        });
-      }
-    });
-
-    return result;
-  }, [forceItems, rawData]);
 }
 
 function useMixedLoading() {
@@ -80,7 +52,7 @@ function useMixedLoading() {
   return { isLoading, setLoading }
 }
 
-async function executeGetCourses(grade: number | null, searchTerm: string | null, limit: number | null): Promise<Course[]> {
+async function executeGetCourses(grade: number | null, searchTerm: string | null, limit: number | null, forceItemsIds: number[]): Promise<Course[]> {
   const params: any = {};
 
   if (grade) {
@@ -93,6 +65,10 @@ async function executeGetCourses(grade: number | null, searchTerm: string | null
 
   if (limit) {
     params.limit = limit;
+  }
+
+  if (forceItemsIds) {
+    params.forceItemsIds = forceItemsIds;
   }
 
   return await getAllCourses(params);

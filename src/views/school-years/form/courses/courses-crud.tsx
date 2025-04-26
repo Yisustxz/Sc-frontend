@@ -74,7 +74,7 @@ const CoursesCrud = ({
         setTabValue(tabIndex);
       }
     }
-  }, [courses]); // Solo se ejecuta cuando cambian los cursos
+  }, [courses, setCurrentGrade]); // Solo se ejecuta cuando cambian los cursos
 
   const [tabValue, setTabValue] = useState(0);
 

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import {
   Autocomplete,
   TextField,
@@ -17,7 +17,6 @@ interface Option {
 
 interface OnlineAutocompleteProps<T extends Option> {
   options: T[];
-  value: T | null;
   onChange: (value: T | null) => void;
   getOptionLabel: (option: T) => string;
   label: string;
@@ -28,7 +27,6 @@ interface OnlineAutocompleteProps<T extends Option> {
   searchFn: (searchTerm: string) => void;
   noOptionsText?: string;
   loadingText?: string;
-  currentSelectionLabel?: string;
   originalValue?: string | number | null;
   currentValue?: string | number | null;
   fullWidth?: boolean;
@@ -36,7 +34,6 @@ interface OnlineAutocompleteProps<T extends Option> {
 
 function OnlineAutocomplete<T extends Option>({
   options,
-  value,
   onChange,
   getOptionLabel,
   label,
@@ -47,13 +44,34 @@ function OnlineAutocomplete<T extends Option>({
   searchFn,
   noOptionsText = "No se encontraron resultados",
   loadingText = "Buscando...",
-  currentSelectionLabel,
   originalValue,
   currentValue,
   fullWidth = true,
 }: OnlineAutocompleteProps<T>) {
   const [isSelecting, setIsSelecting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [value, setValue] = useState<T | null>(null);
+
+  // Calcular si el valor ha sido modificado
+  const isModified = currentValue !== undefined && currentValue !== originalValue;
+
+  useEffect(() => {
+    if (options.length <= 0) {
+      return; 
+    }
+
+    if (isModified && currentValue) {
+      const option = options.find((option) => option.id === currentValue);
+      if (option && option.id !== value?.id) {
+        setValue(option);
+      }
+    } else if (originalValue) {
+      const option = options.find((option) => option.id === originalValue);
+      if (option && option.id !== value?.id) {
+        setValue(option);
+      }
+    }
+  }, [currentValue, isModified, options, originalValue, value?.id]);
 
   // Debounce para la búsqueda
   const debouncedSearch = useCallback(
@@ -66,10 +84,10 @@ function OnlineAutocomplete<T extends Option>({
   );
 
   // Manejar búsqueda
-  const handleSearchChange = (value: string) => {
+  const handleSearchChange = useCallback((value: string) => {
     setSearchTerm(value);
     debouncedSearch(value);
-  };
+  }, [debouncedSearch, setSearchTerm]);
 
   // Manejar selección
   const handleSelect = useCallback((_: React.SyntheticEvent, newValue: T | null) => {
@@ -83,16 +101,11 @@ function OnlineAutocomplete<T extends Option>({
     }, 300);
   }, [onChange]);
 
-  // Calcular si el valor ha sido modificado
-  const isModified = currentValue !== undefined && 
-                   originalValue !== undefined && 
-                   currentValue !== originalValue;
-
   return (
     <FormControl fullWidth={fullWidth} error={!!error}>
-      {currentSelectionLabel && (
+      {value && (
         <Typography variant="caption" sx={{ mb: 1, fontStyle: 'italic', display: 'block' }}>
-          Selección actual: {currentSelectionLabel}
+          Selección actual: {getOptionLabel(value)}
           {isModified && (
             <Box component="span" sx={{ ml: 1, color: 'warning.main' }}>(Modificado)</Box>
           )}
@@ -101,8 +114,8 @@ function OnlineAutocomplete<T extends Option>({
       <Autocomplete
         options={options}
         getOptionLabel={getOptionLabel}
-        loading={loading}
         value={value}
+        loading={loading}
         onChange={handleSelect}
         onInputChange={(_, newInputValue, reason) => {
           // Solo actualizar la búsqueda si el cambio viene del usuario (no de la selección)
