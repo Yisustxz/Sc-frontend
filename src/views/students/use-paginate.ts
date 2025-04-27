@@ -12,7 +12,7 @@ export default function usePaginate() {
   const dispatch = useAppDispatch();
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [Students, setStudents] = useState<Students[]>([]);
+  const [students, setStudents] = useState<Students[]>([]);
   const [paginate, setPaginate] = useState<PaginateData>({
     totalItems: 0,
     page: 1,
@@ -52,7 +52,7 @@ export default function usePaginate() {
   }, [fetchStudents]);
 
   return { 
-    Students, 
+    students, 
     paginate, 
     setPage, 
     fetchStudents,

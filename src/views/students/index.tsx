@@ -9,7 +9,7 @@ import usePaginate from './use-paginate'
 
 const StudentsPage = ({ className }: Props) => {
   const navigate = useNavigate()
-  const { Students, paginate, setPage, fetchStudents, setSearchTerm } = usePaginate()
+  const { students, paginate, setPage, fetchStudents, setSearchTerm } = usePaginate()
   
   const goToCreate = useCallback(() => {
     navigate('/students/create')
@@ -57,7 +57,7 @@ const StudentsPage = ({ className }: Props) => {
       }
     >
       <Table
-        items={Students}
+        items={students}
         paginate={paginate}
         onChange={setPage}
         fetchItems={fetchStudents}
