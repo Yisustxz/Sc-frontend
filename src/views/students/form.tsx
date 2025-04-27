@@ -1,6 +1,6 @@
-import { FunctionComponent } from 'react'
+import { FunctionComponent, useState, useCallback, useRef, useMemo } from 'react'
 import * as Yup from 'yup'
-import { Formik, FormikHelpers } from 'formik'
+import { Formik, FormikHelpers, FormikProps } from 'formik'
 // material-ui
 import MainCard from 'components/cards/MainCard'
 import {
@@ -10,6 +10,11 @@ import {
   TextField,
 } from '@mui/material'
 import styled from 'styled-components'
+import OnlineAutocomplete from 'components/OnlineAutocomplete'
+import useGetRepresentatives from 'services/hooks/use-get-representatives'
+import { Representatives } from 'core/representatives/types'
+
+const REPRESENTATIVE_SEARCH_LIMIT = 10;
 
 const Form: FunctionComponent<Props> = ({
   className,
@@ -19,6 +24,35 @@ const Form: FunctionComponent<Props> = ({
   isUpdate
 }) => {
   const isCreated = !isUpdate
+  const [representativeSearchTerm, setRepresentativeSearchTerm] = useState("");
+  const formikRef = useRef<FormikProps<FormValues>>(null);
+
+
+  const forceItemsIds = useMemo(() => {
+    return initialValues.representativeId ? [initialValues.representativeId] : [];
+  }, [initialValues.representativeId]);
+
+  // Obteniendo la lista de representantes para el autocompletado
+  const { data: representatives = [], isLoading: isLoadingRepresentatives } = 
+    useGetRepresentatives(
+      forceItemsIds, 
+      representativeSearchTerm, 
+      REPRESENTATIVE_SEARCH_LIMIT
+    );
+
+  console.log("Representantes:", representatives);
+
+  // Creamos el callback para manejar el cambio del representante fuera del renderizado de Formik
+  const handleRepresentativeChange = useCallback((newValue: Representatives | null) => {
+    if (formikRef.current) {
+      formikRef.current.setFieldValue("representativeId", newValue?.id || null);
+    }
+  }, []);
+
+  // Convertimos getOptionLabel a un useCallback para optimizar el rendimiento
+  const getRepresentativeOptionLabel = useCallback((option: Representatives) => {
+    return `${option.name} ${option.lastName} - ${option.dni || 'Sin cédula'}`;
+  }, []);
 
   const extraValidations: any = isCreated
     ? {}
@@ -53,9 +87,13 @@ const Form: FunctionComponent<Props> = ({
             .required('El teléfono del Alumno es requerido'),
           direction: Yup.string().required(
             'La dirección del Alumno es requerido'
-          )
+          ),
+          representativeId: Yup.number()
+            .required('El representante es requerido')
+            .nullable(),
         })}
         onSubmit={onSubmit as any}
+        innerRef={formikRef}
       >
         {({
           errors,
@@ -64,7 +102,7 @@ const Form: FunctionComponent<Props> = ({
           handleSubmit,
           isSubmitting,
           touched,
-          values
+          values,
         }) => (
           <form noValidate onSubmit={handleSubmit}>
             <MainCard className={'form-data'} title={title}>
@@ -158,6 +196,23 @@ const Form: FunctionComponent<Props> = ({
                     }}
                   />
                 </FormControl>
+                <FormControl className='field-form' fullWidth>
+                  <OnlineAutocomplete
+                    showSelection={false}
+                    options={representatives}
+                    onChange={handleRepresentativeChange}
+                    getOptionLabel={getRepresentativeOptionLabel}
+                    label="Representante"
+                    required={true}
+                    loading={isLoadingRepresentatives}
+                    searchFn={setRepresentativeSearchTerm}
+                    error={touched.representativeId && errors.representativeId ? String(errors.representativeId) : undefined}
+                    noOptionsText="No se encontraron representantes"
+                    loadingText="Buscando representantes..."
+                    originalValue={initialValues.representativeId}
+                    currentValue={values.representativeId}
+                  />
+                </FormControl>
               </div>
             </MainCard>
 
@@ -191,6 +246,7 @@ export type FormValues = {
   phone: string
   direction: string
   birthDate: string
+  representativeId: number | null
   submit: string | null
 }
 

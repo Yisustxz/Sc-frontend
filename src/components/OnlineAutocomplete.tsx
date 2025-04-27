@@ -30,6 +30,7 @@ interface OnlineAutocompleteProps<T extends Option> {
   originalValue?: string | number | null;
   currentValue?: string | number | null;
   fullWidth?: boolean;
+  showSelection?: boolean;
 }
 
 function OnlineAutocomplete<T extends Option>({
@@ -47,6 +48,7 @@ function OnlineAutocomplete<T extends Option>({
   originalValue,
   currentValue,
   fullWidth = true,
+  showSelection = true,
 }: OnlineAutocompleteProps<T>) {
   const [isSelecting, setIsSelecting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -103,7 +105,7 @@ function OnlineAutocomplete<T extends Option>({
 
   return (
     <FormControl fullWidth={fullWidth} error={!!error}>
-      {value && (
+      {(value && showSelection) && (
         <Typography variant="caption" sx={{ mb: 1, fontStyle: 'italic', display: 'block' }}>
           Selección actual: {getOptionLabel(value)}
           {isModified && (

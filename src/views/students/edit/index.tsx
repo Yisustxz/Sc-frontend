@@ -37,7 +37,7 @@ const EditStudent: FunctionComponent<Props> = ({ className }) => {
         navigate('/students')
         dispatch(
           setSuccessMessage(
-            `Alumno ${values.nombre} ${values.apellido} editado correctamente`
+            `Alumno ${values.name} ${values.lastName} editado correctamente`
           )
         )
       } catch (error) {
@@ -81,6 +81,7 @@ const EditStudent: FunctionComponent<Props> = ({ className }) => {
             phone: student.phone,
             direction: student.direction,
             birthDate: student.birthDate,
+            representativeId: student.representativeId || student.representative?.id || null,
             submit: null
           }}
           title={'Editar Alumno'}

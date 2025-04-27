@@ -6,9 +6,7 @@ import {
   Box,
   Tabs,
   Tab,
-  Divider,
   IconButton,
-  Tooltip,
   Chip,
   Stack,
 } from "@mui/material";
@@ -90,10 +88,7 @@ const CoursesCrud = ({
     onUpdate, 
     onDelete, 
     onRevertDelete 
-  } = useLocalCourses({
-    courses,
-    onChange,
-  });
+  } = useLocalCourses({ courses, onChange });
 
   // Log para depurar los cursos recibidos
   //console.log("CoursesCrud - Cursos recibidos:", courses);
@@ -110,7 +105,6 @@ const CoursesCrud = ({
   const allGrades = useMemo(() => 
     Array.from({ length: 11 }, (_, i) => i + 1), 
   []);
-
 
   // Función para abrir el modal de creación
   const handleAddCourse = useCallback(() => {
@@ -172,7 +166,7 @@ const CoursesCrud = ({
 
   // Crear una referencia al botón que se puede activar externamente
   const addCourseRef = React.useRef<HTMLButtonElement>(null);
-  
+
   // Función para abrir el modal de edición
   const handleEditCourse = useCallback((course: SchoolCourseForm) => {
     console.log("Editando curso:", course);
@@ -185,7 +179,7 @@ const CoursesCrud = ({
       professorId: course.professorId ? Number(course.professorId) : undefined,
       weeklyHours: course.weeklyHours ? Number(course.weeklyHours) : 0
     };
-    
+
     setEditingCourse(courseToEdit);
   }, [setEditingCourse]);
 
@@ -207,7 +201,7 @@ const CoursesCrud = ({
     } else {
       onCreate(course);
     }
-    
+
     setEditingCourse(undefined);
   }, [editingCourse, localCourses, onCreate, onUpdate, setEditingCourse]);
 
@@ -225,7 +219,7 @@ const CoursesCrud = ({
 
   // Errores para el grado actual
   let currentError: FormikErrors<SchoolCourseForm> | undefined = undefined;
-  
+
   if (errors?.courseSchoolYears) {
     // Intentamos encontrar el error correspondiente para el grado actual
     for (let i = 0; i < localCourses.length; i++) {
@@ -241,7 +235,7 @@ const CoursesCrud = ({
   // Determinar si debemos habilitar el botón de autorellenado
   const showAutoFillButton = isCreateMode;
   const autoFillButtonDisabled = localCourses.length > 0 || isLoadingCourses;
-  
+
   // Determinar si mostrar los botones de acción basado en si hay cursos
   const showActionButtons = localCourses.length === 0;
 

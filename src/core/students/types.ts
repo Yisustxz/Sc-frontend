@@ -1,3 +1,5 @@
+import { Representatives } from "core/representatives/types";
+
 export interface Students {
   id: number,
   dni: string;
@@ -6,5 +8,7 @@ export interface Students {
   phone: string,
   direction: string
   birthDate: string;
+  representative?: Representatives;
+  representativeId?: number;
 }
 

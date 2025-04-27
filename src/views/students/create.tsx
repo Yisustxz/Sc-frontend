@@ -31,7 +31,7 @@ const CreateStudent: FunctionComponent<Props> = ({ className }) => {
         await createStudent(values)
         navigate('/students')
         dispatch(
-          setSuccessMessage(`Alumno ${values.fullName} creado correctamente`)
+          setSuccessMessage(`Alumno ${values.name} ${values.lastName} creado correctamente`)
         )
       } catch (error) {
         if (error instanceof BackendError) {
@@ -72,6 +72,7 @@ const CreateStudent: FunctionComponent<Props> = ({ className }) => {
           phone: '',
           direction: '',
           birthDate: '',
+          representativeId: null,
           submit: null
         }}
         title={'Crear Alumno'}
