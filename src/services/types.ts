@@ -23,5 +23,6 @@ export interface PaginatedResponse<T> {
 export type PaginateBody = {
   page?: number;
   size?: number;
-  searchTerm?: string;
+  searchTerm?: string | null;
+  employeeType?: string | null;
 }

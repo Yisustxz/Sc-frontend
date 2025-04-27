@@ -28,7 +28,7 @@ export default function usePaginate() {
       const response = await getPaginate({ 
         page, 
         size: paginate.perPage,
-        searchTerm: trimmedSearch ?? null
+        searchTerm: trimmedSearch ?? ''
       });
       setStudents(response.items);
       setPaginate(response.paginate);

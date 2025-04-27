@@ -1,19 +1,36 @@
-import { FunctionComponent, useCallback, useState, useEffect } from 'react'
+import { useCallback } from 'react'
 import MainCard from 'components/cards/MainCard'
 import Table from './table'
 import { useNavigate } from 'react-router'
 import { styled } from 'styled-components'
-import { Button, Typography } from '@mui/material'
-import { IconCirclePlus } from '@tabler/icons'
+import { Button, Typography, TextField, InputAdornment, Box, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material'
+import { IconCirclePlus, IconSearch } from '@tabler/icons'
 import usePaginate from './use-paginate'
-import { Employees } from 'core/employees/types'
+import { TypeEmployee } from 'core/employees/types'
 
 const EmployeesPage = ({ className }: Props) => {
   const navigate = useNavigate()
-  const { Employee, paginate, setPage, fetchEmployee } = usePaginate()
+  const { 
+    employees, 
+    paginate, 
+    setPage, 
+    fetchEmployees,
+    setSearchTerm,
+    employeeType,
+    setEmployeeType
+  } = usePaginate()
+
   const goToCreate = useCallback(() => {
     navigate('/employees/create')
   }, [navigate])
+
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  }, [setSearchTerm]);
+
+  const handleEmployeeTypeChange = useCallback((e: SelectChangeEvent) => {
+    setEmployeeType(e.target.value);
+  }, [setEmployeeType]);
 
   return (
     <MainCard
@@ -24,22 +41,56 @@ const EmployeesPage = ({ className }: Props) => {
           <Typography variant='h3' className={'title-header'}>
             Empleados
           </Typography>
-          <Button
-            color='primary'
-            variant={'outlined'}
-            onClick={goToCreate}
-            startIcon={<IconCirclePlus />}
-          >
-            Crear
-          </Button>
+          <Box className={'actions-container'}>
+            <TextField
+              className={'search-field'}
+              placeholder="Buscar por nombre, apellido o cédula"
+              onChange={handleSearchChange}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <IconSearch size="1.1rem" />
+                  </InputAdornment>
+                ),
+                size: "small"
+              }}
+              variant="outlined"
+              size="small"
+            />
+            <FormControl
+              className={'filter-field'}
+              variant="outlined"
+              size="small"
+            >
+              <InputLabel>Tipo</InputLabel>
+              <Select
+                value={employeeType}
+                onChange={handleEmployeeTypeChange}
+                label="Tipo"
+              >
+                <MenuItem value="">Todos</MenuItem>
+                <MenuItem value={TypeEmployee.Professor}>Profesor</MenuItem>
+                <MenuItem value={TypeEmployee.Substitute}>Suplente</MenuItem>
+                <MenuItem value={TypeEmployee.Worker}>Trabajador</MenuItem>
+              </Select>
+            </FormControl>
+            <Button
+              color='primary'
+              variant={'outlined'}
+              onClick={goToCreate}
+              startIcon={<IconCirclePlus />}
+            >
+              Crear
+            </Button>
+          </Box>
         </div>
       }
     >
       <Table
-        items={Employee}
+        items={employees}
         paginate={paginate}
         onChange={setPage}
-        fetchItems={fetchEmployee}
+        fetchItems={fetchEmployees}
       />
     </MainCard>
   )
@@ -59,5 +110,19 @@ export default styled(EmployeesPage)`
     display: flex;
     justify-content: space-between;
     flex-direction: row;
+  }
+
+  .actions-container {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .search-field {
+    width: 280px;
+  }
+
+  .filter-field {
+    width: 150px;
   }
 `
