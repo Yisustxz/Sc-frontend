@@ -15,17 +15,17 @@ export enum EducationLevels {
 }
 
 export const gradeMapping: Record<EducationLevels, string> = {
-  [EducationLevels.PrimerGrado]: "1 Grado",
-  [EducationLevels.SegundoGrado]: "2 Grado",
-  [EducationLevels.TercerGrado]: "3 Grado",
-  [EducationLevels.CuartoGrado]: "4 Grado",
-  [EducationLevels.QuintoGrado]: "5 Grado",
-  [EducationLevels.SextoGrado]: "6 Grado",
-  [EducationLevels.SeptimoGrado]: "Primer año",
-  [EducationLevels.OctavoGrado]: "Segundo año",
-  [EducationLevels.NovenoGrado]: "Tercer año",
-  [EducationLevels.DecimoGrado]: "Cuarto año",
-  [EducationLevels.UndecimoGrado]: "Quinto año",
+  [EducationLevels.PrimerGrado]: "1° Grado",
+  [EducationLevels.SegundoGrado]: "2° Grado",
+  [EducationLevels.TercerGrado]: "3° Grado",
+  [EducationLevels.CuartoGrado]: "4° Grado",
+  [EducationLevels.QuintoGrado]: "5° Grado",
+  [EducationLevels.SextoGrado]: "6° Grado",
+  [EducationLevels.SeptimoGrado]: "1° Año",
+  [EducationLevels.OctavoGrado]: "2° Año",
+  [EducationLevels.NovenoGrado]: "3° Año",
+  [EducationLevels.DecimoGrado]: "4° Año",
+  [EducationLevels.UndecimoGrado]: "5° Año",
 };
 
 export function getLevelsAsOptions(): SelectOption[] {

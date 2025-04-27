@@ -26,6 +26,12 @@ import Courses from 'views/courses'
 import CreateCourse from 'views/courses/create'
 import EditCourse from 'views/courses/edit'
 
+//CourseSchoolYear
+import CourseSchoolYearPage from 'views/course-school-year'
+import CreateCourseSchoolYear from 'views/course-school-year/create'
+import EditCourseSchoolYear from 'views/course-school-year/edit'
+import DetailCourseSchoolYear from 'views/course-school-year/detail'
+
 
 const GeneralRoutes: RouteObject[] = [
   //aqui se van a añadir las rutas de cada modulo
@@ -107,6 +113,23 @@ const GeneralRoutes: RouteObject[] = [
   {
     path: 'courses/edit/:id',
     element: <EditCourse />
+  },
+  //Asignaturas por Año Escolar
+  {
+    path: 'course-school-year',
+    element: <CourseSchoolYearPage />
+  },
+  {
+    path: 'course-school-year/create',
+    element: <CreateCourseSchoolYear />
+  },
+  {
+    path: 'course-school-year/edit/:id',
+    element: <EditCourseSchoolYear />
+  },
+  {
+    path: 'course-school-year/detail/:id',
+    element: <DetailCourseSchoolYear />
   }
 ]
 

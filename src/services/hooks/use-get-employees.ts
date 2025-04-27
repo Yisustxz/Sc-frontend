@@ -5,6 +5,25 @@ import { setErrorMessage, setIsLoading } from "store/customizationSlice";
 import BackendError from "exceptions/backend-error";
 import getAllEmployees, { GetAllEmployeesParams } from "services/employees/get-all-employees";
 
+/**
+ * Hook para obtener empleados con filtrado opcional
+ * 
+ * IMPORTANTE: Para evitar bucles infinitos de renderizado:
+ * - NUNCA pases un array vacío inline como `[]`. Usa una constante fuera del componente.
+ * - NUNCA pases un objeto inline. Usa useMemo o una variable de estado.
+ * 
+ * CORRECTO:
+ * const EMPTY_ARRAY_REF = []; // Fuera del componente
+ * const { data } = useGetEmployees(EMPTY_ARRAY_REF, null, null, null);
+ * 
+ * INCORRECTO:
+ * const { data } = useGetEmployees([], null, null, null); // Causa bucles infinitos
+ * 
+ * @param forceItemsIds IDs de empleados para forzar su inclusión
+ * @param searchTerm Término de búsqueda
+ * @param limit Límite de resultados
+ * @param employeeType Tipo de empleado (profesor, trabajador, etc.)
+ */
 export default function useGetEmployees (forceItemsIds: number[], searchTerm: string | null, limit: number | null, employeeType: TypeEmployee | null) {
   const [rawData, setRawData] = useState<Employees[]>([]);
   const dispatch = useAppDispatch();

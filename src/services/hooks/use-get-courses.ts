@@ -5,7 +5,25 @@ import { useAppDispatch } from "store";
 import { setErrorMessage, setIsLoading } from "store/customizationSlice";
 import BackendError from "exceptions/backend-error";
 
-
+/**
+ * Hook para obtener cursos con filtrado opcional
+ * 
+ * IMPORTANTE: Para evitar bucles infinitos de renderizado:
+ * - NUNCA pases un array vacío inline como `[]`. Usa una constante fuera del componente.
+ * - NUNCA pases un objeto inline como `{}`. Usa useMemo o una variable de estado.
+ * 
+ * CORRECTO:
+ * const EMPTY_ARRAY_REF = []; // Fuera del componente
+ * const { data } = useGetCourses(EMPTY_ARRAY_REF, null, null, null);
+ * 
+ * INCORRECTO:
+ * const { data } = useGetCourses([], null, null, null); // Causa bucles infinitos
+ * 
+ * @param forceItemsIds IDs de cursos para forzar su inclusión
+ * @param searchTerm Término de búsqueda
+ * @param limit Límite de resultados
+ * @param grade Filtro por grado
+ */
 export default function useGetCourses(forceItemsIds: number[],  searchTerm: string | null, limit: number | null, grade: number | null) {
   const [rawData, setRawData] = useState<Course[]>([]);
   const dispatch = useAppDispatch();

@@ -28,6 +28,12 @@ export interface SchoolYear {
   courseSchoolYears?: CourseSchoolYear[];
 }
 
+// Interfaz simplificada para selectores y componentes de UI que solo necesitan id y código
+export interface SchoolYearSelect {
+  id: number;
+  code: string;
+}
+
 export interface SchoolYearPayload {
   schoolYear: {
     code: string;
