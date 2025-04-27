@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
+import { debounce } from 'lodash';
 // Own
 import { Students } from 'core/students/types';
 import getPaginate from 'services/students/get-paginate';
@@ -10,6 +11,7 @@ import BackendError from 'exceptions/backend-error';
 export default function usePaginate() {
   const dispatch = useAppDispatch();
   const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const [Students, setStudents] = useState<Students[]>([]);
   const [paginate, setPaginate] = useState<PaginateData>({
     totalItems: 0,
@@ -21,7 +23,13 @@ export default function usePaginate() {
   const fetchStudents = useCallback(async () => {
     try {
       dispatch(setIsLoading(true));
-      const response = await getPaginate({ page, size: paginate.perPage });
+      const trimmedSearch = searchTerm.trim();
+
+      const response = await getPaginate({ 
+        page, 
+        size: paginate.perPage,
+        searchTerm: trimmedSearch ?? null
+      });
       setStudents(response.items);
       setPaginate(response.paginate);
     } catch (error) {
@@ -30,11 +38,25 @@ export default function usePaginate() {
     } finally {
       dispatch(setIsLoading(false));
     }
-  }, [dispatch, page, paginate.perPage]);
+  }, [dispatch, page, paginate.perPage, searchTerm]);
+
+  const setSearchTermDebounced = useRef(
+    debounce((value: string) => {
+      setSearchTerm(value);
+      setPage(1);
+    }, 500)
+  ).current;
 
   useEffect(() => {
     fetchStudents();
   }, [fetchStudents]);
 
-  return { Students, paginate, setPage, fetchStudents };
+  return { 
+    Students, 
+    paginate, 
+    setPage, 
+    fetchStudents,
+    searchTerm,
+    setSearchTerm: setSearchTermDebounced
+  };
 }
