@@ -3,7 +3,6 @@ export interface StudentDto {
   id: number;
   name: string;
   lastName?: string;
-  identification?: string;
   dni?: string;
   person?: {
     dni: string;

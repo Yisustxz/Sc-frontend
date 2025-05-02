@@ -213,13 +213,11 @@ const InscriptionForm: FunctionComponent<Props> = ({
               )}
             </MainCard>
 
-            <MainCard className="form-action">
-              <Button
-                disableElevation
-                disabled={isSubmitting}
-                variant="contained"
-                type="submit"
-              >
+            <MainCard className={'form-data flex-column'}>
+              {errors.submit && (
+                <FormHelperText error>{errors.submit}</FormHelperText>
+              )}
+              <Button variant='outlined' type='submit' color='primary' disabled={isSubmitting}>
                 Guardar
               </Button>
             </MainCard>

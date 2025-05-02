@@ -10,7 +10,7 @@ export default async function updateInscription(
   payload: UpdateInscriptionDto
 ): Promise<InscriptionDto> {
   try {
-    const response = await axios.patch<InscriptionDto>(
+    const response = await axios.put<InscriptionDto>(
       `${API_BASE_URL}/inscriptions/${id}`,
       payload,
       {
