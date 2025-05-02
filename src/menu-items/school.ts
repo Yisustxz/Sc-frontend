@@ -1,5 +1,5 @@
 // assets
-import { IconCalendar, IconBook2, IconBooks, IconBookmarks } from "@tabler/icons";
+import { IconCalendar, IconBook2, IconBooks } from "@tabler/icons";
 import { MenuItem, MenuItemType } from "./types";
 
 const school: MenuItem = {
@@ -32,7 +32,7 @@ const school: MenuItem = {
     },
     {
       id: "asignaturas",
-      title: "Asignaturas",
+      title: "Tipos de asignaturas",
       type: MenuItemType.Collapse,
       icon: IconBooks,
       breadcrumbs: false,
@@ -49,29 +49,6 @@ const school: MenuItem = {
           title: "Crear asignatura",
           type: MenuItemType.Item,
           url: "/courses/create",
-          breadcrumbs: false,
-        },
-      ],
-    },
-    {
-      id: "courseSchoolYear",
-      title: "Asignaturas por Año",
-      type: MenuItemType.Collapse,
-      icon: IconBookmarks,
-      breadcrumbs: false,
-      children: [
-        {
-          id: "list-course-school-year",
-          title: "Lista de asignaturas por año",
-          type: MenuItemType.Item,
-          url: "/course-school-year",
-          breadcrumbs: false,
-        },
-        {
-          id: "create-course-school-year",
-          title: "Asignar asignatura",
-          type: MenuItemType.Item,
-          url: "/course-school-year/create",
           breadcrumbs: false,
         },
       ],

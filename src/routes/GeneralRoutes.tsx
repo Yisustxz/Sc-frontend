@@ -32,6 +32,11 @@ import CreateCourseSchoolYear from 'views/course-school-year/create'
 import EditCourseSchoolYear from 'views/course-school-year/edit'
 import DetailCourseSchoolYear from 'views/course-school-year/detail'
 
+//Inscriptions
+import InscriptionsPage from 'views/inscriptions'
+import CreateInscription from 'views/inscriptions-old/create'
+import EditInscription from 'views/inscriptions-old/edit'
+import DetailInscription from 'views/inscriptions-old/detail'
 
 const GeneralRoutes: RouteObject[] = [
   //aqui se van a añadir las rutas de cada modulo
@@ -130,6 +135,23 @@ const GeneralRoutes: RouteObject[] = [
   {
     path: 'course-school-year/detail/:id',
     element: <DetailCourseSchoolYear />
+  },
+  //Inscripciones
+  {
+    path: 'inscriptions',
+    element: <InscriptionsPage />
+  },
+  {
+    path: 'inscriptions/create',
+    element: <CreateInscription />
+  },
+  {
+    path: 'inscriptions/edit/:id',
+    element: <EditInscription />
+  },
+  {
+    path: 'inscriptions/:id',
+    element: <DetailInscription />
   }
 ]
 

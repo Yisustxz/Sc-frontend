@@ -61,4 +61,4 @@ export default styled(SchoolYearsPage)`
     justify-content: space-between;
     flex-direction: row;
   }
-` 
+`;
