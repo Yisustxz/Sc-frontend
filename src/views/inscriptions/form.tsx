@@ -11,18 +11,80 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  InputAdornment
+  InputAdornment,
+  Typography,
+  Divider,
+  Box,
+  Paper,
+  List,
+  ListItem,
+  ListItemButton,
+  IconButton
 } from '@mui/material'
 import styled from 'styled-components'
-import { IconCalendar, IconSchool, IconUser } from '@tabler/icons'
-import { gradeMapping, EducationLevels } from 'core/courses/use-education-levels'
-import { StudentDto, SchoolYearDto } from 'core/inscriptions/types/index'
+import { IconCalendar, IconCirclePlus, IconPlus, IconSchool, IconTrash, IconUser } from '@tabler/icons'
+import { gradeMapping, EducationLevels, getLevelsAsOptions } from 'core/courses/use-education-levels'
+import { StudentDto, SchoolYearDto, CourseSchoolYearDto } from 'core/inscriptions/types/index'
 import useGetSchoolYears from 'services/hooks/use-get-school-years'
 import useGetStudents from 'services/hooks/use-get-students'
 import OnlineAutocomplete from 'components/OnlineAutocomplete'
+import { Controller } from 'react-hook-form'
+import useGetCoursesSchoolYear from 'services/hooks/use-get-courses-school-year'
 
 const EMPTY_ARRAY_REF = [] as any[]
 const LIMIT_ITEMS_STUDENTS = 15;
+
+// Tipo para la interfaz de curso
+interface CourseType extends CourseSchoolYearDto {}
+
+// Tipo para la interfaz de estudiante
+interface StudentType extends StudentDto {}
+
+function useCoursesByGradeDictionary(coursesSchoolYear: CourseType[]) {
+  return useMemo(() => {
+    const grouped: Record<string, CourseType[]> = {};
+    
+    // Recorrer directamente el array de cursos
+    coursesSchoolYear.forEach((course: CourseType) => {
+      const grade = String(course.grade || '');
+      if (!grouped[grade]) {
+        grouped[grade] = [];
+      }
+      grouped[grade].push(course);
+    });
+    
+    return grouped;
+  }, [coursesSchoolYear]);
+}
+
+function useGetStudentsForForm(initialValues: FormValues, studentSearch: string) {
+  // Referencias estables para IDs a forzar
+  const studentsToForce = useMemo(() => {
+    return initialValues?.studentId ? [initialValues.studentId] : []
+  }, [initialValues?.studentId])
+
+  const { data: students = [], isLoading: loadingStudents } = useGetStudents(
+    studentsToForce,
+    studentSearch,
+    LIMIT_ITEMS_STUDENTS
+  );
+
+  return { students, loadingStudents };
+}
+
+function useGetSchoolYearsForForm(initialValues: FormValues, schoolYearSearch: string) {
+  // Referencias estables para IDs a forzar
+  const schoolYearsToForce = useMemo(() => {
+    return initialValues?.schoolYearId ? [initialValues.schoolYearId] : []
+  }, [initialValues?.schoolYearId])
+  
+  const { data: schoolYears = [], isLoading: loadingSchoolYears } = useGetSchoolYears(
+    schoolYearsToForce,
+    schoolYearSearch
+  );
+
+  return { schoolYears, loadingSchoolYears };
+}
 
 const InscriptionForm: FunctionComponent<Props> = ({
   className,
@@ -35,35 +97,32 @@ const InscriptionForm: FunctionComponent<Props> = ({
   const [studentSearch, setStudentSearch] = useState('');
   const [schoolYearSearch, setSchoolYearSearch] = useState('');
   const formikRef = useRef<FormikProps<FormValues>>(null);
-
-  // Referencias estables para IDs a forzar
-  const studentsToForce = useMemo(() => {
-    return initialValues?.studentId ? [initialValues.studentId] : []
-  }, [initialValues?.studentId])
-
-  const schoolYearsToForce = useMemo(() => {
-    return initialValues?.schoolYearId ? [initialValues.schoolYearId] : []
-  }, [initialValues?.schoolYearId])
-
-  // Obtener datos
-  const { data: students = [], isLoading: loadingStudents } = useGetStudents(
-    studentsToForce,
-    studentSearch,
-    LIMIT_ITEMS_STUDENTS
+  const [selectedSchoolYear, setSelectedSchoolYear] = useState<number | null>(null);
+  const [selectedCoursesSchoolYear, setSelectedCoursesSchoolYear] = useState<number[]>([]);
+  const [selectedGrade, setSelectedGrade] = useState<string>(initialValues.grade || '');
+  // Obtener cursos por año escolar y grado
+  const { 
+    data: coursesSchoolYear = [], 
+    isLoading: loadingCoursesSchoolYear 
+  } = useGetCoursesSchoolYear(
+    selectedSchoolYear || 0,
   );
-  const { data: schoolYears = [], isLoading: loadingSchoolYears } = useGetSchoolYears(
-    schoolYearsToForce,
-    schoolYearSearch
-  );
+
+  // Agrupar cursos por grado para mejor visualización
+  const coursesByGrade = useCoursesByGradeDictionary(coursesSchoolYear);
+  // Obtener estudiantes y años escolares para el formulario
+  const { students, loadingStudents } = useGetStudentsForForm(initialValues, studentSearch);
+  const { schoolYears, loadingSchoolYears } = useGetSchoolYearsForForm(initialValues, schoolYearSearch);
+
+  const setFieldValue = useCallback((field: string, value: any) => {
+    if (formikRef.current) {
+      formikRef.current.setFieldValue(field, value);
+    }
+  }, []);
+  
 
   // Opciones de grado para el selector
-  const gradeOptions = Object.values(EducationLevels)
-    .filter(value => !isNaN(Number(value)))
-    .map(grade => ({
-      value: grade,
-      label: gradeMapping[grade as EducationLevels] || `Grado ${grade}`
-    }))
-    .sort((a, b) => Number(a.value) - Number(b.value));
+  const gradeOptions = getLevelsAsOptions();
 
   // Callbacks memoizados para evitar renderizados innecesarios
   const handleStudentChange = useCallback((newValue: any | null) => {
@@ -77,8 +136,10 @@ const InscriptionForm: FunctionComponent<Props> = ({
   const handleSchoolYearChange = useCallback((newValue: any | null) => {
     if (formikRef.current && newValue) {
       formikRef.current.setFieldValue('schoolYearId', newValue.id);
+      setSelectedSchoolYear(newValue.id);
     } else if (formikRef.current) {
       formikRef.current.setFieldValue('schoolYearId', null);
+      setSelectedSchoolYear(null);
     }
   }, []);
   
@@ -105,6 +166,285 @@ const InscriptionForm: FunctionComponent<Props> = ({
     grade: Yup.string()
       .required('El grado es requerido')
   });
+
+  // Manejar selección de todos los cursos de un grado
+  const handleSelectAllGradeCourses = useCallback((grade: number, isSelected: boolean) => {
+    // Nuyeva aaproximacion usando el is selected
+    const coursesInGrade = coursesByGrade[grade] || [];
+    const courseIdsInGrade = coursesInGrade.map((course: CourseType) => course.id);
+    let newSelectedCourses;
+
+    if (isSelected) {
+      newSelectedCourses = [...selectedCoursesSchoolYear, ...courseIdsInGrade];
+    } else {
+      newSelectedCourses = selectedCoursesSchoolYear.filter((id: number) => !courseIdsInGrade.includes(id));
+    }
+
+    setSelectedCoursesSchoolYear(newSelectedCourses);
+    setFieldValue('courseIds', newSelectedCourses);
+  }, [coursesByGrade, selectedCoursesSchoolYear, setFieldValue]);
+
+  // Auto add courses when grade is selected and nothing courses was added
+  const automaticAddCoursesFromGrade = useCallback(() => {
+    if (selectedSchoolYear && selectedGrade && selectedCoursesSchoolYear.length === 0) {
+      handleSelectAllGradeCourses(+selectedGrade, true);
+    }
+  }, [selectedSchoolYear, selectedCoursesSchoolYear, selectedGrade, handleSelectAllGradeCourses]);
+
+  // Manejar selección individual de cursos
+  const handleCourseChange = useCallback((courseId: number, isSelected: boolean) => {
+    let newSelectedCourses;
+    
+    if (isSelected) {
+      // Añadir curso si no está ya seleccionado
+      newSelectedCourses = [...selectedCoursesSchoolYear, courseId];
+    } else {
+      // Eliminar curso
+      newSelectedCourses = selectedCoursesSchoolYear.filter(id => id !== courseId);
+    }
+    
+    setSelectedCoursesSchoolYear(newSelectedCourses);
+    setFieldValue('courseIds', newSelectedCourses);
+  }, [selectedCoursesSchoolYear, setFieldValue]);
+
+  // Renderizar opciones de cursos en diseño de dos columnas
+  const renderCourseOptions = useCallback(() => {
+    console.log('selectedSchoolYear', selectedSchoolYear);
+    if (!selectedSchoolYear) {
+      return (
+        <Box className="empty-courses-message">
+          <Typography variant="body1" color="textSecondary">
+            Selecciona un año escolar para ver los cursos disponibles
+          </Typography>
+        </Box>
+      );
+    }
+
+    if (loadingCoursesSchoolYear) {
+      return (
+        <Box className="loading-courses">
+          <Typography variant="body1" color="textSecondary">
+            Cargando cursos...
+          </Typography>
+        </Box>
+      );
+    }
+
+    if (Object.keys(coursesByGrade).length === 0) {
+      return (
+        <Box className="empty-courses-message">
+          <Typography variant="body1" color="textSecondary">
+            No hay cursos disponibles para este año escolar
+          </Typography>
+        </Box>
+      );
+    }
+
+    return (
+      <Box sx={{ display: 'flex', gap: 2 }}>
+        {/* Panel izquierdo: Materias disponibles */}
+        <Paper sx={{ 
+          flex: 1, 
+          maxHeight: '400px',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+            <Typography variant="h6" component="h3">
+              Materias Disponibles
+            </Typography>
+          </Box>
+          
+          <Divider sx={{ mb: 2 }} />
+          
+          {/* Lista con scroll */}
+          <Box sx={{ 
+            overflowY: 'auto',
+            flex: 1,
+            pr: 1
+          }}>
+            {Object.entries(coursesByGrade)
+              .sort(([gradeA], [gradeB]) => Number(gradeA) - Number(gradeB))
+              .map(([grade, courses]) => {
+                // Filtrar solo los cursos que no están seleccionados
+                const availableCourses = courses.filter(
+                  (course: CourseType) => !selectedCoursesSchoolYear.includes(course.id)
+                );
+                
+                // No mostrar el grado si no hay cursos disponibles
+                if (availableCourses.length === 0) return null;
+                
+                return (
+                  <Box key={`available-${grade}`} sx={{ mb: 2 }}>
+                    <Box sx={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                      mb: 1 
+                    }}>
+                      <Typography variant="subtitle1" fontWeight="bold">
+                        {gradeMapping[Number(grade) as EducationLevels] || `Grado ${grade}`}
+                      </Typography>
+                      <Button 
+                        size="small"
+                        onClick={() => handleSelectAllGradeCourses(+grade, true)}
+                        startIcon={<IconCirclePlus size={16} />}
+                        sx={{ minWidth: 'auto', py: 0.5 }}
+                      >
+                        Agregar todos
+                      </Button>
+                    </Box>
+                    
+                    <List dense disablePadding sx={{ ml: 1 }}>
+                      {availableCourses.map((course: CourseType) => (
+                        <ListItem 
+                          key={`available-course-${course.id}`}
+                          disablePadding
+                          secondaryAction={
+                            <IconButton 
+                              edge="end" 
+                              size="small"
+                              onClick={() => handleCourseChange(course.id, true)}
+                            >
+                              <IconPlus size={16} />
+                            </IconButton>
+                          }
+                        >
+                          <ListItemButton
+                            dense
+                            onClick={() => handleCourseChange(course.id, true)}
+                            sx={{ py: 0.5 }}
+                          >
+                            <Typography variant="body2">
+                              {course.course?.name || 'Sin nombre'}
+                            </Typography>
+                          </ListItemButton>
+                        </ListItem>
+                      ))}
+                    </List>
+                  </Box>
+                );
+              })}
+          </Box>
+        </Paper>
+        
+        {/* Panel derecho: Materias seleccionadas */}
+        <Paper sx={{ 
+          flex: 1, 
+          maxHeight: '400px',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column'
+        }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+            <Typography variant="h6" component="h3">
+              Materias Seleccionadas
+            </Typography>
+            
+            <Typography variant="caption" color="text.secondary">
+              {selectedCoursesSchoolYear.length} materias
+            </Typography>
+          </Box>
+          
+          <Divider sx={{ mb: 2 }} />
+          
+          {selectedCoursesSchoolYear.length <= 0 ? (
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center', 
+              py: 8,
+              color: 'text.secondary'
+            }}>
+              {/*Mejorar esto*/}
+              <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
+                No hay materias seleccionadas
+              </Typography>{
+                selectedGrade && (
+                  <Button 
+                    variant="outlined"
+                    color="primary"
+                    onClick={automaticAddCoursesFromGrade}
+                  >
+                    Agregar materias del grado {selectedGrade}
+                  </Button>
+                )
+              }
+            </Box>
+          ) : (
+            <Box sx={{ overflowY: 'auto', pr: 1, flex: 1 }}>
+              {Object.entries(coursesByGrade)
+                .sort(([gradeA], [gradeB]) => Number(gradeA) - Number(gradeB))
+                .map(([grade, courses]) => {
+                  // Filtrar solo los cursos que están seleccionados
+                  const selectedCourses = courses.filter(
+                    (course: CourseType) => selectedCoursesSchoolYear.includes(course.id)
+                  );
+                  
+                  // No mostrar el grado si no hay cursos seleccionados
+                  if (selectedCourses.length === 0) return null;
+                  
+                  return (
+                    <Box key={`selected-${grade}`} sx={{ mb: 2 }}>
+                      <Box sx={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center',
+                        mb: 1 
+                      }}>
+                        <Typography variant="subtitle1" fontWeight="bold">
+                          {gradeMapping[Number(grade) as EducationLevels] || `Grado ${grade}`}
+                        </Typography>
+                        
+                        <Button 
+                          size="small"
+                          color="secondary"
+                          onClick={() => handleSelectAllGradeCourses(+grade, false)}
+                          startIcon={<IconTrash size={16} />}
+                          sx={{ minWidth: 'auto', py: 0.5 }}
+                        >
+                          Quitar todos
+                        </Button>
+                      </Box>
+                      
+                      <List dense disablePadding sx={{ ml: 1 }}>
+                        {selectedCourses.map((course: CourseType) => (
+                          <ListItem 
+                            key={`selected-course-${course.id}`}
+                            disablePadding
+                            secondaryAction={
+                              <IconButton 
+                                edge="end" 
+                                size="small"
+                                color="error"
+                                onClick={() => handleCourseChange(course.id, false)}
+                              >
+                                <IconTrash size={16} />
+                              </IconButton>
+                            }
+                          >
+                            <ListItemButton
+                              dense
+                              onClick={() => handleCourseChange(course.id, false)}
+                              sx={{ py: 0.5 }}
+                            >
+                              <Typography variant="body2">
+                                {course.course?.name || 'Sin nombre'}
+                              </Typography>
+                            </ListItemButton>
+                          </ListItem>
+                        ))}
+                      </List>
+                    </Box>
+                  );
+                })}
+            </Box>
+          )}
+        </Paper>
+      </Box>
+    );
+  }, [selectedSchoolYear, loadingCoursesSchoolYear, coursesByGrade, selectedCoursesSchoolYear, selectedGrade, automaticAddCoursesFromGrade, handleSelectAllGradeCourses, handleCourseChange]);
 
   return (
     <div className={className}>
@@ -182,7 +522,10 @@ const InscriptionForm: FunctionComponent<Props> = ({
                       id="grade"
                       name="grade"
                       value={values.grade || ''}
-                      onChange={handleChange}
+                      onChange={(event) => {
+                        handleChange(event);
+                        setSelectedGrade(event.target.value);
+                      }}
                       onBlur={handleBlur}
                       label="Grado*"
                       startAdornment={
@@ -212,6 +555,22 @@ const InscriptionForm: FunctionComponent<Props> = ({
                 </Grid>
               )}
             </MainCard>
+            <MainCard className={'form-data flex-column'} title={'Materias'}>
+
+              {/* Selección de Materias */}
+              <Grid item xs={12}>
+
+                    <>
+                      {renderCourseOptions()}
+                      {errors.courseInscriptions && (
+                        <FormHelperText error>{errors.courseInscriptions}</FormHelperText>
+                      )}
+                   </>
+                
+              </Grid>
+
+            </MainCard>
+
 
             <MainCard className={'form-data flex-column'}>
               {errors.submit && (
@@ -262,5 +621,117 @@ export default styled(InscriptionForm)`
     .MuiAutocomplete-inputRoot {
       padding-left: 9px;
     }
+  }
+
+
+
+    .field-icon {
+    color: #673ab7;
+    margin-right: 8px;
+  }
+
+  .section-title {
+    margin-top: 16px;
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+
+  .section-description {
+    margin-bottom: 8px;
+  }
+
+  .section-divider {
+    margin-bottom: 16px;
+  }
+
+  .empty-courses-message, .loading-courses, .empty-selection {
+    padding: 32px;
+    text-align: center;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    margin: 16px 0;
+  }
+
+  .grade-courses-card {
+    margin-bottom: 16px;
+  }
+
+  .grade-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .grade-card-header {
+    padding-bottom: 0;
+  }
+
+  .grade-card-content {
+    padding-top: 8px;
+  }
+
+  .course-checkbox {
+    margin: 0;
+  }
+
+  .course-label {
+    font-size: 0.875rem;
+  }
+
+  .selected-courses-container {
+    background-color: #fafafa;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+  }
+
+  .selected-courses-count {
+    margin-bottom: 16px;
+  }
+
+  .course-count-chip {
+    font-weight: 500;
+  }
+
+  .grade-section {
+    margin-bottom: 16px;
+  }
+
+  .grade-title {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .grade-count-chip {
+    margin-left: 8px;
+  }
+
+  .selected-course-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .course-chip {
+    margin: 4px;
+  }
+
+  .action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+  }
+
+  .submit-button {
+    padding: 8px 24px;
+    text-transform: none;
+    font-weight: 500;
+    height: 40px;
+  }
+
+  .select-all-button {
+    font-size: 0.75rem;
+    padding: 4px 8px;
   }
 `; 

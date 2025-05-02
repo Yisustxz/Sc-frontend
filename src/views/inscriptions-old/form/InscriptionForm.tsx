@@ -41,7 +41,7 @@ import styled from 'styled-components';
 import useGetStudents from 'services/hooks/use-get-students';
 import useGetSchoolYears from 'services/hooks/use-get-school-years';
 import { CreateInscriptionDto, UpdateInscriptionDto, StudentDto, CourseSchoolYearDto } from 'core/inscriptions/types/index';
-import { gradeMapping, EducationLevels } from 'core/courses/use-education-levels';
+import { gradeMapping, EducationLevels, getLevelsAsOptions } from 'core/courses/use-education-levels';
 import useGetCoursesSchoolYear from 'services/hooks/use-get-courses-school-year';
 
 // Tipo para la interfaz de curso
@@ -111,15 +111,7 @@ const InscriptionForm = ({
   }, [coursesSchoolYear]);
 
   // Opciones de grado
-  const gradeOptions = useMemo(() => {
-    return Object.values(EducationLevels)
-      .filter(value => !isNaN(Number(value)))
-      .map(grade => ({
-        value: grade.toString(),
-        label: gradeMapping[grade as EducationLevels]
-      }))
-      .sort((a, b) => Number(a.value) - Number(b.value));
-  }, []);
+  const gradeOptions = getLevelsAsOptions();
 
   // Configuración del formulario con react-hook-form
   const { 
@@ -240,15 +232,6 @@ const InscriptionForm = ({
     setValue('courseIds', newSelectedCourses);
   }, [selectedCoursesSchoolYear, setValue]);
 
-  // Verificar si un grado tiene todos sus cursos seleccionados
-  const isGradeFullySelected = useCallback((grade: string) => {
-    const coursesInGrade = coursesByGrade[grade] || [];
-    if (coursesInGrade.length === 0) return false;
-    
-    return coursesInGrade.every((course: CourseType) => 
-      selectedCoursesSchoolYear.includes(course.id)
-    );
-  }, [coursesByGrade, selectedCoursesSchoolYear]);
 
   // Renderizar opciones de cursos en diseño de dos columnas
   const renderCourseOptions = useCallback(() => {
