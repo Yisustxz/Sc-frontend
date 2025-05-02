@@ -63,7 +63,7 @@ const CourseSchoolYearPage = ({ className }: Props) => {
   const [selectedSchoolYear, setSelectedSchoolYear] = useState<SchoolYearSelect | null>(null);
 
   // Obtener años escolares
-  const { data: schoolYears = [], isLoading: isLoadingSchoolYears } = useGetSchoolYears(schoolYearSearchTerm);
+  const { data: schoolYears = [], isLoading: isLoadingSchoolYears } = useGetSchoolYears(EMPTY_ARRAY_REFERENCE, schoolYearSearchTerm);
 
   // Obtener profesores
   const { 

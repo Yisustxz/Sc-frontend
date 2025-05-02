@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import { IconChevronLeft, IconEdit, IconTrash } from '@tabler/icons';
 import { getOneInscription } from 'services/inscriptions';
 import { setIsLoading, setErrorMessage } from 'store/customizationSlice';
-import { InscriptionDto } from '../../../core/inscriptions/types';
+import { InscriptionDto } from 'core/inscriptions/types/index';
 import { gradeMapping, EducationLevels } from 'core/courses/use-education-levels';
 import useDeleteInscription from '../hooks/use-delete-inscription';
 import DialogDelete from 'components/dialogDelete';

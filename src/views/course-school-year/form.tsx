@@ -51,11 +51,7 @@ const Form: FunctionComponent<Props> = ({
 }) => {
   const [professorSearchTerm, setProfessorSearchTerm] = useState("");
   const [schoolYearSearchTerm, setSchoolYearSearchTerm] = useState("");
-  const [schoolYearInputValue, setSchoolYearInputValue] = useState("");
-  const [selectedSchoolYear, setSelectedSchoolYear] = useState<SchoolYearSelect | null>(null);
   const [courseSearchTerm, setCourseSearchTerm] = useState("");
-  const [courseInputValue, setCourseInputValue] = useState("");
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const formikRef = useRef<FormikProps<FormValues>>(null);
 
   // Forzar carga de profesor inicial si hay ID
@@ -67,9 +63,14 @@ const Form: FunctionComponent<Props> = ({
   const forceCourseIds = useMemo(() => {
     return initialValues.courseId ? [initialValues.courseId] : [];
   }, [initialValues.courseId]);
+  
+  // Forzar carga de año escolar inicial si hay ID
+  const forceSchoolYearIds = useMemo(() => {
+    return initialValues.schoolYearId ? [initialValues.schoolYearId] : [];
+  }, [initialValues.schoolYearId]);
 
   // Usar hooks para obtener datos
-  const { data: schoolYears = [], isLoading: isLoadingSchoolYears } = useGetSchoolYears(schoolYearSearchTerm);
+  const { data: schoolYears = [], isLoading: isLoadingSchoolYears } = useGetSchoolYears(forceSchoolYearIds, schoolYearSearchTerm);
   const { data: courses = [], isLoading: isLoadingCourses } = useGetCourses(forceCourseIds, courseSearchTerm, COURSE_SEARCH_LIMIT, null);
   const { 
     data: professors = [], 
@@ -81,56 +82,6 @@ const Form: FunctionComponent<Props> = ({
     TypeEmployee.Professor
   );
 
-  // Efecto para establecer el año escolar seleccionado cuando se cargan los datos iniciales
-  useEffect(() => {
-    if (initialValues.schoolYearId && schoolYears.length > 0) {
-      const selectedYear = schoolYears.find(year => year.id === initialValues.schoolYearId);
-      if (selectedYear) {
-        setSelectedSchoolYear(selectedYear);
-        setSchoolYearInputValue(selectedYear.code);
-      }
-    }
-  }, [initialValues.schoolYearId, schoolYears]);
-
-  // Efecto para establecer el curso seleccionado cuando se cargan los datos iniciales
-  useEffect(() => {
-    if (initialValues.courseId && courses.length > 0) {
-      const selectedCourse = courses.find(course => course.id === initialValues.courseId);
-      if (selectedCourse) {
-        setSelectedCourse(selectedCourse);
-        setCourseInputValue(selectedCourse.name);
-      }
-    }
-  }, [initialValues.courseId, courses]);
-
-  // Manejar cambios en el input de búsqueda de año escolar
-  const handleSchoolYearInputChange = useCallback((event: React.SyntheticEvent, newInputValue: string) => {
-    setSchoolYearInputValue(newInputValue);
-    setSchoolYearSearchTerm(newInputValue);
-  }, []);
-
-  // Manejar selección de año escolar
-  const handleSchoolYearChange = useCallback((event: React.SyntheticEvent, newValue: SchoolYearSelect | null) => {
-    setSelectedSchoolYear(newValue);
-    if (formikRef.current) {
-      formikRef.current.setFieldValue("schoolYearId", newValue ? newValue.id : null);
-    }
-  }, []);
-
-  // Manejar cambios en el input de búsqueda de curso
-  const handleCourseInputChange = useCallback((event: React.SyntheticEvent, newInputValue: string) => {
-    setCourseInputValue(newInputValue);
-    setCourseSearchTerm(newInputValue);
-  }, []);
-
-  // Manejar selección de curso
-  const handleCourseChange = useCallback((event: React.SyntheticEvent, newValue: Course | null) => {
-    setSelectedCourse(newValue);
-    if (formikRef.current) {
-      formikRef.current.setFieldValue("courseId", newValue ? newValue.id : null);
-    }
-  }, []);
-
   // Manejar selección de profesor
   const handleProfessorChange = useCallback((newValue: Employees | null) => {
     if (formikRef.current) {
@@ -141,6 +92,30 @@ const Form: FunctionComponent<Props> = ({
   // Obtener etiqueta para mostrar en el autocompletado de profesores
   const getProfessorOptionLabel = useCallback((option: Employees) => {
     return `${option.name || ''} ${option.lastName || ''}`;
+  }, []);
+  
+  // Manejar selección de año escolar
+  const handleSchoolYearChange = useCallback((newValue: SchoolYearSelect | null) => {
+    if (formikRef.current) {
+      formikRef.current.setFieldValue("schoolYearId", newValue ? newValue.id : null);
+    }
+  }, []);
+  
+  // Obtener etiqueta para mostrar en el autocompletado de años escolares
+  const getSchoolYearOptionLabel = useCallback((option: SchoolYearSelect) => {
+    return option.code;
+  }, []);
+  
+  // Manejar selección de curso
+  const handleCourseChange = useCallback((newValue: Course | null) => {
+    if (formikRef.current) {
+      formikRef.current.setFieldValue("courseId", newValue ? newValue.id : null);
+    }
+  }, []);
+  
+  // Obtener etiqueta para mostrar en el autocompletado de cursos
+  const getCourseOptionLabel = useCallback((option: Course) => {
+    return option.name;
   }, []);
 
   // Definir validaciones adicionales dependiendo si es crear o actualizar
@@ -187,82 +162,42 @@ const Form: FunctionComponent<Props> = ({
               <Grid container spacing={2}>
                 {/* Año Escolar */}
                 <Grid item xs={12} md={6}>
-                  <FormControl 
-                    fullWidth 
-                    error={touched.schoolYearId && !!errors.schoolYearId}
-                    className="autocomplete-control"
-                  >
-                    <Autocomplete
-                      options={Array.isArray(schoolYears) ? schoolYears : []}
-                      getOptionLabel={(option) => option.code}
-                      value={selectedSchoolYear}
-                      inputValue={schoolYearInputValue}
-                      onInputChange={handleSchoolYearInputChange}
-                      onChange={handleSchoolYearChange}
-                      loading={isLoadingSchoolYears}
-                      loadingText="Cargando años escolares..."
-                      noOptionsText="No se encontraron años escolares"
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Año Escolar *"
-                          error={touched.schoolYearId && !!errors.schoolYearId}
-                          helperText={touched.schoolYearId && errors.schoolYearId ? errors.schoolYearId as string : ''}
-                          InputProps={{
-                            ...params.InputProps,
-                            startAdornment: (
-                              <>
-                                <InputAdornment position="start">
-                                  <IconCalendar size="1.1rem" />
-                                </InputAdornment>
-                                {params.InputProps.startAdornment}
-                              </>
-                            ),
-                          }}
-                        />
-                      )}
-                    />
-                  </FormControl>
+                  <OnlineAutocomplete
+                    showSelection={false}
+                    options={Array.isArray(schoolYears) ? schoolYears : []}
+                    onChange={handleSchoolYearChange}
+                    getOptionLabel={getSchoolYearOptionLabel}
+                    label="Año Escolar"
+                    required={!isUpdate}
+                    loading={isLoadingSchoolYears}
+                    searchFn={setSchoolYearSearchTerm}
+                    error={touched.schoolYearId && errors.schoolYearId ? String(errors.schoolYearId) : undefined}
+                    noOptionsText="No se encontraron años escolares"
+                    loadingText="Buscando años escolares..."
+                    originalValue={initialValues.schoolYearId || null}
+                    currentValue={values.schoolYearId || null}
+                    startAdornment={<IconCalendar size="1.1rem" />}
+                  />
                 </Grid>
 
                 {/* Asignatura */}
                 <Grid item xs={12} md={6}>
-                  <FormControl 
-                    fullWidth 
-                    error={touched.courseId && !!errors.courseId}
-                    className="autocomplete-control"
-                  >
-                    <Autocomplete
-                      options={Array.isArray(courses) ? courses : []}
-                      getOptionLabel={(option) => option.name}
-                      value={selectedCourse}
-                      inputValue={courseInputValue}
-                      onInputChange={handleCourseInputChange}
-                      onChange={handleCourseChange}
-                      loading={isLoadingCourses}
-                      loadingText="Cargando asignaturas..."
-                      noOptionsText="No se encontraron asignaturas"
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Asignatura *"
-                          error={touched.courseId && !!errors.courseId}
-                          helperText={touched.courseId && errors.courseId ? errors.courseId as string : ''}
-                          InputProps={{
-                            ...params.InputProps,
-                            startAdornment: (
-                              <>
-                                <InputAdornment position="start">
-                                  <IconBook size="1.1rem" />
-                                </InputAdornment>
-                                {params.InputProps.startAdornment}
-                              </>
-                            ),
-                          }}
-                        />
-                      )}
-                    />
-                  </FormControl>
+                  <OnlineAutocomplete
+                    showSelection={false}
+                    options={Array.isArray(courses) ? courses : []}
+                    onChange={handleCourseChange}
+                    getOptionLabel={getCourseOptionLabel}
+                    label="Asignatura"
+                    required={!isUpdate}
+                    loading={isLoadingCourses}
+                    searchFn={setCourseSearchTerm}
+                    error={touched.courseId && errors.courseId ? String(errors.courseId) : undefined}
+                    noOptionsText="No se encontraron asignaturas"
+                    loadingText="Buscando asignaturas..."
+                    originalValue={initialValues.courseId || null}
+                    currentValue={values.courseId || null}
+                    startAdornment={<IconBook size="1.1rem" />}
+                  />
                 </Grid>
 
                 {/* Grado */}

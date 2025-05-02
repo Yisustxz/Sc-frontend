@@ -9,7 +9,7 @@ import { IconChevronLeft } from '@tabler/icons';
 import styled from 'styled-components';
 import { createInscription } from 'services/inscriptions';
 import { setIsLoading, setErrorMessage, setSuccessMessage } from 'store/customizationSlice';
-import { CreateInscriptionDto } from '../../../core/inscriptions/types';
+import { CreateInscriptionDto } from 'core/inscriptions/types/index';
 
 type SubmitFunction = (data: CreateInscriptionDto) => Promise<void>;
 
@@ -57,21 +57,6 @@ const CreateInscription = ({ className }: Props) => {
           { label: 'Crear Inscripción' }
         ]} 
       />
-
-      <Box className="header-container">
-        <Button
-          variant="text"
-          color="primary"
-          startIcon={<IconChevronLeft />}
-          onClick={handleBack}
-          className="back-button"
-        >
-          Volver a Inscripciones
-        </Button>
-        <Typography variant="h4" className="page-title">
-          Nueva Inscripción
-        </Typography>
-      </Box>
 
       <MainCard className="form-card">
         <InscriptionForm 

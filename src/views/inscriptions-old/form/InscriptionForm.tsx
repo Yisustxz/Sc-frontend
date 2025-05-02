@@ -40,7 +40,7 @@ import {
 import styled from 'styled-components';
 import useGetStudents from 'services/hooks/use-get-students';
 import useGetSchoolYears from 'services/hooks/use-get-school-years';
-import { CreateInscriptionDto, UpdateInscriptionDto, StudentDto, CourseSchoolYearDto } from '../../../core/inscriptions/types';
+import { CreateInscriptionDto, UpdateInscriptionDto, StudentDto, CourseSchoolYearDto } from 'core/inscriptions/types/index';
 import { gradeMapping, EducationLevels } from 'core/courses/use-education-levels';
 import useGetCoursesSchoolYear from 'services/hooks/use-get-courses-school-year';
 
@@ -66,6 +66,8 @@ interface InscriptionFormProps {
   className?: string;
 }
 
+const EMPTY_ARRAY_REF = [] as any[];
+
 const InscriptionForm = ({ 
   onSubmit, 
   initialValues, 
@@ -80,7 +82,7 @@ const InscriptionForm = ({
   
   // Datos para los selects
   const { data: students = [], isLoading: loadingStudents } = useGetStudents(undefined, studentSearch, null);
-  const { data: schoolYears = [], isLoading: loadingSchoolYears } = useGetSchoolYears('');
+  const { data: schoolYears = [], isLoading: loadingSchoolYears } = useGetSchoolYears(EMPTY_ARRAY_REF,'');
   
   // Obtener cursos por año escolar y grado
   const { 

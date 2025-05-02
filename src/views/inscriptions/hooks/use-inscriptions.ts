@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { InscriptionDto, PaginateInscriptionDto, CreateInscriptionDto, UpdateInscriptionDto } from 'core/inscriptions/types';
+import { InscriptionDto, PaginateInscriptionDto, CreateInscriptionDto, UpdateInscriptionDto } from 'core/inscriptions/types/index';
 import createInscriptionService from 'services/inscriptions/create-inscription';
 import updateInscriptionService from 'services/inscriptions/update-inscription';
 import deleteInscriptionService from 'services/inscriptions/delete-inscription';

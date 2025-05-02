@@ -6,6 +6,7 @@ import {
   Box,
   FormControl,
   FormHelperText,
+  InputAdornment,
 } from "@mui/material";
 import { debounce } from "lodash";
 
@@ -31,6 +32,8 @@ interface OnlineAutocompleteProps<T extends Option> {
   currentValue?: string | number | null;
   fullWidth?: boolean;
   showSelection?: boolean;
+  startAdornment?: React.ReactNode;
+  disabled?: boolean;
 }
 
 function OnlineAutocomplete<T extends Option>({
@@ -49,6 +52,8 @@ function OnlineAutocomplete<T extends Option>({
   currentValue,
   fullWidth = true,
   showSelection = true,
+  startAdornment,
+  disabled = false,
 }: OnlineAutocompleteProps<T>) {
   const [isSelecting, setIsSelecting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -133,6 +138,20 @@ function OnlineAutocomplete<T extends Option>({
             required={required}
             error={!!error}
             helperText={error}
+            InputProps={{
+              ...params.InputProps,
+              startAdornment: (
+                <>
+                  {startAdornment && (
+                    <InputAdornment position="start">
+                      {startAdornment}
+                    </InputAdornment>
+                  )}
+                  {params.InputProps.startAdornment}
+                </>
+              ),
+            }}
+            disabled={disabled}
           />
         )}
         filterOptions={(options, state) => {
@@ -146,6 +165,7 @@ function OnlineAutocomplete<T extends Option>({
         loadingText={loadingText}
         blurOnSelect={false}
         clearOnBlur={false}
+        disabled={disabled}
       />
     </FormControl>
   );

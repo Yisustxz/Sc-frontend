@@ -8,29 +8,6 @@ const schoolYear: MenuItem = {
   title: "Año escolar",
   children: [
     {
-      id: "inscriptions",
-      title: "Inscripciones",
-      type: MenuItemType.Collapse,
-      icon: IconUserCheck,
-      breadcrumbs: false,
-      children: [
-        {
-          id: "list-inscriptions",
-          title: "Lista de inscripciones",
-          type: MenuItemType.Item,
-          url: "/inscriptions",
-          breadcrumbs: false,
-        },
-        {
-          id: "create-inscription",
-          title: "Crear inscripción",
-          type: MenuItemType.Item,
-          url: "/inscriptions/create",
-          breadcrumbs: false,
-        },
-      ],
-    },
-    {
       id: "courseSchoolYear",
       title: "Asignaturas por Año",
       type: MenuItemType.Collapse,
@@ -49,6 +26,29 @@ const schoolYear: MenuItem = {
           title: "Asignar asignatura",
           type: MenuItemType.Item,
           url: "/course-school-year/create",
+          breadcrumbs: false,
+        },
+      ],
+    },
+    {
+      id: "inscriptions",
+      title: "Inscripciones",
+      type: MenuItemType.Collapse,
+      icon: IconUserCheck,
+      breadcrumbs: false,
+      children: [
+        {
+          id: "list-inscriptions",
+          title: "Lista de inscripciones",
+          type: MenuItemType.Item,
+          url: "/inscriptions",
+          breadcrumbs: false,
+        },
+        {
+          id: "create-inscription",
+          title: "Crear inscripción",
+          type: MenuItemType.Item,
+          url: "/inscriptions/create",
           breadcrumbs: false,
         },
       ],

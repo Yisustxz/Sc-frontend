@@ -9,7 +9,7 @@ import { IconChevronLeft } from '@tabler/icons';
 import styled from 'styled-components';
 import { getOneInscription, updateInscription } from 'services/inscriptions';
 import { setIsLoading, setErrorMessage, setSuccessMessage } from 'store/customizationSlice';
-import { CreateInscriptionDto, InscriptionDto } from '../../../core/inscriptions/types';
+import { CreateInscriptionDto, InscriptionDto } from 'core/inscriptions/types/index';
 
 type SubmitFunction = (data: CreateInscriptionDto) => Promise<void>;
 

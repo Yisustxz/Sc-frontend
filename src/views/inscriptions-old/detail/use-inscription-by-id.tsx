@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAppDispatch } from 'store';
 import { setIsLoading, setErrorMessage } from 'store/customizationSlice';
 import { useInscriptions } from '../hooks/use-inscriptions';
-import { InscriptionDto } from '../../../core/inscriptions/types';
+import { InscriptionDto } from 'core/inscriptions/types/index';
 
 export default function useInscriptionById(id: number | null) {
   const dispatch = useAppDispatch();

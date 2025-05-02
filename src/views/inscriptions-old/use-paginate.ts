@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useAppDispatch } from 'store';
 import { setIsLoading, setErrorMessage } from 'store/customizationSlice';
-import { PaginateInscriptionDto, InscriptionDto } from '../../core/inscriptions/types';
+import { PaginateInscriptionDto, InscriptionDto } from 'core/inscriptions/types/index';
 import getPaginate from 'services/inscriptions/get-paginate';
 import BackendError from 'exceptions/backend-error';
 

@@ -26,6 +26,8 @@ interface Props {
   className?: string;
 }
 
+const EMPTY_ARRAY_REF = [] as any[];
+
 const InscriptionsPage = ({ className }: Props) => {
   const navigate = useNavigate();
   const { 
@@ -47,7 +49,7 @@ const InscriptionsPage = ({ className }: Props) => {
   const [selectedSchoolYear, setSelectedSchoolYear] = useState<SchoolYearSelect | null>(null);
 
   // Cargar años escolares para el filtro
-  const { data: schoolYears = [], isLoading: loadingSchoolYears } = useGetSchoolYears(schoolYearSearchTerm);
+  const { data: schoolYears = [], isLoading: loadingSchoolYears } = useGetSchoolYears(EMPTY_ARRAY_REF,schoolYearSearchTerm);
 
   // Ir a la página de creación
   const goToCreate = useCallback(() => {

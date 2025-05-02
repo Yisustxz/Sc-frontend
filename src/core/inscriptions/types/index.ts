@@ -5,6 +5,11 @@ export interface StudentDto {
   lastName?: string;
   identification?: string;
   dni?: string;
+  person?: {
+    dni: string;
+    name: string;
+    lastName: string;
+  };
 }
 
 export interface RepresentativeDto {
@@ -42,7 +47,7 @@ export interface CourseSchoolYearDto {
 
 // DTOs de inscripciones
 export interface CourseInscriptionDto {
-  id: number;
+  id?: number;
   inscriptionId: number;
   courseSchoolYearId: number;
   courseSchoolYear?: CourseSchoolYearDto;
@@ -59,6 +64,8 @@ export interface InscriptionDto {
   representative?: RepresentativeDto;
   courseInscriptions?: CourseInscriptionDto[];
   status?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // DTOs para crear y actualizar inscripciones
@@ -89,9 +96,22 @@ export interface UpdateInscriptionDto {
 // DTOs para paginación
 export interface PaginateInscriptionDto {
   page?: number;
+  limit?: number;
   perPage?: number;
-  schoolYearId?: number;
+  schoolYearId?: number | string;
   gradeFilter?: string;
   search?: string;
   order?: 'ASC' | 'DESC';
+  orderBy?: string;
+}
+
+// Respuesta paginada
+export interface PaginateInscriptionResponseDto {
+  items: InscriptionDto[];
+  meta: {
+    totalItems: number;
+    itemsPerPage: number;
+    totalPages: number;
+    currentPage: number;
+  };
 } 

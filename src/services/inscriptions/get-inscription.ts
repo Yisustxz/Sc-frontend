@@ -5,20 +5,19 @@ import { InscriptionDto } from 'core/inscriptions/types';
 import BackendError from 'exceptions/backend-error';
 import store from 'store';
 
-const URL = `${API_BASE_URL}/inscriptions`;
-
-export default async function getInscription(id: number): Promise<InscriptionDto> {
+export default async function getOneInscription(id: number): Promise<InscriptionDto> {
   try {
     const response = await axios.get<InscriptionDto>(
-      `${URL}/${id}`, {
+      `${API_BASE_URL}/inscriptions/${id}`,
+      {
         headers: {
           Authorization: `Bearer ${store.getState().auth.token}`,
-        }
+        },
       }
     );
     return response.data;
   } catch (error: unknown) {
-    console.error(`Error fetching inscription with ID ${id}:`, error);
+    console.error(`Error fetching inscription with id ${id}:`, error);
     throw new BackendError(error);
   }
 } 

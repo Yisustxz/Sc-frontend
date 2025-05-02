@@ -1,6 +1,6 @@
 import { Button, Pagination, Box, Typography, Chip, IconButton, Tooltip } from '@mui/material';
 import DynamicTable from 'components/DynamicTable';
-import { InscriptionDto } from '../../core/inscriptions/types';
+import { InscriptionDto } from 'core/inscriptions/types/index';
 import styled from 'styled-components';
 import { useAppDispatch } from 'store/index';
 import { setIsLoading, setSuccessMessage, setErrorMessage } from 'store/customizationSlice';

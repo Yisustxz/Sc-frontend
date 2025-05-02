@@ -9,18 +9,20 @@ import { SchoolYearSelect } from "core/school-year/types";
  * Hook para obtener años escolares con filtrado opcional
  * 
  * IMPORTANTE: Para evitar bucles infinitos de renderizado:
- * - NUNCA pases un objeto inline como `{ searchTerm: value }`. En su lugar, pasa directamente el valor.
+ * - NUNCA pases un array vacío inline como `[]`. Usa una constante fuera del componente.
  * - Si necesitas pasar un objeto con múltiples propiedades, usa useMemo para memoizarlo.
  * 
  * CORRECTO:
- * const { data } = useGetSchoolYears(searchTerm);
+ * const EMPTY_ARRAY_REF = []; // Fuera del componente
+ * const { data } = useGetSchoolYears(EMPTY_ARRAY_REF, searchTerm);
  * 
  * INCORRECTO:
- * const { data } = useGetSchoolYears({ searchTerm: value }); // Causa bucles infinitos
+ * const { data } = useGetSchoolYears([], searchTerm); // Causa bucles infinitos
  * 
+ * @param forceItemsIds IDs de años escolares para forzar su inclusión
  * @param searchTerm Término de búsqueda para filtrar años escolares
  */
-export default function useGetSchoolYears(searchTerm: string = '') {
+export default function useGetSchoolYears(forceItemsIds: number[] = [], searchTerm: string = '') {
   const [rawData, setRawData] = useState<SchoolYearSelect[]>([]);
   const dispatch = useAppDispatch();
   const { isLoading, setLoading } = useMixedLoading();
@@ -28,7 +30,7 @@ export default function useGetSchoolYears(searchTerm: string = '') {
   const fetchSchoolYears = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await getAllSchoolYear(searchTerm);
+      const response = await getAllSchoolYear(searchTerm, forceItemsIds);
       setRawData(response);
     } catch (error) {
       if (error instanceof BackendError) {
@@ -38,7 +40,7 @@ export default function useGetSchoolYears(searchTerm: string = '') {
     } finally {
       setLoading(false);
     }
-  }, [setLoading, dispatch, searchTerm]);
+  }, [setLoading, dispatch, searchTerm, forceItemsIds]);
 
   useEffect(() => {
     fetchSchoolYears();

@@ -31,6 +31,8 @@ interface InscriptionsListProps {
   className?: string;
 }
 
+const EMPTY_ARRAY_REF = [] as any[];
+
 const InscriptionsList: React.FC<InscriptionsListProps> = ({ className }) => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
@@ -41,7 +43,7 @@ const InscriptionsList: React.FC<InscriptionsListProps> = ({ className }) => {
   const [isSearching, setIsSearching] = useState(false);
 
   // Cargar años escolares para el filtro
-  const { data: schoolYears = [], isLoading: loadingSchoolYears } = useGetSchoolYears('');
+  const { data: schoolYears = [], isLoading: loadingSchoolYears } = useGetSchoolYears(EMPTY_ARRAY_REF, '');
   
   // Obtener inscripciones
   const { 

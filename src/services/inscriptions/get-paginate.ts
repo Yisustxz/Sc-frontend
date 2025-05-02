@@ -15,7 +15,12 @@ export default async function getPaginate(params: PaginateInscriptionDto): Promi
     const queryParams: Record<string, string | number | boolean | null> = {};
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined) {
-        queryParams[key] = value;
+        // Solo asignar si value no es un objeto vacío
+        if (typeof value === 'object' && value !== null && Object.keys(value).length === 0) {
+          // Ignorar objetos vacíos
+        } else {
+          queryParams[key] = value;
+        }
       }
     });
     

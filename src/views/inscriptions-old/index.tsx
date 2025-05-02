@@ -20,6 +20,8 @@ import usePaginate from './use-paginate';
 import useGetSchoolYears from 'services/hooks/use-get-school-years';
 import { gradeMapping, EducationLevels } from 'core/courses/use-education-levels';
 
+const EMPTY_ARRAY_REF = [] as any[];
+
 const InscriptionsPage = ({ className }: Props) => {
   const navigate = useNavigate();
   const { 
@@ -36,7 +38,7 @@ const InscriptionsPage = ({ className }: Props) => {
   } = usePaginate();
 
   // Cargar años escolares para el filtro
-  const { data: schoolYears = [], isLoading: loadingSchoolYears } = useGetSchoolYears('');
+  const { data: schoolYears = [], isLoading: loadingSchoolYears } = useGetSchoolYears(EMPTY_ARRAY_REF, '');
 
   // Ir a la página de creación
   const goToCreate = useCallback(() => {

@@ -4,7 +4,7 @@ import { setIsLoading, setErrorMessage } from 'store/customizationSlice';
 import getPaginate from 'services/inscriptions/get-paginate';
 import BackendError from 'exceptions/backend-error';
 import { PaginatedResponse } from 'services/types';
-import { InscriptionDto, PaginateInscriptionDto } from 'core/inscriptions/types';
+import { InscriptionDto, PaginateInscriptionDto } from 'core/inscriptions/types/index';
 
 interface PaginateData {
   totalItems: number;

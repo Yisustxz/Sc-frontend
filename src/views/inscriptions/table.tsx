@@ -19,7 +19,8 @@ import {
 import deleteInscription from 'services/inscriptions/delete-inscription';
 import DialogDelete from 'components/dialogDelete';
 import { useNavigate } from 'react-router';
-import { InscriptionDto } from 'core/inscriptions/types';
+import { InscriptionDto } from 'core/inscriptions/types/index';
+import { EducationLevels, gradeMapping } from 'core/courses/use-education-levels';
 
 interface Props {
     items: InscriptionDto[];
@@ -29,27 +30,14 @@ interface Props {
     fetchItems: () => void;
 }
 
-// Función para formatear el grado como en la tabla de asignaturas
-const formatGrade = (grade: string): string => {
-    // Verifica si el grado es un número
-    const gradeNumber = parseInt(grade);
-    if (!isNaN(gradeNumber)) {
-        // Si es de 1 a 6, es un grado de primaria
-        if (gradeNumber >= 1 && gradeNumber <= 6) {
-            return `${gradeNumber}° Grado`;
-        }
-        // Si es de 7 a 9, es 1° a 3° año (secundaria)
-        else if (gradeNumber >= 7 && gradeNumber <= 9) {
-            return `${gradeNumber - 6}° Grado`;
-        }
-        // Si es de 10 a 11, es 4° y 5° año (secundaria)
-        else if (gradeNumber >= 10 && gradeNumber <= 11) {
-            return `${gradeNumber - 6}° Año`;
-        }
+    // Función para convertir número de grado a texto
+const getGradeLabel = (grade: number): string => {
+        if (grade >= 1 && grade <= 11) {
+            return gradeMapping[grade as EducationLevels] || `Grado ${grade}`;
     }
-    // Si no es un número o está fuera de rango, devolver el valor original
-    return grade;
+    return `Grado ${grade}`;
 };
+
 
 const Table: FunctionComponent<Props> = ({ items, paginate, className, onChange, fetchItems }) => {
     const dispatch = useAppDispatch();
@@ -130,7 +118,7 @@ const Table: FunctionComponent<Props> = ({ items, paginate, className, onChange,
                     { columnLabel: 'Grado', cellAlignment: 'left', onRender: (row: InscriptionDto) => (
                         <Box className="grade-cell">
                             <IconSchool className="icon" size={20} />
-                            <span>{formatGrade(row.grade) || 'No especificado'}</span>
+                            <span>{getGradeLabel(+row.grade) || 'No especificado'}</span>
                         </Box>
                     ) },
                     { columnLabel: 'Cursos', cellAlignment: 'left', onRender: (row: InscriptionDto) => (
