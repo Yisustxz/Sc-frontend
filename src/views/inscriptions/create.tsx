@@ -4,7 +4,6 @@ import InscriptionForm, { FormValues } from './form'
 import BreadcrumbsNav from 'components/BreadcrumbsNav'
 import styled from 'styled-components'
 import { FormikHelpers } from 'formik'
-import axios from 'axios'
 import BackendError from 'exceptions/backend-error'
 import {
   setErrorMessage,
@@ -13,6 +12,7 @@ import {
 } from 'store/customizationSlice'
 import { useAppDispatch } from 'store'
 import { CreateInscriptionDto } from 'core/inscriptions/types'
+import createInscription from 'services/inscriptions/create-inscription'
 
 const CreateInscription: FunctionComponent<Props> = ({ className }) => {
   const navigate = useNavigate()
@@ -38,19 +38,19 @@ const CreateInscription: FunctionComponent<Props> = ({ className }) => {
         setErrors({})
         setStatus({})
         setSubmitting(true)
-        
+
         // Preparar payload según el tipo adecuado
         const payload: CreateInscriptionDto = {
           studentId: values.studentId,
           schoolYearId: values.schoolYearId,
-          grade: values.grade,
+          grade: +values.grade,
           courseInscriptions: values.courseInscriptions?.map(item => ({
             courseSchoolYearId: item.courseSchoolYearId
           })) || []
         }
         
-        // Enviar los datos al backend
-        await axios.post('/api/inscriptions', payload)
+        // Enviar los datos al backend usando el servicio
+        await createInscription(payload)
 
         // Mostrar mensaje de éxito y redireccionar
         navigate('/inscriptions')

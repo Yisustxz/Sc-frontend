@@ -76,7 +76,7 @@ export interface CreateCourseInscriptionDto {
 export interface CreateInscriptionDto {
   studentId: number;
   schoolYearId: number;
-  grade: string;
+  grade: number;
   courseInscriptions: CreateCourseInscriptionDto[];
 }
 
@@ -88,7 +88,7 @@ export interface UpdateCourseInscriptionDto {
 export interface UpdateInscriptionDto {
   studentId?: number;
   schoolYearId?: number;
-  grade?: string;
+  grade?: number;
   courseInscriptions?: UpdateCourseInscriptionDto[];
 }
 

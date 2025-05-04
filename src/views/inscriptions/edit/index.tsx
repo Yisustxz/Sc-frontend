@@ -1,4 +1,4 @@
-import { FunctionComponent, useCallback } from 'react'
+import { FunctionComponent, useCallback, useMemo } from 'react'
 // material-ui
 import styled from 'styled-components'
 import { useNavigate } from 'react-router'
@@ -30,19 +30,21 @@ const EditInscription: FunctionComponent<Props> = ({ className }) => {
     ) => {
       try {
         if (!inscriptionId) return;
-        
+
         dispatch(setIsLoading(true))
         setErrors({})
         setStatus({})
         setSubmitting(true)
-        
+
         // Preparar payload para actualización
         const payload = {
-          grade: values.grade,
-          // Actualmente no actualizamos courseInscriptions en la edición
-          // courseInscriptions: values.courseInscriptions || []
+          grade: +values.grade,
+          schoolYearId: values.schoolYearId,
+          courseInscriptions: values.courseInscriptions?.map(item => ({
+            courseSchoolYearId: item.courseSchoolYearId
+          })) || []
         };
-        
+
         await updateInscription(inscriptionId, payload)
         navigate('/inscriptions')
         dispatch(
@@ -71,6 +73,18 @@ const EditInscription: FunctionComponent<Props> = ({ className }) => {
     [inscriptionId, navigate, dispatch]
   )
 
+  const initialValues: FormValues = useMemo(() => {
+    return {
+      studentId: inscription?.studentId || 0,
+      schoolYearId: inscription?.schoolYearId || 0,
+      grade: inscription?.grade || '',
+      courseInscriptions: inscription?.courseInscriptions?.map(item => ({
+        courseSchoolYearId: item.courseSchoolYearId
+      })) || [],
+      submit: null
+    }
+  }, [inscription?.studentId, inscription?.schoolYearId, inscription?.grade, inscription?.courseInscriptions]);
+
   const breadcrumbsItems = [
     {
       label: 'Inscripciones',
@@ -84,19 +98,11 @@ const EditInscription: FunctionComponent<Props> = ({ className }) => {
   return (
     <div className={className}>
       <BreadcrumbsNav items={breadcrumbsItems} />
-      
+
       {inscription && (
         <Form
           isUpdate={true}
-          initialValues={{
-            studentId: inscription.studentId,
-            schoolYearId: inscription.schoolYearId,
-            grade: inscription.grade,
-            courseInscriptions: inscription.courseInscriptions?.map(item => ({
-              courseSchoolYearId: item.courseSchoolYearId
-            })) || [],
-            submit: null
-          }}
+          initialValues={initialValues}
           title={'Editar Inscripción'}
           onSubmit={onSubmit}
         />
@@ -114,4 +120,4 @@ export default styled(EditInscription)`
   flex-direction: column;
   gap: 20px;
   padding: 0;
-` 
+`;

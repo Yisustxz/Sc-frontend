@@ -97,9 +97,12 @@ const InscriptionForm: FunctionComponent<Props> = ({
   const [studentSearch, setStudentSearch] = useState('');
   const [schoolYearSearch, setSchoolYearSearch] = useState('');
   const formikRef = useRef<FormikProps<FormValues>>(null);
-  const [selectedSchoolYear, setSelectedSchoolYear] = useState<number | null>(null);
-  const [selectedCoursesSchoolYear, setSelectedCoursesSchoolYear] = useState<number[]>([]);
+
+  // Estados para selección de cursos
+  const [selectedSchoolYear, setSelectedSchoolYear] = useState<number | null>(initialValues.schoolYearId || null);
   const [selectedGrade, setSelectedGrade] = useState<string>(initialValues.grade || '');
+  const [selectedCoursesSchoolYear, setSelectedCoursesSchoolYear] = useState<number[]>([]);
+
   // Obtener cursos por año escolar y grado
   const { 
     data: coursesSchoolYear = [], 
@@ -107,6 +110,24 @@ const InscriptionForm: FunctionComponent<Props> = ({
   } = useGetCoursesSchoolYear(
     selectedSchoolYear || 0,
   );
+
+  // Inicializar los cursos seleccionados desde initialValues al cargar el componente
+  useEffect(() => {
+    console.log('initialValues.courseInscriptions', initialValues.courseInscriptions);
+    if (initialValues.courseInscriptions && initialValues.courseInscriptions.length > 0) {
+      const courseIds = initialValues.courseInscriptions.map(item => item.courseSchoolYearId);
+      setSelectedCoursesSchoolYear(courseIds);
+    }
+  }, [initialValues.courseInscriptions]);
+
+  // Asegurarnos de que courseInscriptions se mantenga actualizado en el formulario
+  useEffect(() => {
+    console.log('selectedCoursesSchoolYear', selectedCoursesSchoolYear);
+    if (formikRef.current) {
+      const courseInscriptions = selectedCoursesSchoolYear.map(id => ({ courseSchoolYearId: id }));
+      formikRef.current.setFieldValue('courseInscriptions', courseInscriptions);
+    }
+  }, [selectedCoursesSchoolYear]);
 
   // Agrupar cursos por grado para mejor visualización
   const coursesByGrade = useCoursesByGradeDictionary(coursesSchoolYear);
@@ -164,24 +185,38 @@ const InscriptionForm: FunctionComponent<Props> = ({
       .required('El año escolar es requerido')
       .positive('Seleccione un año escolar válido'),
     grade: Yup.string()
-      .required('El grado es requerido')
+      .required('El grado es requerido'),
+    courseInscriptions: Yup.array()
+      .of(Yup.object().shape({
+        courseSchoolYearId: Yup.number()
+          .required('La materia es requerida')
+          .positive('Seleccione una materia válida')
+      }))
   });
 
   // Manejar selección de todos los cursos de un grado
   const handleSelectAllGradeCourses = useCallback((grade: number, isSelected: boolean) => {
-    // Nuyeva aaproximacion usando el is selected
+    // Obtener todos los cursos del grado especificado
     const coursesInGrade = coursesByGrade[grade] || [];
     const courseIdsInGrade = coursesInGrade.map((course: CourseType) => course.id);
-    let newSelectedCourses;
-
+    
+    let newSelectedCourses: number[] = [];
+    
     if (isSelected) {
-      newSelectedCourses = [...selectedCoursesSchoolYear, ...courseIdsInGrade];
+      // Añadir todos los cursos del grado (evitando duplicados con Set)
+      const coursesSet = new Set([...selectedCoursesSchoolYear, ...courseIdsInGrade]);
+      newSelectedCourses = Array.from(coursesSet);
     } else {
-      newSelectedCourses = selectedCoursesSchoolYear.filter((id: number) => !courseIdsInGrade.includes(id));
+      // Eliminar todos los cursos del grado
+      newSelectedCourses = selectedCoursesSchoolYear.filter(id => !courseIdsInGrade.includes(id));
     }
-
+    
+    // Actualizar el estado de cursos seleccionados
     setSelectedCoursesSchoolYear(newSelectedCourses);
-    setFieldValue('courseIds', newSelectedCourses);
+    
+    // Crear array de objetos para el campo courseInscriptions
+    const courseInscriptions = newSelectedCourses.map(id => ({ courseSchoolYearId: id }));
+    setFieldValue('courseInscriptions', courseInscriptions);
   }, [coursesByGrade, selectedCoursesSchoolYear, setFieldValue]);
 
   // Auto add courses when grade is selected and nothing courses was added
@@ -193,7 +228,7 @@ const InscriptionForm: FunctionComponent<Props> = ({
 
   // Manejar selección individual de cursos
   const handleCourseChange = useCallback((courseId: number, isSelected: boolean) => {
-    let newSelectedCourses;
+    let newSelectedCourses: number[] = [];
     
     if (isSelected) {
       // Añadir curso si no está ya seleccionado
@@ -203,9 +238,50 @@ const InscriptionForm: FunctionComponent<Props> = ({
       newSelectedCourses = selectedCoursesSchoolYear.filter(id => id !== courseId);
     }
     
+    // Actualizar el estado de cursos seleccionados
     setSelectedCoursesSchoolYear(newSelectedCourses);
-    setFieldValue('courseIds', newSelectedCourses);
+    
+    // Crear array de objetos para el campo courseInscriptions
+    const courseInscriptions = newSelectedCourses.map(id => ({ courseSchoolYearId: id }));
+    setFieldValue('courseInscriptions', courseInscriptions);
   }, [selectedCoursesSchoolYear, setFieldValue]);
+  const coursesByGradeUnselected = useMemo(() => {
+    const unselectedMap: Record<string, CourseType[]> = {};
+    
+    // Recorrer todas las materias agrupadas por grado
+    Object.entries(coursesByGrade).forEach(([grade, courses]) => {
+      // Filtrar solo los cursos que NO están seleccionados
+      const unselectedCourses = courses.filter(
+        (course: CourseType) => !selectedCoursesSchoolYear.includes(course.id)
+      );
+      
+      // Solo agregar el grado si hay cursos no seleccionados
+      if (unselectedCourses.length > 0) {
+        unselectedMap[grade] = unselectedCourses;
+      }
+    });
+    
+    return unselectedMap;
+  }, [coursesByGrade, selectedCoursesSchoolYear]);
+
+  const coursesByGradeSelected = useMemo(() => {
+    const selectedMap: Record<string, CourseType[]> = {};
+    
+    // Recorrer todas las materias agrupadas por grado
+    Object.entries(coursesByGrade).forEach(([grade, courses]) => {
+      // Filtrar solo los cursos que están seleccionados
+      const selectedCourses = courses.filter(
+        (course: CourseType) => selectedCoursesSchoolYear.includes(course.id)
+      );
+      
+      // Solo agregar el grado si hay cursos seleccionados
+      if (selectedCourses.length > 0) {
+        selectedMap[grade] = selectedCourses;
+      }
+    });
+    
+    return selectedMap;
+  }, [coursesByGrade, selectedCoursesSchoolYear]);
 
   // Renderizar opciones de cursos en diseño de dos columnas
   const renderCourseOptions = useCallback(() => {
@@ -255,26 +331,21 @@ const InscriptionForm: FunctionComponent<Props> = ({
               Materias Disponibles
             </Typography>
           </Box>
-          
+
           <Divider sx={{ mb: 2 }} />
-          
+
           {/* Lista con scroll */}
           <Box sx={{ 
             overflowY: 'auto',
             flex: 1,
             pr: 1
           }}>
-            {Object.entries(coursesByGrade)
+            {Object.entries(coursesByGradeUnselected)
               .sort(([gradeA], [gradeB]) => Number(gradeA) - Number(gradeB))
               .map(([grade, courses]) => {
-                // Filtrar solo los cursos que no están seleccionados
-                const availableCourses = courses.filter(
-                  (course: CourseType) => !selectedCoursesSchoolYear.includes(course.id)
-                );
-                
                 // No mostrar el grado si no hay cursos disponibles
-                if (availableCourses.length === 0) return null;
-                
+                if (courses.length === 0) return null;
+
                 return (
                   <Box key={`available-${grade}`} sx={{ mb: 2 }}>
                     <Box sx={{ 
@@ -295,9 +366,9 @@ const InscriptionForm: FunctionComponent<Props> = ({
                         Agregar todos
                       </Button>
                     </Box>
-                    
+
                     <List dense disablePadding sx={{ ml: 1 }}>
-                      {availableCourses.map((course: CourseType) => (
+                      {courses.map((course: CourseType) => (
                         <ListItem 
                           key={`available-course-${course.id}`}
                           disablePadding
@@ -328,7 +399,7 @@ const InscriptionForm: FunctionComponent<Props> = ({
               })}
           </Box>
         </Paper>
-        
+
         {/* Panel derecho: Materias seleccionadas */}
         <Paper sx={{ 
           flex: 1, 
@@ -357,34 +428,24 @@ const InscriptionForm: FunctionComponent<Props> = ({
               py: 8,
               color: 'text.secondary'
             }}>
-              {/*Mejorar esto*/}
               <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
                 No hay materias seleccionadas
-              </Typography>{
-                selectedGrade && (
-                  <Button 
-                    variant="outlined"
-                    color="primary"
-                    onClick={automaticAddCoursesFromGrade}
-                  >
-                    Agregar materias del grado {selectedGrade}
-                  </Button>
-                )
-              }
+              </Typography>
+              {selectedGrade && (
+                <Button 
+                  variant="outlined"
+                  color="primary"
+                  onClick={automaticAddCoursesFromGrade}
+                >
+                  Agregar materias del grado {selectedGrade}
+                </Button>
+              )}
             </Box>
           ) : (
             <Box sx={{ overflowY: 'auto', pr: 1, flex: 1 }}>
-              {Object.entries(coursesByGrade)
+              {Object.entries(coursesByGradeSelected)
                 .sort(([gradeA], [gradeB]) => Number(gradeA) - Number(gradeB))
                 .map(([grade, courses]) => {
-                  // Filtrar solo los cursos que están seleccionados
-                  const selectedCourses = courses.filter(
-                    (course: CourseType) => selectedCoursesSchoolYear.includes(course.id)
-                  );
-                  
-                  // No mostrar el grado si no hay cursos seleccionados
-                  if (selectedCourses.length === 0) return null;
-                  
                   return (
                     <Box key={`selected-${grade}`} sx={{ mb: 2 }}>
                       <Box sx={{ 
@@ -409,7 +470,7 @@ const InscriptionForm: FunctionComponent<Props> = ({
                       </Box>
                       
                       <List dense disablePadding sx={{ ml: 1 }}>
-                        {selectedCourses.map((course: CourseType) => (
+                        {courses.map((course: CourseType) => (
                           <ListItem 
                             key={`selected-course-${course.id}`}
                             disablePadding
@@ -444,7 +505,18 @@ const InscriptionForm: FunctionComponent<Props> = ({
         </Paper>
       </Box>
     );
-  }, [selectedSchoolYear, loadingCoursesSchoolYear, coursesByGrade, selectedCoursesSchoolYear, selectedGrade, automaticAddCoursesFromGrade, handleSelectAllGradeCourses, handleCourseChange]);
+  }, [
+    selectedSchoolYear, 
+    loadingCoursesSchoolYear, 
+    coursesByGrade, 
+    coursesByGradeUnselected, 
+    coursesByGradeSelected, 
+    selectedCoursesSchoolYear, 
+    selectedGrade, 
+    automaticAddCoursesFromGrade, 
+    handleSelectAllGradeCourses, 
+    handleCourseChange
+  ]);
 
   return (
     <div className={className}>

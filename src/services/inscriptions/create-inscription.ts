@@ -5,12 +5,16 @@ import { CreateInscriptionDto, InscriptionDto } from 'core/inscriptions/types';
 import BackendError from 'exceptions/backend-error';
 import store from 'store';
 
+const URL = `${API_BASE_URL}/inscriptions`;
+
 export default async function createInscription(
   payload: CreateInscriptionDto
 ): Promise<InscriptionDto> {
   try {
+    console.log('payload', URL, '--->',payload);
+
     const response = await axios.post<InscriptionDto>(
-      `${API_BASE_URL}/inscriptions`,
+      URL,
       payload,
       {
         headers: {
