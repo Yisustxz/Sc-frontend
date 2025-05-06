@@ -1,80 +1,32 @@
-import { FunctionComponent, useState, useCallback, useMemo } from 'react';
+import { FunctionComponent, useMemo } from 'react';
 import styled from 'styled-components';
-import { Typography, Grid, Box, Button, Pagination } from '@mui/material';
+import { Typography, Grid, Box } from '@mui/material';
 import useInscriptionById from '../hooks/use-inscription-by-id';
 import useInscriptionId from '../hooks/use-inscription-id';
 import BreadcrumbsNav from 'components/BreadcrumbsNav';
 import MainCard from 'components/cards/MainCard';
-import DynamicTable from 'components/DynamicTable';
 import { 
   IconCalendar, 
   IconUser, 
   IconSchool, 
   IconUsers,
-  IconId,
-  IconCertificate,
-  IconEdit,
-  IconTrash,
-  IconBookUpload
+  IconId
 } from '@tabler/icons';
 import { gradeMapping, EducationLevels } from 'core/courses/use-education-levels';
-import { AttemptType } from 'core/inscriptions/types';
+import CourseInscriptions from './course-inscriptions';
 
-  // Función para convertir número de grado a texto
-  const getGradeLabel = (grade: string): string => {
-    const gradeNumber = parseInt(grade);
-    if (gradeNumber >= 1 && gradeNumber <= 11) {
-      return gradeMapping[gradeNumber as EducationLevels] || `Grado ${grade}`;
-    }
-    return `Grado ${grade}`;
-  };
-
-// Cantidad de elementos por página
-const ITEMS_PER_PAGE = 8;
+// Función para convertir número de grado a texto
+const getGradeLabel = (grade: string): string => {
+  const gradeNumber = parseInt(grade);
+  if (gradeNumber >= 1 && gradeNumber <= 11) {
+    return gradeMapping[gradeNumber as EducationLevels] || `Grado ${grade}`;
+  }
+  return `Grado ${grade}`;
+};
 
 const DetailInscription: FunctionComponent<Props> = ({ className }) => {
   const inscriptionId = useInscriptionId();
   const inscription = useInscriptionById(inscriptionId);
-  
-  // Estado para la paginación local
-  const [page, setPage] = useState(1);
-
-  // Función para formatear el tipo de intento
-  const getAttemptTypeLabel = (type: AttemptType | undefined): string => {
-    if (!type) return 'Normal';
-    
-    switch (type) {
-      case AttemptType.NORMAL_ATTEMPT:
-        return 'Normal';
-      case AttemptType.FULL_GRADE_REPEATER:
-        return 'Repitiente de grado';
-      case AttemptType.COURSE_REPEATER:
-        return 'Repitiente de curso';
-      default:
-        return 'Normal';
-    }
-  };
-
-  // Manejador de cambio de página
-  const handlePageChange = useCallback((event: React.ChangeEvent<unknown>, value: number) => {
-    setPage(value);
-  }, []);
-
-  // Obtener las inscripciones para la página actual
-  const getPaginatedCourseInscriptions = useCallback(() => {
-    if (!inscription?.courseInscriptions?.length) return [];
-    
-    const startIndex = (page - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
-    
-    return inscription.courseInscriptions.slice(startIndex, endIndex);
-  }, [inscription, page]);
-
-  // Calcular el número total de páginas
-  const totalPages = useMemo(() => {
-    if (!inscription?.courseInscriptions?.length) return 0;
-    return Math.ceil(inscription.courseInscriptions.length / ITEMS_PER_PAGE);
-  }, [inscription]);
 
   // Construir elementos de navegación de migas de pan
   const breadcrumbsItems = inscription
@@ -101,17 +53,10 @@ const DetailInscription: FunctionComponent<Props> = ({ className }) => {
       }
     ];
 
-  // Simular acciones para los botones (sin funcionalidad real)
-  const handleEdit = useCallback((courseInscription: any) => {
-    console.log('Editar materia inscrita:', courseInscription);
-    // Esta función no hace nada, solo se incluye para simular la acción
-  }, []);
-
-  const handleDelete = useCallback((courseInscription: any) => {
-    console.log('Eliminar materia inscrita:', courseInscription);
-    // Esta función no hace nada, solo se incluye para simular la acción
-  }, []);
-
+  const courseInscriptions = useMemo(() => {
+    return inscription?.courseInscriptions || [];
+  }, [inscription]);
+  
   return (
     <div className={className}>
       <BreadcrumbsNav items={breadcrumbsItems} />
@@ -225,103 +170,12 @@ const DetailInscription: FunctionComponent<Props> = ({ className }) => {
             </MainCard>
           </Grid>
 
-          {/* DynamicTable para materias inscritas - 8 columnas */}
+          {/* Componente de materias inscritas - 8 columnas */}
           <Grid item xs={12} md={8}>
-            <MainCard title={`Materias Inscritas (${inscription.courseInscriptions?.length || 0})`} className="courses-card">
-              {inscription.courseInscriptions && inscription.courseInscriptions.length > 0 ? (
-                <>
-                  <DynamicTable
-                    headers={[
-                      {
-                        columnLabel: 'Asignatura', cellAlignment: 'left',
-                        onRender: (row) => (
-                          <Box className="course-cell">
-                            <span>{row.course?.name}</span>
-                          </Box>
-                        )
-                       },
-                      { 
-                        columnLabel: 'Tipo', 
-                        cellAlignment: 'center',
-                        onRender: (row) => (
-                          <Box className="attempt-type-cell">
-                            <span>{getAttemptTypeLabel(row.attemptType)}</span>
-                          </Box>
-                        ) 
-                      },
-                      { 
-                        columnLabel: 'Calificación', 
-                        cellAlignment: 'center',
-                        onRender: (row) => (
-                          <Box className="qualification-cell">
-                            <IconCertificate className="icon" size={16} />
-                            <span>{row.endQualification !== undefined && row.endQualification !== null ? row.endQualification : 'N/A'}</span>
-                          </Box>
-                        ) 
-                      }
-                    ]}
-                    rows={getPaginatedCourseInscriptions().map(ci => ({
-                      id: ci.id,
-                      course: ci.courseSchoolYear?.course,
-                      attemptType: ci.attemptType || undefined,
-                      endQualification: ci.endQualification || null
-                    }))}
-                    components={[
-                      (row) => (
-                        <Button
-                          size="small"
-                          onClick={() => handleEdit(row)}
-                          startIcon={<IconEdit color="#2196f3" size="1rem" />}
-                        >
-                          Editar
-                        </Button>
-                      ),
-                      (row) => (
-                        <Button
-                          color="secondary"
-                          size="small"
-                          onClick={() => handleDelete(row)}
-                          startIcon={<IconTrash size="1rem" />}
-                        >
-                          Eliminar
-                        </Button>
-                      )
-                    ]}
-                    emptyState={
-                      <Box className="empty-state">
-                        <Typography variant="body2">No hay materias inscritas</Typography>
-                      </Box>
-                    }
-                  />
-
-                  {/* Paginación local */}
-                  {totalPages > 1 && (
-                    <Box className="paginator-container">
-                      <Pagination
-                        count={totalPages}
-                        page={page}
-                        variant="outlined"
-                        shape="rounded"
-                        color="primary"
-                        onChange={handlePageChange}
-                      />
-                    </Box>
-                  )}
-                </>
-              ) : (
-                <Box className="empty-state">
-                  <Typography variant="body2">No hay materias inscritas</Typography>
-                  <Button 
-                    variant="outlined" 
-                    color="primary" 
-                    startIcon={<IconBookUpload size={18} />}
-                    onClick={() => console.log('Importar materias')}
-                  >
-                    Importar Materias
-                  </Button>
-                </Box>
-              )}
-            </MainCard>
+            <CourseInscriptions 
+              inscriptions={courseInscriptions}
+              className="courses-card"
+            />
           </Grid>
         </Grid>
       )}
@@ -387,7 +241,7 @@ export default styled(DetailInscription)`
     gap: 8px;
   }
 
-  .qualification-cell, .attempt-type-cell {
+  .qualification-cell, .attempt-type-cell, .course-cell {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -399,6 +253,5 @@ export default styled(DetailInscription)`
     display: flex;
     justify-content: center;
     padding: 8px 0;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
   }
 `; 
