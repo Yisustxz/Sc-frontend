@@ -44,11 +44,26 @@ export interface CourseSchoolYearDto {
   professor?: ProfessorDto;
 }
 
+/**
+ * Enum para describir el tipo de intento de un estudiante en un curso
+ * - normal-attempt: Cuando un estudiante ve la materia por primera vez
+ * - full-grade-repeater: Estudiante que repitió por completo el año o grado
+ * - course-repeater: Estudiante que está repitiendo un curso específico
+ */
+export enum AttemptType {
+  NORMAL_ATTEMPT = 'normal-attempt',
+  FULL_GRADE_REPEATER = 'full-grade-repeater',
+  COURSE_REPEATER = 'course-repeater',
+}
+
 // DTOs de inscripciones
 export interface CourseInscriptionDto {
   id?: number;
   inscriptionId: number;
   courseSchoolYearId: number;
+  endQualification?: number | null;
+  attemptNumber?: number;
+  attemptType?: AttemptType;
   courseSchoolYear?: CourseSchoolYearDto;
   inscription?: InscriptionDto;
 }

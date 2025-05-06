@@ -5,14 +5,14 @@ import { useAppDispatch } from 'store/index';
 import { setIsLoading, setSuccessMessage, setErrorMessage } from 'store/customizationSlice';
 import BackendError from 'exceptions/backend-error';
 import { FunctionComponent, useCallback, useState } from 'react';
-import { 
-    IconEdit, 
-    IconTrash, 
-    IconEye, 
-    IconPlus, 
-    IconUser, 
-    IconUsers, 
-    IconSchool, 
+import {
+    IconEdit,
+    IconTrash,
+    IconEye,
+    IconPlus,
+    IconUser,
+    IconUsers,
+    IconSchool,
     IconCalendar,
     IconBook
 } from '@tabler/icons';
@@ -30,10 +30,10 @@ interface Props {
     fetchItems: () => void;
 }
 
-    // Función para convertir número de grado a texto
+// Función para convertir número de grado a texto
 const getGradeLabel = (grade: number): string => {
-        if (grade >= 1 && grade <= 11) {
-            return gradeMapping[grade as EducationLevels] || `Grado ${grade}`;
+    if (grade >= 1 && grade <= 11) {
+        return gradeMapping[grade as EducationLevels] || `Grado ${grade}`;
     }
     return `Grado ${grade}`;
 };
@@ -81,64 +81,74 @@ const Table: FunctionComponent<Props> = ({ items, paginate, className, onChange,
             <DynamicTable
                 headers={[
                     { columnLabel: 'ID', fieldName: 'id', cellAlignment: 'left' },
-                    { columnLabel: 'Estudiante', cellAlignment: 'left', onRender: (row: InscriptionDto) => (
-                        <Box className="student-cell">
-                            <IconUser className="icon" size={20} />
-                            <div className="student-info">
-                                <div className="student-name">
-                                    {row.student?.name} {row.student?.lastName || ''}
-                                </div>
-                                {row.student?.dni && (
-                                    <div className="student-dni">
-                                        <small>CI: {row.student.dni}</small>
+                    {
+                        columnLabel: 'Estudiante', cellAlignment: 'left', onRender: (row: InscriptionDto) => (
+                            <Box className="student-cell">
+                                <IconUser className="icon" size={20} />
+                                <div className="student-info">
+                                    <div className="student-name">
+                                        {row.student?.name} {row.student?.lastName || ''}
                                     </div>
-                                )}
-                            </div>
-                        </Box>
-                    ) },
-                    { columnLabel: 'Representante', cellAlignment: 'left', onRender: (row: InscriptionDto) => (
-                        <Box className="representative-cell">
-                            <IconUsers className="icon" size={20} />
-                            {row.representative ? (
-                                <div className="representative-info">
-                                    <div className="representative-name">
-                                        {row.representative.name} {row.representative.lastName || ''}
-                                    </div>
-                                    {row.representative.dni && (
-                                        <div className="representative-dni">
-                                            <small>CI: {row.representative.dni}</small>
+                                    {row.student?.dni && (
+                                        <div className="student-dni">
+                                            <small>CI: {row.student.dni}</small>
                                         </div>
                                     )}
                                 </div>
-                            ) : (
-                                <span>Sin representante</span>
-                            )}
-                        </Box>
-                    ) },
-                    { columnLabel: 'Grado', cellAlignment: 'left', onRender: (row: InscriptionDto) => (
-                        <Box className="grade-cell">
-                            <IconSchool className="icon" size={20} />
-                            <span>{getGradeLabel(+row.grade) || 'No especificado'}</span>
-                        </Box>
-                    ) },
-                    { columnLabel: 'Cursos', cellAlignment: 'left', onRender: (row: InscriptionDto) => (
-                        <Box className="course-cell">
-                            <IconBook className="icon" size={20} />
-                            <span>{row.courseInscriptions?.length || 'Sin cursos'}</span>
-                        </Box>
-                    ) },
-                    { columnLabel: 'Año Escolar', cellAlignment: 'left', onRender: (row: InscriptionDto) => (
-                        <Box className="school-year-cell">
-                            <IconCalendar className="icon" size={20} />
-                            <span>{row.schoolYear?.code || 'Sin año escolar'}</span>
-                        </Box>
-                    ) },
+                            </Box>
+                        )
+                    },
+                    {
+                        columnLabel: 'Representante', cellAlignment: 'left', onRender: (row: InscriptionDto) => (
+                            <Box className="representative-cell">
+                                <IconUsers className="icon" size={20} />
+                                {row.representative ? (
+                                    <div className="representative-info">
+                                        <div className="representative-name">
+                                            {row.representative.name} {row.representative.lastName || ''}
+                                        </div>
+                                        {row.representative.dni && (
+                                            <div className="representative-dni">
+                                                <small>CI: {row.representative.dni}</small>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <span>Sin representante</span>
+                                )}
+                            </Box>
+                        )
+                    },
+                    {
+                        columnLabel: 'Grado', cellAlignment: 'left', onRender: (row: InscriptionDto) => (
+                            <Box className="grade-cell">
+                                <IconSchool className="icon" size={20} />
+                                <span>{getGradeLabel(+row.grade) || 'No especificado'}</span>
+                            </Box>
+                        )
+                    },
+                    {
+                        columnLabel: 'Cursos', cellAlignment: 'left', onRender: (row: InscriptionDto) => (
+                            <Box className="course-cell">
+                                <IconBook className="icon" size={20} />
+                                <span>{row.courseInscriptions?.length || 'Sin cursos'}</span>
+                            </Box>
+                        )
+                    },
+                    {
+                        columnLabel: 'Año Escolar', cellAlignment: 'left', onRender: (row: InscriptionDto) => (
+                            <Box className="school-year-cell">
+                                <IconCalendar className="icon" size={20} />
+                                <span>{row.schoolYear?.code || 'Sin año escolar'}</span>
+                            </Box>
+                        )
+                    },
                 ]}
                 rows={items} components={[
                     (row: InscriptionDto) =>
                         <Button
                             color="info"
-                            onClick={() => navigate('/inscriptions/edit/' + row.id)}
+                            onClick={() => navigate('/inscriptions/detail/' + row.id)}
                             startIcon={<IconEye />}
                         >
                             Detalle
@@ -160,25 +170,25 @@ const Table: FunctionComponent<Props> = ({ items, paginate, className, onChange,
                             Eliminar
                         </Button>
                 ]}
-                        emptyState={
-                            <Box className="empty-state">
-                                <Typography variant="subtitle1">No se encontraron inscripciones</Typography>
-                                <Button 
-                                color='primary'
-                                variant='outlined'
-                                startIcon={<IconPlus />}
-                                onClick={() => navigate('/inscriptions/create')}
-                                >
-                                Agregar
-                                </Button>
-                            </Box>
-                            }
+                emptyState={
+                    <Box className="empty-state">
+                        <Typography variant="subtitle1">No se encontraron inscripciones</Typography>
+                        <Button
+                            color='primary'
+                            variant='outlined'
+                            startIcon={<IconPlus />}
+                            onClick={() => navigate('/inscriptions/create')}
+                        >
+                            Agregar
+                        </Button>
+                    </Box>
+                }
             />
 
             {/* Diálogo de confirmación para eliminar */}
-            <DialogDelete 
-                handleClose={handleCloseDialogs} 
-                onDelete={handleDelete} 
+            <DialogDelete
+                handleClose={handleCloseDialogs}
+                onDelete={handleDelete}
                 open={deleteOpen}
             />
 
