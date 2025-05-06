@@ -1,10 +1,6 @@
 import { FunctionComponent, useCallback } from 'react';
-import { Box, Button, Typography } from '@mui/material';
-import { 
-  IconCertificate, 
-  IconEdit, 
-  IconTrash 
-} from '@tabler/icons';
+import { Box, Typography } from '@mui/material';
+import { IconCertificate } from '@tabler/icons';
 import DynamicTable from 'components/DynamicTable';
 import { AttemptType, CourseInscriptionDto } from 'core/inscriptions/types';
 
