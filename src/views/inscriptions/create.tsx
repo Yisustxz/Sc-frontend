@@ -1,6 +1,6 @@
 import { FunctionComponent, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import InscriptionForm, { FormValues } from './form'
+import InscriptionForm, { FormValues } from './form/form'
 import BreadcrumbsNav from 'components/BreadcrumbsNav'
 import styled from 'styled-components'
 import { FormikHelpers } from 'formik'

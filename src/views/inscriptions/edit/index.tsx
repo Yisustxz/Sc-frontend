@@ -10,7 +10,7 @@ import {
   setSuccessMessage,
   setErrorMessage
 } from 'store/customizationSlice'
-import Form, { FormValues } from '../form'
+import Form, { FormValues } from '../form/form'
 import updateInscription from 'services/inscriptions/update-inscription'
 import useInscriptionById from '../hooks/use-inscription-by-id'
 import useInscriptionId from '../hooks/use-inscription-id'

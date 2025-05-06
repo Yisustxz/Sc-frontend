@@ -21,10 +21,10 @@ import useGetSchoolYears from 'services/hooks/use-get-school-years'
 import useGetStudents from 'services/hooks/use-get-students'
 import OnlineAutocomplete from 'components/OnlineAutocomplete'
 import useGetCoursesSchoolYear from 'services/hooks/use-get-courses-school-year'
-import CourseSelectionPanel from './form/course-selection'
+import CourseSelectionPanel from './course-selection'
 
 // Tipo para la interfaz de curso
-import { CourseType } from './form/course-selection/types'
+import { CourseType } from './course-selection/types'
 
 const EMPTY_ARRAY_REF = [] as any[]
 const LIMIT_ITEMS_STUDENTS = 15;
