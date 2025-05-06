@@ -42,9 +42,7 @@ const CourseInscriptionTable: FunctionComponent<CourseInscriptionTableProps> = (
           columnLabel: 'Asignatura', 
           cellAlignment: 'left',
           onRender: (row) => (
-            <Box className="course-cell">
-              <span>{row.course?.name}</span>
-            </Box>
+            <span>{row.course?.name}</span>
           )
         },
         { 
@@ -74,10 +72,11 @@ const CourseInscriptionTable: FunctionComponent<CourseInscriptionTableProps> = (
         endQualification: ci.endQualification || null
       }))}
       components={[
-        (row) => (
+        /*(WIP)(row) => (
           <Button
             size="small"
             onClick={() => onEdit && onEdit(row)}
+            disabled={true}
             startIcon={<IconEdit color="#2196f3" size="1rem" />}
           >
             Editar
@@ -87,12 +86,13 @@ const CourseInscriptionTable: FunctionComponent<CourseInscriptionTableProps> = (
           <Button
             color="secondary"
             size="small"
+            disabled={true}
             onClick={() => onDelete && onDelete(row)}
             startIcon={<IconTrash size="1rem" />}
           >
             Eliminar
           </Button>
-        )
+        )*/
       ]}
       emptyState={
         <Box className="empty-state">
