@@ -54,19 +54,19 @@ export interface CourseSchoolYear {
   isDirty?: boolean;
   localDeleted?: boolean;
   onlineState?: any;
-  
+
   // Propiedades expandidas
   course?: {
     id: number;
     name: string;
   };
-  
+
   professor?: {
     id: number;
     name: string;
   };
-  
+
   // Propiedades para mostrar en UI
   courseName?: string;
   professorName?: string;
-} 
+}

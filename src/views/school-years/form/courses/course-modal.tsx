@@ -66,6 +66,7 @@ const CourseModal: FunctionComponent<CourseModalProps> = ({
     weeklyHours: 0,
   });
   console.log('form data course modal', formData);
+
   const [localErrors, setLocalErrors] = useState<FormErrors>({});
   const [attempted, setAttempted] = useState(false);
   const [professorSearchTerm, setProfessorSearchTerm] = useState("");
@@ -219,14 +220,14 @@ const CourseModal: FunctionComponent<CourseModalProps> = ({
     onSave(finalData);
     onClose();
   }, [
-    formData, 
-    courses, 
-    professors, 
-    onSave, 
-    onClose, 
-    validateForm, 
-    localErrors, 
-    setAttempted, 
+    formData,
+    courses,
+    professors,
+    onSave,
+    onClose,
+    validateForm,
+    localErrors,
+    setAttempted,
     setLocalErrors
   ]);
 
@@ -305,7 +306,7 @@ const CourseModal: FunctionComponent<CourseModalProps> = ({
           noOptionsText="No se encontraron profesores"
           loadingText="Buscando profesores..."
           originalValue={course?.professorId}
-          currentValue={formData.professorId} 
+          currentValue={formData.professorId}
         />
 
         <FormControl fullWidth margin="normal" error={!!getError('weeklyHours')}>
