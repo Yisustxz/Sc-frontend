@@ -1,4 +1,4 @@
-import { FunctionComponent, useMemo, useState } from 'react';
+import { FunctionComponent, useCallback, useMemo } from 'react';
 import { 
   Box, 
   Typography, 
@@ -9,7 +9,7 @@ import {
   AccordionDetails 
 } from '@mui/material';
 import { IconPlus, IconChevronDown } from '@tabler/icons';
-import { CourtItemProps } from './types';
+import { CourtItemProps } from '../types';
 import EvaluationList from './EvaluationList';
 import { Evaluation, EvaluationType } from 'core/evaluations/types';
 import { format } from 'date-fns';
@@ -22,9 +22,16 @@ const CourtItem: FunctionComponent<CourtItemProps> = ({
   courtIndex,
   onAddEvaluation,
   onEditEvaluation,
-  onDeleteEvaluation
+  onDeleteEvaluation,
+  setCourtExpanded
 }) => {
-  const [expanded, setExpanded] = useState(false);
+  // Manejar cambio en la expansión del acordeón
+  const handleExpandChange = () => {
+    // Notificar al componente padre para actualizar el estado
+    if (setCourtExpanded && schoolCourt.id) {
+      setCourtExpanded(schoolCourt.id, !schoolCourt.isExpanded);
+    }
+  };
 
   // Filtrar evaluaciones para este corte específico
   const courtEvaluations = useMemo(() => {
@@ -39,7 +46,7 @@ const CourtItem: FunctionComponent<CourtItemProps> = ({
   };
   
   // Manejar clic en agregar evaluación
-  const handleAddClick = () => {
+  const handleAddClick = useCallback(() => {
     if (onAddEvaluation) {
       onAddEvaluation({
         schoolCourtId: schoolCourt.id,
@@ -48,12 +55,17 @@ const CourtItem: FunctionComponent<CourtItemProps> = ({
         name: `Nueva Evaluación`
       });
     }
-  };
+
+    // Expandir automáticamente cuando se agrega una evaluación
+    if (!schoolCourt.isExpanded && setCourtExpanded && schoolCourt.id) {
+      setCourtExpanded(schoolCourt.id, true);
+    }
+  }, [onAddEvaluation, schoolCourt.id, schoolCourt.isExpanded, setCourtExpanded]);
 
   return (
     <Accordion 
-      expanded={expanded} 
-      onChange={() => setExpanded(!expanded)}
+      expanded={schoolCourt.isExpanded || false} 
+      onChange={handleExpandChange}
       sx={{ mb: 1, ml: 2 }}
     >
       <AccordionSummary
@@ -61,7 +73,7 @@ const CourtItem: FunctionComponent<CourtItemProps> = ({
         aria-controls={`court-${courtIndex}-content`}
         id={`court-${courtIndex}-header`}
         sx={{ 
-          backgroundColor: expanded ? 'rgba(0, 0, 0, 0.03)' : 'transparent',
+          backgroundColor: schoolCourt.isExpanded ? 'rgba(0, 0, 0, 0.03)' : 'transparent',
           '& .MuiAccordionSummary-content': {
             display: 'flex', 
             justifyContent: 'space-between',
@@ -89,7 +101,6 @@ const CourtItem: FunctionComponent<CourtItemProps> = ({
               onClick={(e) => {
                 e.stopPropagation();
                 handleAddClick();
-                setExpanded(true);
               }}
               variant="outlined"
             >

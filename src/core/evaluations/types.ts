@@ -42,6 +42,7 @@ export interface StudentOfCourse {
   name: string;
   lastName: string;
   dni: string;
+  endQualification?: number | null; // Calificación final del estudiante
   qualifications?: StudentQualification[];
 }
 

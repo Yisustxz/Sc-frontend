@@ -7,11 +7,14 @@ import {
   IconButton, 
   Typography,
   Box,
-  Chip
+  Chip,
+  Stack
 } from '@mui/material';
-import { IconPencil, IconTrash } from '@tabler/icons';
-import { EvaluationListProps } from './types';
+import { IconPencil, IconTrash, IconCalendar } from '@tabler/icons';
+import { EvaluationListProps } from '../types';
 import { EvaluationType } from 'core/evaluations/types';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 const EvaluationList: FunctionComponent<EvaluationListProps> = ({
   evaluations,
@@ -44,8 +47,21 @@ const EvaluationList: FunctionComponent<EvaluationListProps> = ({
         return 'secondary';
       case EvaluationType.Practice:
         return 'default';
+      case EvaluationType.LapseExam:
+        return 'error';
       default:
         return 'default';
+    }
+  };
+
+  // Formatear fecha
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return null;
+    try {
+      return format(new Date(dateString), 'dd MMM yyyy', { locale: es });
+    } catch (error) {
+      console.error('Error formateando fecha:', error);
+      return null;
     }
   };
 
@@ -56,7 +72,14 @@ const EvaluationList: FunctionComponent<EvaluationListProps> = ({
           <ListItemText 
             primary={
               <Box display="flex" alignItems="center" gap={1}>
-                <Typography variant="body1">{evaluation.name}</Typography>
+                <Typography variant="body1">
+                  {evaluation.name}
+                  {evaluation.correlative && (
+                    <Typography component="span" color="primary" sx={{ ml: 0.5, fontWeight: 'bold' }}>
+                      #{evaluation.correlative}
+                    </Typography>
+                  )}
+                </Typography>
                 <Chip 
                   label={evaluation.type} 
                   size="small" 
@@ -65,7 +88,21 @@ const EvaluationList: FunctionComponent<EvaluationListProps> = ({
                 />
               </Box>
             } 
-            secondary={`Peso: ${evaluation.percentage}%`} 
+            secondary={
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Typography variant="body2">
+                  Peso: {evaluation.percentage}%
+                </Typography>
+                {evaluation.projectedDate && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', color: 'text.secondary' }}>
+                    <IconCalendar size="0.9rem" style={{ marginRight: '2px' }} />
+                    <Typography variant="caption">
+                      {formatDate(evaluation.projectedDate)}
+                    </Typography>
+                  </Box>
+                )}
+              </Stack>
+            } 
           />
           <ListItemSecondaryAction>
             {onEditEvaluation && (

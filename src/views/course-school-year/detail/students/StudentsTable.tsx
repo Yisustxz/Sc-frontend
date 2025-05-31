@@ -6,7 +6,7 @@ import {
   IconButton,
   Button
 } from '@mui/material';
-import { IconEye, IconNotes } from '@tabler/icons';
+import { IconEye, IconNotes, IconCertificate } from '@tabler/icons';
 import { StudentsTableProps } from './types';
 import DynamicTable from 'components/DynamicTable';
 
@@ -62,6 +62,20 @@ const StudentsTable: FunctionComponent<StudentsTableProps> = ({
       columnLabel: 'DNI',
       fieldName: 'dni',
       cellAlignment: 'left' as const
+    },
+    {
+      columnLabel: 'Calificación',
+      cellAlignment: 'center' as const,
+      onRender: (row: any) => (
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+          <IconCertificate size="1rem" />
+          <Typography variant="body2">
+            {row.endQualification !== undefined && row.endQualification !== null 
+              ? row.endQualification 
+              : 'N/A'}
+          </Typography>
+        </Box>
+      )
     }
   ];
 

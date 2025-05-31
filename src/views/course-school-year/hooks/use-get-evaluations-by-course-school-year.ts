@@ -10,7 +10,7 @@ import getEvaluationsByCourseSchoolYear from 'services/evaluations/get-by-course
  * @param courseSchoolYearId ID del curso-año escolar
  * @returns Los datos de evaluaciones, estado de carga, error y función para recargar datos
  */
-const useGetEvaluations = (courseSchoolYearId?: number) => {
+const useGetEvaluationsByCourseSchoolYear = (courseSchoolYearId?: number | null) => {
   const [data, setData] = useState<Evaluation[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -54,4 +54,4 @@ const useGetEvaluations = (courseSchoolYearId?: number) => {
   };
 };
 
-export default useGetEvaluations; 
+export default useGetEvaluationsByCourseSchoolYear;

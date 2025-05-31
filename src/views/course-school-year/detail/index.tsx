@@ -1,10 +1,12 @@
-import { FunctionComponent, useState, useEffect, useCallback } from 'react';
+import { FunctionComponent, useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Grid,
   Box,
   CircularProgress,
-  Typography
+  Typography,
+  Button
 } from '@mui/material';
+import { IconChevronDown, IconChevronUp } from '@tabler/icons';
 import MainCard from 'components/cards/MainCard';
 import { useParams } from 'react-router-dom';
 import BreadcrumbsNav from 'components/BreadcrumbsNav';
@@ -15,143 +17,10 @@ import Evaluations from './evaluations';
 import Students from './students';
 import { Evaluation, EvaluationType, StudentOfCourse } from 'core/evaluations/types';
 import { SchoolYear } from 'core/school-year/types';
-
-// Datos de ejemplo para mockup
-const mockEvaluations: Evaluation[] = [
-  {
-    id: 1,
-    name: "Tarea #1",
-    schoolCourtId: 101,
-    percentage: 15,
-    type: EvaluationType.Task,
-    courseSchoolYearId: 1,
-    creationDate: "2025-01-20"
-  },
-  {
-    id: 2,
-    name: "Examen #1",
-    schoolCourtId: 101,
-    percentage: 25,
-    type: EvaluationType.Exam,
-    courseSchoolYearId: 1,
-    creationDate: "2025-01-25"
-  },
-  {
-    id: 3,
-    name: "Examen #2",
-    schoolCourtId: 102,
-    percentage: 30,
-    type: EvaluationType.Exam,
-    courseSchoolYearId: 1,
-    creationDate: "2025-02-20"
-  },
-  {
-    id: 4,
-    name: "Tarea #2",
-    schoolCourtId: 201,
-    percentage: 25,
-    type: EvaluationType.Task,
-    courseSchoolYearId: 1,
-    creationDate: "2025-03-20"
-  },
-  {
-    id: 5,
-    name: "Examen #2",
-    schoolCourtId: 202,
-    percentage: 25,
-    type: EvaluationType.Exam,
-    courseSchoolYearId: 1,
-    creationDate: "2025-04-20"
-  }
-];
-
-const mockSchoolYear: SchoolYear = {
-  id: 1,
-  code: "2025-1",
-  startDate: "2025-01-15",
-  endDate: "2025-07-15",
-  schoolLapses: [
-    {
-      id: 1,
-      startDate: "2025-01-15",
-      endDate: "2025-03-15",
-      schoolCourts: [
-        {
-          id: 101,
-          startDate: "2025-01-15",
-          endDate: "2025-02-15"
-        },
-        {
-          id: 102,
-          startDate: "2025-02-16",
-          endDate: "2025-03-15"
-        }
-      ]
-    },
-    {
-      id: 2,
-      startDate: "2025-03-16",
-      endDate: "2025-05-15",
-      schoolCourts: [
-        {
-          id: 201,
-          startDate: "2025-03-16",
-          endDate: "2025-04-15"
-        },
-        {
-          id: 202,
-          startDate: "2025-04-16",
-          endDate: "2025-05-15"
-        }
-      ]
-    },
-    {
-      id: 3,
-      startDate: "2025-05-16",
-      endDate: "2025-07-15",
-      schoolCourts: [
-        {
-          id: 301,
-          startDate: "2025-05-16",
-          endDate: "2025-06-15"
-        },
-        {
-          id: 302,
-          startDate: "2025-06-16",
-          endDate: "2025-07-15"
-        }
-      ]
-    }
-  ]
-};
-
-const mockCourseSchoolYear = {
-  id: 1,
-  course: {
-    id: 101,
-    name: "Matemáticas"
-  },
-  schoolYear: mockSchoolYear,
-  professor: {
-    id: 201,
-    name: "José",
-    lastName: "Hernández"
-  },
-  grade: 1,
-  weeklyHours: 6
-};
-
-// Agregar mockStudents para pasar como prop al componente Students
-const mockStudents = Array.from({ length: 20 }, (_, index) => ({
-  id: index + 1,
-  name: ['Héctor', 'Ana', 'Carlos', 'María', 'Juan', 'Laura', 'Pedro', 'Sofía', 'Daniel', 'Lucía',
-    'Alejandro', 'Valentina', 'Sebastián', 'Isabella', 'Mateo', 'Camila', 'Santiago', 'Emma',
-    'Nicolás', 'Victoria'][index],
-  lastName: ['Ferrer', 'Gómez', 'Pérez', 'Rodríguez', 'Martínez', 'Sánchez', 'López', 'Díaz', 'Torres',
-    'Fernández', 'García', 'López', 'Hernández', 'Martín', 'Jiménez', 'Ruiz', 'Álvarez',
-    'Moreno', 'Muñoz', 'Romero'][index],
-  dni: String(10000000 + index * 443113).substring(0, 8)
-}));
+import useGetEvaluationsByCourseSchoolYear from '../hooks/use-get-evaluations-by-course-school-year';
+import useGetStudentsByCourseSchoolYear from '../hooks/use-get-students-by-course-school-year';
+import useCourseSchoolYearId from '../hooks/use-course-school-year-id';
+import useCourseSchoolYearById from '../hooks/use-course-school-year-by-id';
 
 interface CourseSchoolYearDetailProps {
   id?: string;
@@ -159,40 +28,88 @@ interface CourseSchoolYearDetailProps {
 }
 
 const CourseSchoolYearDetail: FunctionComponent<CourseSchoolYearDetailProps> = ({ className }) => {
-  const { id } = useParams<{ id: string }>();
-  const [courseSchoolYear, setCourseSchoolYear] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
+  // Obtener el ID del curso-año escolar usando el hook especializado
+  const courseSchoolYearId = useCourseSchoolYearId();
+  const {
+    courseSchoolYear,
+    setLapseExpanded,
+    setCourtExpanded,
+    setExpandAll: executeExpandAll,
+    setCollapseAll
+  } = useCourseSchoolYearById(courseSchoolYearId);
+
+  // Obtener evaluaciones usando el hook personalizado
+  const {
+    data: evaluations,
+    isLoading: isLoadingEvaluations,
+    refetch: refetchEvaluations
+  } = useGetEvaluationsByCourseSchoolYear(courseSchoolYearId);
+  
+  // Obtener estudiantes usando el hook personalizado
+  const {
+    data: students,
+    isLoading: isLoadingStudents,
+    refetch: refetchStudents
+  } = useGetStudentsByCourseSchoolYear(courseSchoolYearId);
+
+  // Estado para expandir/contraer todos los lapsos
+  const [expandAll, setExpandAll] = useState(false);
+
+  // Manejar expandir/contraer todos
+  const handleExpandToggle = useCallback(() => {
+    setExpandAll(prev => !prev);
+    
+    // Expandir o contraer todos los lapsos directamente
+    if (expandAll) {
+      setCollapseAll();
+    } else {
+      executeExpandAll();
+    }
+  }, [expandAll, executeExpandAll, setCollapseAll]);
+
+  const loading = useMemo(() => {
+    return !courseSchoolYear || isLoadingEvaluations || isLoadingStudents;
+  }, [courseSchoolYear, isLoadingEvaluations, isLoadingStudents]);
 
   // Agregar estado para el diálogo de detalles del estudiante
   const [selectedStudent, setSelectedStudent] = useState<StudentOfCourse | null>(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
 
-  // Simular carga de datos
-  useEffect(() => {
-    // En un componente real, aquí iría la llamada a la API
-    const loadData = () => {
-      setTimeout(() => {
-        setCourseSchoolYear(mockCourseSchoolYear);
-        setEvaluations(mockEvaluations);
-        setLoading(false);
-      }, 500);
-    };
-
-    loadData();
-  }, [id]);
-
   // Manejar la visualización de detalles del estudiante
   const handleViewStudentDetails = useCallback((studentId: number) => {
-    const student = mockStudents.find(s => s.id === studentId) || null;
+    const student = students.find(s => s.id === studentId) || null;
     setSelectedStudent(student);
     setDetailsDialogOpen(true);
-  }, []);
+  }, [students]);
 
   // Cerrar el diálogo de detalles
   const handleCloseDetailsDialog = useCallback(() => {
     setDetailsDialogOpen(false);
   }, []);
+
+  // Manejar agregar evaluación
+  const handleAddEvaluation = useCallback((evaluation: Partial<Evaluation>) => {
+    // Lógica para agregar evaluación y luego recargar
+    console.log('Añadir evaluación:', evaluation);
+    // Después de agregar, recargar los datos
+    refetchEvaluations();
+  }, [refetchEvaluations]);
+
+  // Manejar editar evaluación
+  const handleEditEvaluation = useCallback((id: number, evaluation: Partial<Evaluation>) => {
+    // Lógica para editar evaluación y luego recargar
+    console.log('Editar evaluación:', id, evaluation);
+    // Después de editar, recargar los datos
+    refetchEvaluations();
+  }, [refetchEvaluations]);
+
+  // Manejar eliminar evaluación
+  const handleDeleteEvaluation = useCallback((id: number) => {
+    // Lógica para eliminar evaluación y luego recargar
+    console.log('Eliminar evaluación:', id);
+    // Después de eliminar, recargar los datos
+    refetchEvaluations();
+  }, [refetchEvaluations]);
 
   if (loading) {
     return (
@@ -239,22 +156,43 @@ const CourseSchoolYearDetail: FunctionComponent<CourseSchoolYearDetailProps> = (
           <CourseSchoolYearDetails courseSchoolYear={courseSchoolYear} />
         </Grid>
         {/* Card de Evaluaciones */}
-        <Grid item xs={12} lg={8}>
-          <MainCard title="Evaluaciones" className="content-card">
+        <Grid item xs={12} lg={7}>
+          <MainCard 
+            title={
+              <div className="title-with-action">
+                <span>Evaluaciones</span>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={expandAll ? <IconChevronUp /> : <IconChevronDown />}
+                  onClick={handleExpandToggle}
+                >
+                  {expandAll ? 'Contraer todo' : 'Expandir todo'}
+                </Button>
+              </div>
+            } 
+            className="content-card"
+          >
             <Evaluations
               schoolYear={courseSchoolYear.schoolYear}
               evaluations={evaluations}
-              loading={false}
+              loading={isLoadingEvaluations}
+              courseSchoolYear={courseSchoolYear}
+              onAddEvaluation={handleAddEvaluation}
+              onEditEvaluation={handleEditEvaluation}
+              onDeleteEvaluation={handleDeleteEvaluation}
+              setLapseExpanded={setLapseExpanded}
+              setCourtExpanded={setCourtExpanded}
             />
           </MainCard>
         </Grid>
         {/* Card de Estudiantes */}
-        <Grid item xs={12} lg={4}>
+        <Grid item xs={12} lg={5}>
           <MainCard title="Estudiantes Inscritos" className="content-card">
             <Students
               courseSchoolYearId={courseSchoolYear.id}
-              students={mockStudents}
-              loading={false}
+              students={students}
+              loading={isLoadingStudents}
               onViewStudentDetails={handleViewStudentDetails}
             />
           </MainCard>
@@ -279,5 +217,12 @@ export default styled(CourseSchoolYearDetail)`
   .detail-card .MuiCardContent-root,
   .content-card .MuiCardContent-root {
     padding: 12px 16px;
+  }
+
+  .title-with-action {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 `;

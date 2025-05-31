@@ -12,8 +12,8 @@ import {
 } from 'store/customizationSlice'
 import Form, { FormValues } from '../form'
 import updateCourseSchoolYear from 'services/course-school-year/update-course-school-year'
-import useCourseSchoolYearById from './use-course-school-year-by-id'
-import useCourseSchoolYearId from './use-course-school-year-id'
+import useCourseSchoolYearById from '../hooks/use-course-school-year-by-id'
+import useCourseSchoolYearId from '../hooks/use-course-school-year-id'
 import { FormikHelpers } from 'formik'
 import BreadcrumbsNav from 'components/BreadcrumbsNav'
 
@@ -21,7 +21,7 @@ const EditCourseSchoolYear: FunctionComponent<Props> = ({ className }) => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const courseSchoolYearId = useCourseSchoolYearId()
-  const courseSchoolYear = useCourseSchoolYearById(courseSchoolYearId)
+  const { courseSchoolYear } = useCourseSchoolYearById(courseSchoolYearId)
 
   const onSubmit = useCallback(
     async (

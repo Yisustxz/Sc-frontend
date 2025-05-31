@@ -13,36 +13,36 @@ import { EvaluationModalProps } from './types';
 import EvaluationForm from './form';
 import { EvaluationFormData } from './types';
 import { EvaluationType } from 'core/evaluations/types';
+import { useCourtsOptionsByCourseSchoolYear } from 'views/course-school-year/hooks/use-courts-by-course-schoool-year';
 
 const EvaluationModal: FunctionComponent<EvaluationModalProps> = ({
   open,
   onClose,
   onSave,
   evaluation,
-  schoolCourtId,
-  courseSchoolYearId
+  courseSchoolYear
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Determinar si estamos en modo actualización
   const isUpdateMode = useMemo(() => !!evaluation?.id, [evaluation]);
 
-  // Título del modal según el modo
   const modalTitle = useMemo(() => (
     isUpdateMode ? "Editar Evaluación" : "Agregar Evaluación"
   ), [isUpdateMode]);
 
-  // Valores iniciales para el formulario
+  // Obtener opciones de cortes escolares
+  const courtsOptions = useCourtsOptionsByCourseSchoolYear(courseSchoolYear);
+
   const initialValues = useMemo(() => ({
     id: evaluation?.id,
     name: evaluation?.name || '',
-    schoolCourtId: evaluation?.schoolCourtId || schoolCourtId || 0,
-    percentage: evaluation?.percentage || 10,
-    type: evaluation?.type || EvaluationType.Task,
-    courseSchoolYearId: evaluation?.courseSchoolYearId || courseSchoolYearId,
+    schoolCourtId: evaluation?.schoolCourtId || 0,
+    percentage: evaluation?.percentage,
+    type: evaluation?.type,
+    courseSchoolYearId: courseSchoolYear?.id || evaluation?.courseSchoolYearId,
     correlative: evaluation?.correlative,
     projectedDate: evaluation?.projectedDate
-  }), [evaluation, schoolCourtId, courseSchoolYearId]);
+  }), [evaluation, courseSchoolYear?.id]);
 
   // Manejar el guardado de evaluación
   const handleSave = useCallback(async (formData: EvaluationFormData) => {
@@ -70,6 +70,7 @@ const EvaluationModal: FunctionComponent<EvaluationModalProps> = ({
       </DialogTitle>
       <DialogContent dividers>
         <EvaluationForm
+          courtsOptions={courtsOptions}
           initialValues={initialValues as EvaluationFormData}
           onSubmit={handleSave}
           onCancel={onClose}

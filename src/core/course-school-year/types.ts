@@ -1,4 +1,5 @@
 import { Order } from 'common/constants/order';
+import { SchoolYear } from 'core/school-year/types';
 
 export interface CourseSchoolYear {
   id: number;
@@ -11,12 +12,7 @@ export interface CourseSchoolYear {
     id: number;
     name: string;
   };
-  schoolYear?: {
-    id: number;
-    code: string;
-    startDate: string;
-    endDate: string;
-  };
+  schoolYear: Omit<SchoolYear, 'courseSchoolYears'>;
   professor?: {
     id: number;
     name: string;

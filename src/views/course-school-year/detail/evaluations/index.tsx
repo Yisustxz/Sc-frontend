@@ -1,11 +1,16 @@
-import { FunctionComponent, useState } from 'react';
-import { Box, Typography, Button, CircularProgress } from '@mui/material';
-import { IconPlus } from '@tabler/icons';
+import { FunctionComponent, useCallback, useState } from 'react';
+import { Box, CircularProgress } from '@mui/material';
+import { useDispatch } from 'react-redux';
 import { EvaluationsProps } from './types';
-import LapsesAccordion from './LapsesAccordion';
-import { Evaluation, EvaluationType } from 'core/evaluations/types';
+import LapsesAccordion from './list/LapsesAccordion';
+import { Evaluation, EvaluationType, EvaluationDto } from 'core/evaluations/types';
 import EvaluationModal from './form/modal';
 import { EvaluationFormData } from './form/types';
+import createEvaluation from 'services/evaluations/create-evaluation';
+import updateEvaluation from 'services/evaluations/update-evaluation';
+import deleteEvaluation from 'services/evaluations/delete-evaluation';
+import { setErrorMessage, setIsLoading, setSuccessMessage } from 'store/customizationSlice';
+import DialogDelete from 'components/dialogDelete';
 
 const Evaluations: FunctionComponent<EvaluationsProps> = ({
   schoolYear,
@@ -13,93 +18,162 @@ const Evaluations: FunctionComponent<EvaluationsProps> = ({
   onAddEvaluation,
   onEditEvaluation,
   onDeleteEvaluation,
-  loading = false
+  courseSchoolYear,
+  loading = false,
+  setLapseExpanded,
+  setCourtExpanded
 }) => {
-  // Estado local para manejar las evaluaciones (útil para mockups o cambios locales)
+  const dispatch = useDispatch();
+
+  // Estado local para manejar las evaluaciones
   const [evaluations, setEvaluations] = useState<Evaluation[]>(initialEvaluations);
-  
+
   // Estado para el modal de evaluación
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedEvaluation, setSelectedEvaluation] = useState<Partial<Evaluation> | undefined>(undefined);
-  const [selectedCourtId, setSelectedCourtId] = useState<number | undefined>(undefined);
+  
+  // Estado para el diálogo de confirmación de eliminación
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [evaluationToDelete, setEvaluationToDelete] = useState<number | null>(null);
 
   // Abrir modal para agregar evaluación
-  const handleOpenAddModal = (evaluation: Partial<Evaluation>) => {
-    setSelectedEvaluation(undefined);
-    setSelectedCourtId(evaluation.schoolCourtId);
+  const handleOpenAddModal = useCallback((evaluation: Partial<Evaluation>) => {
+    setSelectedEvaluation({
+      ...evaluation,
+    });
     setModalOpen(true);
-  };
+  }, []);
 
   // Abrir modal para editar evaluación
-  const handleOpenEditModal = (id: number, evaluation: Partial<Evaluation>) => {
+  const handleOpenEditModal = useCallback((id: number, evaluation: Partial<Evaluation>) => {
     setSelectedEvaluation(evaluation);
-    setSelectedCourtId(undefined);
     setModalOpen(true);
-  };
+  }, []);
 
   // Cerrar modal
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     setModalOpen(false);
     setSelectedEvaluation(undefined);
-    setSelectedCourtId(undefined);
-  };
+  }, []);
+  
+  // Abrir diálogo de confirmación para eliminar
+  const handleOpenDeleteDialog = useCallback((id: number) => {
+    setEvaluationToDelete(id);
+    setDeleteDialogOpen(true);
+  }, []);
+  
+  // Cerrar diálogo de confirmación
+  const handleCloseDeleteDialog = useCallback(() => {
+    setDeleteDialogOpen(false);
+    setEvaluationToDelete(null);
+  }, []);
 
   // Manejar guardar evaluación desde el modal
-  const handleSaveEvaluation = (formData: EvaluationFormData) => {
-    if (formData.id) {
-      // Actualizar evaluación existente
-      if (onEditEvaluation) {
-        onEditEvaluation(formData.id, formData);
-      } else {
-        // Mock para desarrollo
-        setEvaluations(
-          evaluations.map(evaluation => 
-            evaluation.id === formData.id ? { ...evaluation, ...formData } : evaluation
-          )
-        );
-      }
-    } else {
-      // Crear nueva evaluación
-      if (onAddEvaluation) {
-        onAddEvaluation(formData);
-      } else {
-        // Mock para desarrollo
-        const mockEvaluation: Evaluation = {
-          id: Date.now(), // ID temporal
+  const handleSaveEvaluation = useCallback(async (formData: EvaluationFormData) => {
+    if (!courseSchoolYear?.id) {
+      dispatch(setErrorMessage('No se pudo identificar el curso-año escolar'));
+      return;
+    }
+
+    dispatch(setIsLoading(true));
+    try {
+      if (formData.id) {
+        // Actualizar evaluación existente
+        const evaluationDto: Partial<EvaluationDto> = {
           name: formData.name,
           schoolCourtId: formData.schoolCourtId,
           percentage: formData.percentage,
           type: formData.type,
-          courseSchoolYearId: formData.courseSchoolYearId,
-          creationDate: new Date().toISOString(),
-          projectedDate: formData.projectedDate
+          courseSchoolYearId: courseSchoolYear?.id || formData.courseSchoolYearId,
+          projectedDate: formData.projectedDate,
+          correlative: formData.correlative
         };
-        setEvaluations([...evaluations, mockEvaluation]);
-      }
-    }
-  };
 
-  // Manejar eliminar evaluación
-  const handleDeleteEvaluation = (id: number) => {
-    if (onDeleteEvaluation) {
-      onDeleteEvaluation(id);
-    } else {
-      // Mock para desarrollo
-      setEvaluations(evaluations.filter(evaluation => evaluation.id !== id));
+        const updatedEvaluation = await updateEvaluation(formData.id, evaluationDto);
+        
+        if (onEditEvaluation) {
+          // Llamar al callback del padre si existe
+          await onEditEvaluation(formData.id, updatedEvaluation);
+        } else {
+          // Actualizar localmente si no hay callback
+          setEvaluations(prevEvaluations => 
+            prevEvaluations.map(evaluation => 
+              evaluation.id === formData.id ? updatedEvaluation : evaluation
+            )
+          );
+          dispatch(setSuccessMessage('Evaluación actualizada con éxito'));
+        }
+      } else {
+        // Crear nueva evaluación
+        const evaluationDto: EvaluationDto = {
+          name: formData.name,
+          schoolCourtId: formData.schoolCourtId,
+          percentage: formData.percentage,
+          type: formData.type,
+          courseSchoolYearId: courseSchoolYear.id,
+          projectedDate: formData.projectedDate,
+          correlative: formData.correlative
+        };
+
+        const newEvaluation = await createEvaluation(evaluationDto);
+        
+        if (onAddEvaluation) {
+          // Llamar al callback del padre si existe
+          await onAddEvaluation(newEvaluation);
+        } else {
+          // Actualizar localmente si no hay callback
+          setEvaluations(prevEvaluations => [...prevEvaluations, newEvaluation]);
+          dispatch(setSuccessMessage('Evaluación creada con éxito'));
+        }
+      }
+      
+      // Cerrar el modal después de la operación exitosa
+      handleCloseModal();
+    } catch (error) {
+      console.error('Error al guardar la evaluación:', error);
+      dispatch(setErrorMessage('Ocurrió un error al guardar la evaluación'));
+    } finally {
+      dispatch(setIsLoading(false));
     }
-  };
+  }, [courseSchoolYear?.id, onAddEvaluation, onEditEvaluation, handleCloseModal, dispatch]);
+
+  // Confirmar y eliminar evaluación
+  const handleConfirmDelete = useCallback(async () => {
+    if (!evaluationToDelete) return;
+    
+    const idToDelete = evaluationToDelete;
+    
+    dispatch(setIsLoading(true));
+    try {
+      await deleteEvaluation(idToDelete);
+      
+      if (onDeleteEvaluation) {
+        // Llamar al callback del padre si existe
+        await onDeleteEvaluation(idToDelete);
+      } else {
+        // Actualizar localmente si no hay callback
+        setEvaluations(prevEvaluations => 
+          prevEvaluations.filter(evaluation => evaluation.id !== idToDelete)
+        );
+        dispatch(setSuccessMessage('Evaluación eliminada con éxito'));
+      }
+    } catch (error) {
+      console.error('Error al eliminar la evaluación:', error);
+      dispatch(setErrorMessage('Ocurrió un error al eliminar la evaluación'));
+    } finally {
+      dispatch(setIsLoading(false));
+      handleCloseDeleteDialog();
+    }
+  }, [evaluationToDelete, onDeleteEvaluation, dispatch, handleCloseDeleteDialog]);
 
   // Mostrar cargando
-  if (loading) {
+  if (loading || !courseSchoolYear) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
         <CircularProgress />
       </Box>
     );
   }
-
-  // Obtener courseSchoolYearId (usando uno de muestra para el mock)
-  const courseSchoolYearId = 1; // Esto debería venir de los props en un componente real
 
   return (
     <>
@@ -108,20 +182,28 @@ const Evaluations: FunctionComponent<EvaluationsProps> = ({
         evaluations={evaluations}
         onAddEvaluation={handleOpenAddModal}
         onEditEvaluation={handleOpenEditModal}
-        onDeleteEvaluation={handleDeleteEvaluation}
+        onDeleteEvaluation={handleOpenDeleteDialog}
+        setLapseExpanded={setLapseExpanded}
+        setCourtExpanded={setCourtExpanded}
       />
-      
+
       {/* Modal de evaluación */}
       <EvaluationModal
         open={modalOpen}
         onClose={handleCloseModal}
         onSave={handleSaveEvaluation}
         evaluation={selectedEvaluation}
-        schoolCourtId={selectedCourtId}
-        courseSchoolYearId={courseSchoolYearId}
+        courseSchoolYear={courseSchoolYear}
+      />
+      
+      {/* Diálogo de confirmación de eliminación */}
+      <DialogDelete
+        open={deleteDialogOpen}
+        handleClose={handleCloseDeleteDialog}
+        onDelete={handleConfirmDelete}
       />
     </>
   );
 };
 
-export default Evaluations; 
+export default Evaluations;

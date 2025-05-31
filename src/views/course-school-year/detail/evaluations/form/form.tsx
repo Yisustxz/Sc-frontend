@@ -1,4 +1,4 @@
-import { FunctionComponent, useCallback } from 'react';
+import { FunctionComponent, useCallback, useMemo } from 'react';
 import {
   Grid,
   TextField,
@@ -23,8 +23,11 @@ const EvaluationForm: FunctionComponent<EvaluationFormProps> = ({
   onSubmit,
   initialValues,
   onCancel,
-  isSubmitting = false
+  isSubmitting = false,
+  courtsOptions
 }) => {
+
+
   // Esquema de validación de Yup
   const validationSchema = Yup.object().shape({
     name: Yup.string()
@@ -87,6 +90,35 @@ const EvaluationForm: FunctionComponent<EvaluationFormProps> = ({
                 helperText={touched.name && errors.name}
                 disabled={isSubmitting || formikSubmitting}
               />
+            </Grid>
+
+            {/* Corte escolar */}
+            <Grid item xs={12}>
+              <FormControl
+                fullWidth
+                error={touched.schoolCourtId && Boolean(errors.schoolCourtId)}
+              >
+                <InputLabel id="schoolCourtId-label">Corte escolar *</InputLabel>
+                <Select
+                  labelId="schoolCourtId-label"
+                  id="schoolCourtId"
+                  name="schoolCourtId"
+                  value={values.schoolCourtId || ''}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  label="Corte escolar *"
+                  disabled={isSubmitting || formikSubmitting}
+                >
+                  {courtsOptions.map((option) => (
+                    <MenuItem key={option.value || 0} value={option.value || 0}>
+                      {option.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {touched.schoolCourtId && errors.schoolCourtId && (
+                  <FormHelperText>{errors.schoolCourtId}</FormHelperText>
+                )}
+              </FormControl>
             </Grid>
 
             {/* Tipo de evaluación */}

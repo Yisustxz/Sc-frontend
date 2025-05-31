@@ -1,4 +1,4 @@
-import { FunctionComponent, useState } from 'react';
+import { FunctionComponent } from 'react';
 import { 
   Accordion, 
   AccordionSummary, 
@@ -7,7 +7,7 @@ import {
   Box 
 } from '@mui/material';
 import { IconChevronDown } from '@tabler/icons';
-import { LapseItemProps } from './types';
+import { LapseItemProps } from '../types';
 import CourtItem from './CourtItem';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -18,10 +18,10 @@ const LapseItem: FunctionComponent<LapseItemProps> = ({
   lapseIndex,
   onAddEvaluation,
   onEditEvaluation,
-  onDeleteEvaluation
+  onDeleteEvaluation,
+  setLapseExpanded,
+  setCourtExpanded
 }) => {
-  const [expanded, setExpanded] = useState(lapseIndex === 0); // Primer lapso expandido por defecto
-
   // Formatear rango de fechas
   const formatDateRange = (startDate: string, endDate: string) => {
     const start = format(new Date(startDate), 'dd MMM yyyy', { locale: es });
@@ -29,10 +29,18 @@ const LapseItem: FunctionComponent<LapseItemProps> = ({
     return `${start} - ${end}`;
   };
 
+  // Manejar cambio en la expansión del acordeón
+  const handleExpandChange = () => {
+    // Notificar al componente padre para actualizar el estado
+    if (setLapseExpanded && schoolLapse.id) {
+      setLapseExpanded(schoolLapse.id, !schoolLapse.isExpanded);
+    }
+  };
+
   return (
     <Accordion 
-      expanded={expanded} 
-      onChange={() => setExpanded(!expanded)}
+      expanded={schoolLapse.isExpanded || false} 
+      onChange={handleExpandChange}
       sx={{ mb: 1 }}
     >
       <AccordionSummary
@@ -55,6 +63,7 @@ const LapseItem: FunctionComponent<LapseItemProps> = ({
             onAddEvaluation={onAddEvaluation}
             onEditEvaluation={onEditEvaluation}
             onDeleteEvaluation={onDeleteEvaluation}
+            setCourtExpanded={setCourtExpanded}
           />
         ))}
         {schoolLapse.schoolCourts.length === 0 && (

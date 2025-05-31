@@ -6,6 +6,8 @@ export interface SchoolCourt {
   courtId?: number | null;
   onlineState?: SchoolCourt;
   localDeleted?: boolean;
+  courtNumber?: number;
+  isExpanded?: boolean;
 }
 
 export interface SchoolLapse {
@@ -17,6 +19,8 @@ export interface SchoolLapse {
   lapseId?: number | null;
   onlineState?: SchoolLapse;
   localDeleted?: boolean;
+  lapseNumber?: number;
+  isExpanded?: boolean;
 }
 
 export interface SchoolYear {
