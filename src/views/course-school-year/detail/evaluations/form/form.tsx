@@ -26,10 +26,8 @@ const EvaluationForm: FunctionComponent<EvaluationFormProps> = ({
   isSubmitting = false,
   courtsOptions
 }) => {
-
-
   // Esquema de validación de Yup
-  const validationSchema = Yup.object().shape({
+  const validationSchema = useMemo(() => Yup.object().shape({
     name: Yup.string()
       .required('El nombre es requerido')
       .max(100, 'El nombre no puede exceder los 100 caracteres'),
@@ -39,11 +37,12 @@ const EvaluationForm: FunctionComponent<EvaluationFormProps> = ({
       .max(100, 'El porcentaje no puede ser mayor a 100'),
     type: Yup.string()
       .required('El tipo de evaluación es requerido'),
-    schoolCourtId: Yup.number()
-      .required('El corte escolar es requerido'),
+    schoolCourtId: courtsOptions.length > 0 
+      ? Yup.number().required('El corte escolar es requerido')
+      : Yup.number().nullable(),
     courseSchoolYearId: Yup.number()
       .required('El curso-año escolar es requerido')
-  });
+  }), [courtsOptions.length]);
 
   // Función de envío del formulario
   const handleSubmit = useCallback(async (
@@ -76,11 +75,16 @@ const EvaluationForm: FunctionComponent<EvaluationFormProps> = ({
       }) => (
         <Form id="evaluation-form">
           <Grid container spacing={2}>
+
+            {
+              JSON.stringify(values)
+            }
             {/* Nombre de la evaluación */}
             <Grid item xs={12}>
               <TextField
                 fullWidth
                 id="name"
+                data-lpignore="true"
                 name="name"
                 label="Nombre de la evaluación *"
                 value={values.name}
@@ -92,34 +96,37 @@ const EvaluationForm: FunctionComponent<EvaluationFormProps> = ({
               />
             </Grid>
 
-            {/* Corte escolar */}
-            <Grid item xs={12}>
-              <FormControl
-                fullWidth
-                error={touched.schoolCourtId && Boolean(errors.schoolCourtId)}
-              >
-                <InputLabel id="schoolCourtId-label">Corte escolar *</InputLabel>
-                <Select
-                  labelId="schoolCourtId-label"
-                  id="schoolCourtId"
-                  name="schoolCourtId"
-                  value={values.schoolCourtId || ''}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  label="Corte escolar *"
-                  disabled={isSubmitting || formikSubmitting}
+            {/* Corte escolar - Solo mostrar si hay opciones disponibles */}
+            {courtsOptions.length > 0 && (
+              <Grid item xs={12}>
+                <FormControl
+                  fullWidth
+                  error={touched.schoolCourtId && Boolean(errors.schoolCourtId)}
                 >
-                  {courtsOptions.map((option) => (
-                    <MenuItem key={option.value || 0} value={option.value || 0}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-                {touched.schoolCourtId && errors.schoolCourtId && (
-                  <FormHelperText>{errors.schoolCourtId}</FormHelperText>
-                )}
-              </FormControl>
-            </Grid>
+                  <InputLabel id="schoolCourtId-label">Corte escolar *</InputLabel>
+                  <Select
+                    labelId="schoolCourtId-label"
+                    id="schoolCourtId"
+                    data-lpignore="true"
+                    name="schoolCourtId"
+                    value={values.schoolCourtId || ''}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    label="Corte escolar *"
+                    disabled={isSubmitting || formikSubmitting}
+                  >
+                    {courtsOptions.map((option) => (
+                      <MenuItem key={option.value || 0} value={option.value || 0}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {touched.schoolCourtId && errors.schoolCourtId && (
+                    <FormHelperText>{errors.schoolCourtId}</FormHelperText>
+                  )}
+                </FormControl>
+              </Grid>
+            )}
 
             {/* Tipo de evaluación */}
             <Grid item xs={12} sm={6}>
@@ -127,7 +134,7 @@ const EvaluationForm: FunctionComponent<EvaluationFormProps> = ({
                 fullWidth
                 error={touched.type && Boolean(errors.type)}
               >
-                <InputLabel id="type-label">Tipo de evaluación *</InputLabel>
+                <InputLabel data-lpignore="true" id="type-label">Tipo de evaluación *</InputLabel>
                 <Select
                   labelId="type-label"
                   id="type"
@@ -138,13 +145,13 @@ const EvaluationForm: FunctionComponent<EvaluationFormProps> = ({
                   label="Tipo de evaluación *"
                   disabled={isSubmitting || formikSubmitting}
                 >
-                  <MenuItem value={EvaluationType.Task}>Tarea</MenuItem>
-                  <MenuItem value={EvaluationType.Exam}>Examen</MenuItem>
-                  <MenuItem value={EvaluationType.Project}>Proyecto</MenuItem>
-                  <MenuItem value={EvaluationType.Homework}>Asignación</MenuItem>
-                  <MenuItem value={EvaluationType.Workshop}>Taller</MenuItem>
-                  <MenuItem value={EvaluationType.Practice}>Práctica</MenuItem>
-                  <MenuItem value={EvaluationType.LapseExam}>Examen de Lapso</MenuItem>
+                  <MenuItem value={EvaluationType.TASK}>Tarea</MenuItem>
+                  <MenuItem value={EvaluationType.EXAM}>Examen</MenuItem>
+                  <MenuItem value={EvaluationType.PROJECT}>Proyecto</MenuItem>
+                  <MenuItem value={EvaluationType.HOMEWORK}>Asignación</MenuItem>
+                  <MenuItem value={EvaluationType.WORKSHOP}>Taller</MenuItem>
+                  <MenuItem value={EvaluationType.PRACTICE}>Práctica</MenuItem>
+                  <MenuItem value={EvaluationType.LAPSE_EXAM}>Examen de Lapso</MenuItem>
                 </Select>
                 {touched.type && errors.type && (
                   <FormHelperText>{errors.type}</FormHelperText>
@@ -158,6 +165,7 @@ const EvaluationForm: FunctionComponent<EvaluationFormProps> = ({
                 fullWidth
                 id="percentage"
                 name="percentage"
+                data-lpignore="true"
                 label="Porcentaje *"
                 type="number"
                 value={values.percentage}
@@ -175,23 +183,21 @@ const EvaluationForm: FunctionComponent<EvaluationFormProps> = ({
 
             {/* Fecha Proyectada */}
             <Grid item xs={12}>
-              <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={es}>
-                <DatePicker
-                  label="Fecha proyectada"
-                  value={values.projectedDate ? new Date(values.projectedDate) : null}
-                  onChange={(date) => {
-                    setFieldValue('projectedDate', date ? date.toISOString() : null);
-                  }}
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      error: touched.projectedDate && Boolean(errors.projectedDate),
-                      helperText: touched.projectedDate && errors.projectedDate
-                    }
-                  }}
-                  disabled={isSubmitting || formikSubmitting}
-                />
-              </LocalizationProvider>
+              <TextField
+                fullWidth
+                id="projectedDate"
+                label="Fecha proyectada"
+                type="date"
+                value={values.projectedDate ? values.projectedDate.split('T')[0] : ''}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={touched.projectedDate && Boolean(errors.projectedDate)}
+                helperText={touched.projectedDate && errors.projectedDate}
+                disabled={isSubmitting || formikSubmitting}
+                InputLabelProps={{
+                  shrink: true
+                }}
+              />
             </Grid>
           </Grid>
         </Form>

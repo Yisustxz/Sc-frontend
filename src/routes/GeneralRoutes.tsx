@@ -38,6 +38,9 @@ import CreateInscription from 'views/inscriptions/create'
 import EditInscription from 'views/inscriptions/edit'
 import DetailInscription from 'views/inscriptions/detail'
 
+// evaluations routing
+import Evaluations from 'views/evaluations/index';
+
 const GeneralRoutes: RouteObject[] = [
   //aqui se van a añadir las rutas de cada modulo
 
@@ -136,7 +139,12 @@ const GeneralRoutes: RouteObject[] = [
     path: 'course-school-year/detail/:id',
     element: <DetailCourseSchoolYear />
   },
-  //Inscripciones
+  // Detalle de una evaluacion
+  /*{
+    path: 'evaluation/:id',
+    element: <EvaluationDetail />
+  },*/
+  // Inscripciones
   {
     path: 'inscriptions',
     element: <InscriptionsPage />
@@ -152,6 +160,11 @@ const GeneralRoutes: RouteObject[] = [
   {
     path: 'inscriptions/detail/:id',
     element: <DetailInscription />
+  },
+  //Evaluaciones
+  {
+    path: 'evaluations/:id',
+    element: <Evaluations />
   }
 ]
 

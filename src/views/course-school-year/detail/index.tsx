@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import { IconChevronDown, IconChevronUp } from '@tabler/icons';
 import MainCard from 'components/cards/MainCard';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import BreadcrumbsNav from 'components/BreadcrumbsNav';
 import styled from 'styled-components';
 import CourseSchoolYearDetails from './course-school-year-details';
@@ -28,6 +28,9 @@ interface CourseSchoolYearDetailProps {
 }
 
 const CourseSchoolYearDetail: FunctionComponent<CourseSchoolYearDetailProps> = ({ className }) => {
+  // Hooks de navegación
+  const navigate = useNavigate();
+  
   // Obtener el ID del curso-año escolar usando el hook especializado
   const courseSchoolYearId = useCourseSchoolYearId();
   const {
@@ -81,6 +84,11 @@ const CourseSchoolYearDetail: FunctionComponent<CourseSchoolYearDetailProps> = (
     setSelectedStudent(student);
     setDetailsDialogOpen(true);
   }, [students]);
+
+  // Manejar la navegación al detalle de evaluación
+  const handleViewEvaluation = useCallback((evaluationId: number) => {
+    navigate(`/evaluations/${evaluationId}`);
+  }, [navigate]);
 
   // Cerrar el diálogo de detalles
   const handleCloseDetailsDialog = useCallback(() => {
@@ -181,6 +189,7 @@ const CourseSchoolYearDetail: FunctionComponent<CourseSchoolYearDetailProps> = (
               onAddEvaluation={handleAddEvaluation}
               onEditEvaluation={handleEditEvaluation}
               onDeleteEvaluation={handleDeleteEvaluation}
+              onViewEvaluation={handleViewEvaluation}
               setLapseExpanded={setLapseExpanded}
               setCourtExpanded={setCourtExpanded}
             />

@@ -19,6 +19,7 @@ const LapseItem: FunctionComponent<LapseItemProps> = ({
   onAddEvaluation,
   onEditEvaluation,
   onDeleteEvaluation,
+  onViewEvaluation,
   setLapseExpanded,
   setCourtExpanded
 }) => {
@@ -63,6 +64,7 @@ const LapseItem: FunctionComponent<LapseItemProps> = ({
             onAddEvaluation={onAddEvaluation}
             onEditEvaluation={onEditEvaluation}
             onDeleteEvaluation={onDeleteEvaluation}
+            onViewEvaluation={onViewEvaluation}
             setCourtExpanded={setCourtExpanded}
           />
         ))}

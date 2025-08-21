@@ -23,6 +23,7 @@ const CourtItem: FunctionComponent<CourtItemProps> = ({
   onAddEvaluation,
   onEditEvaluation,
   onDeleteEvaluation,
+  onViewEvaluation,
   setCourtExpanded
 }) => {
   // Manejar cambio en la expansión del acordeón
@@ -50,7 +51,7 @@ const CourtItem: FunctionComponent<CourtItemProps> = ({
     if (onAddEvaluation) {
       onAddEvaluation({
         schoolCourtId: schoolCourt.id,
-        type: EvaluationType.Task,
+        type: EvaluationType.TASK,
         percentage: 10,
         name: `Nueva Evaluación`
       });
@@ -114,6 +115,7 @@ const CourtItem: FunctionComponent<CourtItemProps> = ({
           evaluations={courtEvaluations}
           onEditEvaluation={onEditEvaluation}
           onDeleteEvaluation={onDeleteEvaluation}
+          onViewEvaluation={onViewEvaluation}
         />
       </AccordionDetails>
     </Accordion>

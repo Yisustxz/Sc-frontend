@@ -1,7 +1,7 @@
 import axios from 'axios';
 // Own
 import { API_BASE_URL } from 'config/constants';
-import { Evaluation } from 'core/evaluations/types';
+import { EvaluationDetails } from 'core/evaluations/types';
 import BackendError from 'exceptions/backend-error';
 import store from 'store';
 import addQueryParams from 'services/add-query-params';
@@ -21,7 +21,7 @@ export interface GetAllEvaluationsParams {
 
 // Interfaz para la respuesta paginada
 export interface EvaluationsResponse {
-  items: Evaluation[];
+  items: EvaluationDetails[];
   paginate: {
     totalItems: number;
     page: number;

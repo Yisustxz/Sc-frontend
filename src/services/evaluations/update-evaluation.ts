@@ -44,4 +44,4 @@ export default async function updateEvaluation(
     console.error('Error updating evaluation:', error);
     throw new BackendError(error);
   }
-} 
+}

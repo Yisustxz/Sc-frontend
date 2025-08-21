@@ -10,7 +10,7 @@ import {
   Chip,
   Stack
 } from '@mui/material';
-import { IconPencil, IconTrash, IconCalendar } from '@tabler/icons';
+import { IconPencil, IconTrash, IconCalendar, IconEye } from '@tabler/icons';
 import { EvaluationListProps } from '../types';
 import { EvaluationType } from 'core/evaluations/types';
 import { format } from 'date-fns';
@@ -19,7 +19,8 @@ import { es } from 'date-fns/locale';
 const EvaluationList: FunctionComponent<EvaluationListProps> = ({
   evaluations,
   onEditEvaluation,
-  onDeleteEvaluation
+  onDeleteEvaluation,
+  onViewEvaluation
 }) => {
   // Si no hay evaluaciones, mostrar un mensaje
   if (evaluations.length === 0) {
@@ -35,19 +36,19 @@ const EvaluationList: FunctionComponent<EvaluationListProps> = ({
   // Obtener el color del chip según el tipo de evaluación
   const getChipColor = (type: EvaluationType) => {
     switch (type) {
-      case EvaluationType.Exam:
+      case EvaluationType.EXAM:
         return 'primary';
-      case EvaluationType.Task:
+      case EvaluationType.TASK:
         return 'success';
-      case EvaluationType.Project:
+      case EvaluationType.PROJECT:
         return 'warning';
-      case EvaluationType.Homework:
+      case EvaluationType.HOMEWORK:
         return 'info';
-      case EvaluationType.Workshop:
+      case EvaluationType.WORKSHOP:
         return 'secondary';
-      case EvaluationType.Practice:
+      case EvaluationType.PRACTICE:
         return 'default';
-      case EvaluationType.LapseExam:
+      case EvaluationType.LAPSE_EXAM:
         return 'error';
       default:
         return 'default';
@@ -67,7 +68,7 @@ const EvaluationList: FunctionComponent<EvaluationListProps> = ({
 
   return (
     <List dense>
-      {evaluations.map((evaluation) => (
+      {evaluations.map((evaluation: any) => (
         <ListItem key={evaluation.id} divider>
           <ListItemText 
             primary={
@@ -105,12 +106,23 @@ const EvaluationList: FunctionComponent<EvaluationListProps> = ({
             } 
           />
           <ListItemSecondaryAction>
+            {onViewEvaluation && (
+              <IconButton 
+                edge="end" 
+                aria-label="ver detalle" 
+                onClick={() => onViewEvaluation(evaluation.id)}
+                size="small"
+              >
+                <IconEye size="1.1rem" />
+              </IconButton>
+            )}
             {onEditEvaluation && (
               <IconButton 
                 edge="end" 
                 aria-label="editar" 
                 onClick={() => onEditEvaluation(evaluation.id, evaluation)}
                 size="small"
+                sx={{ ml: 1 }}
               >
                 <IconPencil size="1.1rem" />
               </IconButton>

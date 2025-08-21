@@ -10,6 +10,7 @@ export interface EvaluationsProps {
   onAddEvaluation?: (evaluation: Partial<Evaluation>) => void;
   onEditEvaluation?: (id: number, evaluation: Partial<Evaluation>) => void;
   onDeleteEvaluation?: (id: number) => void;
+  onViewEvaluation?: (id: number) => void;
   courseSchoolYear?: CourseSchoolYear | null;
   loading?: boolean;
   setLapseExpanded?: SetLapseExpanded;
@@ -23,6 +24,7 @@ export interface LapsesAccordionProps {
   onAddEvaluation?: (evaluation: Partial<Evaluation>) => void;
   onEditEvaluation?: (id: number, evaluation: Partial<Evaluation>) => void;
   onDeleteEvaluation?: (id: number) => void;
+  onViewEvaluation?: (id: number) => void;
   setLapseExpanded?: SetLapseExpanded;
   setCourtExpanded?: SetCourtExpanded;
 }
@@ -35,6 +37,7 @@ export interface LapseItemProps {
   onAddEvaluation?: (evaluation: Partial<Evaluation>) => void;
   onEditEvaluation?: (id: number, evaluation: Partial<Evaluation>) => void;
   onDeleteEvaluation?: (id: number) => void;
+  onViewEvaluation?: (id: number) => void;
   setLapseExpanded?: SetLapseExpanded;
   setCourtExpanded?: SetCourtExpanded;
 }
@@ -48,6 +51,7 @@ export interface CourtItemProps {
   onAddEvaluation?: (evaluation: Partial<Evaluation>) => void;
   onEditEvaluation?: (id: number, evaluation: Partial<Evaluation>) => void;
   onDeleteEvaluation?: (id: number) => void;
+  onViewEvaluation?: (id: number) => void;
   setCourtExpanded?: SetCourtExpanded;
 }
 
@@ -56,4 +60,5 @@ export interface EvaluationListProps {
   evaluations: Evaluation[];
   onEditEvaluation?: (id: number, evaluation: Partial<Evaluation>) => void;
   onDeleteEvaluation?: (id: number) => void;
+  onViewEvaluation?: (id: number) => void;
 }

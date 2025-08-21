@@ -11,6 +11,7 @@ import updateEvaluation from 'services/evaluations/update-evaluation';
 import deleteEvaluation from 'services/evaluations/delete-evaluation';
 import { setErrorMessage, setIsLoading, setSuccessMessage } from 'store/customizationSlice';
 import DialogDelete from 'components/dialogDelete';
+import BackendError from 'exceptions/backend-error';
 
 const Evaluations: FunctionComponent<EvaluationsProps> = ({
   schoolYear,
@@ -18,6 +19,7 @@ const Evaluations: FunctionComponent<EvaluationsProps> = ({
   onAddEvaluation,
   onEditEvaluation,
   onDeleteEvaluation,
+  onViewEvaluation,
   courseSchoolYear,
   loading = false,
   setLapseExpanded,
@@ -70,6 +72,7 @@ const Evaluations: FunctionComponent<EvaluationsProps> = ({
 
   // Manejar guardar evaluación desde el modal
   const handleSaveEvaluation = useCallback(async (formData: EvaluationFormData) => {
+
     if (!courseSchoolYear?.id) {
       dispatch(setErrorMessage('No se pudo identificar el curso-año escolar'));
       return;
@@ -78,6 +81,8 @@ const Evaluations: FunctionComponent<EvaluationsProps> = ({
     dispatch(setIsLoading(true));
     try {
       if (formData.id) {
+        console.log('IS EDITING');
+
         // Actualizar evaluación existente
         const evaluationDto: Partial<EvaluationDto> = {
           name: formData.name,
@@ -90,7 +95,7 @@ const Evaluations: FunctionComponent<EvaluationsProps> = ({
         };
 
         const updatedEvaluation = await updateEvaluation(formData.id, evaluationDto);
-        
+
         if (onEditEvaluation) {
           // Llamar al callback del padre si existe
           await onEditEvaluation(formData.id, updatedEvaluation);
@@ -104,6 +109,8 @@ const Evaluations: FunctionComponent<EvaluationsProps> = ({
           dispatch(setSuccessMessage('Evaluación actualizada con éxito'));
         }
       } else {
+        console.log('IS CREATING');
+
         // Crear nueva evaluación
         const evaluationDto: EvaluationDto = {
           name: formData.name,
@@ -116,7 +123,7 @@ const Evaluations: FunctionComponent<EvaluationsProps> = ({
         };
 
         const newEvaluation = await createEvaluation(evaluationDto);
-        
+
         if (onAddEvaluation) {
           // Llamar al callback del padre si existe
           await onAddEvaluation(newEvaluation);
@@ -183,6 +190,7 @@ const Evaluations: FunctionComponent<EvaluationsProps> = ({
         onAddEvaluation={handleOpenAddModal}
         onEditEvaluation={handleOpenEditModal}
         onDeleteEvaluation={handleOpenDeleteDialog}
+        onViewEvaluation={onViewEvaluation}
         setLapseExpanded={setLapseExpanded}
         setCourtExpanded={setCourtExpanded}
       />

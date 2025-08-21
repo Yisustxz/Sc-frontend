@@ -47,6 +47,7 @@ const EvaluationModal: FunctionComponent<EvaluationModalProps> = ({
   // Manejar el guardado de evaluación
   const handleSave = useCallback(async (formData: EvaluationFormData) => {
     try {
+      console.log('---------------_>formData', formData);
       setIsSubmitting(true);
       await onSave(formData);
       onClose();

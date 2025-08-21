@@ -9,6 +9,7 @@ const LapsesAccordion: FunctionComponent<LapsesAccordionProps> = ({
   onAddEvaluation,
   onEditEvaluation,
   onDeleteEvaluation,
+  onViewEvaluation,
   setLapseExpanded,
   setCourtExpanded
 }) => {
@@ -26,20 +27,18 @@ const LapsesAccordion: FunctionComponent<LapsesAccordionProps> = ({
   return (
     <Box>
       {schoolYear.schoolLapses.map((lapse, index) => (
-        <>
-          {/* {JSON.stringify(lapse)} */}
           <LapseItem
-          key={lapse.id || index}
-          schoolLapse={lapse}
-          evaluations={evaluations}
-          lapseIndex={index}
-          onAddEvaluation={onAddEvaluation}
-          onEditEvaluation={onEditEvaluation}
-          onDeleteEvaluation={onDeleteEvaluation}
-          setLapseExpanded={setLapseExpanded}
-          setCourtExpanded={setCourtExpanded}
-        />
-        </>
+            key={lapse.id + '-lapse-item'}
+            schoolLapse={lapse}
+            evaluations={evaluations}
+            lapseIndex={index}
+            onAddEvaluation={onAddEvaluation}
+            onEditEvaluation={onEditEvaluation}
+            onDeleteEvaluation={onDeleteEvaluation}
+            onViewEvaluation={onViewEvaluation}
+            setLapseExpanded={setLapseExpanded}
+            setCourtExpanded={setCourtExpanded}
+          />
       ))}
     </Box>
   );
