@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Box,
   Table,
@@ -10,11 +10,10 @@ import {
   Paper,
   Typography,
   TextField,
-  IconButton,
   Checkbox,
-  Tooltip,
   CircularProgress,
-  Button
+  Button,
+  Pagination
 } from '@mui/material';
 import { IconSearch, IconDeviceFloppy } from '@tabler/icons';
 import { useDispatch } from 'react-redux';
@@ -43,6 +42,10 @@ const StudentsList = ({ evaluationId }: StudentsListProps) => {
     didNotPresent: boolean;
   }>>({});
   const [isSaving, setIsSaving] = useState(false);
+  
+  // Estados de paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage] = useState(5);
 
   // Cargar estudiantes al montar el componente
   useEffect(() => {
@@ -66,11 +69,34 @@ const StudentsList = ({ evaluationId }: StudentsListProps) => {
   }, [students]);
 
   // Filtrar estudiantes según término de búsqueda (nombre, apellido o cédula)
-  const filteredStudents = students.filter(student => 
-    student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.dni.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredStudents = useMemo(() => {
+    return students.filter(student => 
+      student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.dni.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [students, searchTerm]);
+
+  // Calcular paginación
+  const totalItems = filteredStudents.length;
+  const totalPages = Math.ceil(totalItems / rowsPerPage) || 1;
+
+  // Obtener estudiantes para la página actual
+  const paginatedStudents = useMemo(() => {
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const endIndex = startIndex + rowsPerPage;
+    return filteredStudents.slice(startIndex, endIndex);
+  }, [currentPage, rowsPerPage, filteredStudents]);
+
+  // Manejador para el cambio de página
+  const handlePageChange = (_event: React.ChangeEvent<unknown>, page: number) => {
+    setCurrentPage(page);
+  };
+
+  // Resetear página cuando cambie el término de búsqueda
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   // Manejar cambio en calificación
   const handleQualificationChange = (courseInscriptionId: number, value: string) => {
@@ -187,13 +213,15 @@ const StudentsList = ({ evaluationId }: StudentsListProps) => {
     };
 
     return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.2 }}>
         <Checkbox
           checked={editedData.didNotPresent}
           onChange={(e) => handleDidNotPresentChange(student.courseInscriptionId, e.target.checked)}
           color="primary"
+          size="small"
+          sx={{ padding: '2px' }}
         />
-        <Typography variant="caption" color="textSecondary" sx={{ fontSize: '0.7rem', textAlign: 'center' }}>
+        <Typography variant="caption" color="textSecondary" sx={{ fontSize: '0.65rem', textAlign: 'center', lineHeight: 1 }}>
           No presentó
         </Typography>
       </Box>
@@ -267,18 +295,37 @@ const StudentsList = ({ evaluationId }: StudentsListProps) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredStudents.map((student) => (
-                <TableRow key={student.courseInscriptionId}>
-                  <TableCell>{student.name}</TableCell>
-                  <TableCell>{student.lastName}</TableCell>
-                  <TableCell>{student.dni}</TableCell>
-                  <TableCell align="center">{renderQualificationCell(student)}</TableCell>
-                  <TableCell align="center">{renderDidNotPresentCell(student)}</TableCell>
+              {paginatedStudents.map((student) => (
+                <TableRow key={student.courseInscriptionId} sx={{ '& td': { paddingY: 1 } }}>
+                  <TableCell sx={{ paddingY: 1 }}>{student.name}</TableCell>
+                  <TableCell sx={{ paddingY: 1 }}>{student.lastName}</TableCell>
+                  <TableCell sx={{ paddingY: 1 }}>{student.dni}</TableCell>
+                  <TableCell align="center" sx={{ paddingY: 1 }}>{renderQualificationCell(student)}</TableCell>
+                  <TableCell align="center" sx={{ paddingY: 1 }}>{renderDidNotPresentCell(student)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
+      )}
+
+      {/* Paginación */}
+      {filteredStudents.length > 0 && (
+        <Box sx={{ 
+          marginTop: '12px',
+          display: 'flex',
+          justifyContent: 'center',
+          flexDirection: 'row'
+        }}>
+          <Pagination
+            count={totalPages}
+            page={currentPage}
+            variant="outlined"
+            shape="rounded"
+            color="primary"
+            onChange={handlePageChange}
+          />
+        </Box>
       )}
     </Box>
   );
