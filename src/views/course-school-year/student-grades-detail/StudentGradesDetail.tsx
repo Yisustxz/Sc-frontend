@@ -15,16 +15,24 @@ import {
   Chip,
   CircularProgress,
   Alert,
-  Card,
-  CardContent,
-  Divider,
   TextField,
-  Checkbox
+  Checkbox,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Stack
 } from '@mui/material';
-import { IconUser, IconSchool, IconAward, IconEdit, IconDeviceFloppy, IconX } from '@tabler/icons';
+import { IconUser, IconSchool, IconAward, IconEdit, IconDeviceFloppy, IconX, IconChevronDown, IconCalendar } from '@tabler/icons';
 import MainCard from 'components/cards/MainCard';
 import BreadcrumbsNav from 'components/BreadcrumbsNav';
 import { useStudentGradesDetail } from 'hooks/use-student-grades-detail';
+import { 
+  calculateCourtGrade, 
+  calculateLapseGrade, 
+  EvaluationForCalculation,
+  CourtForCalculation,
+  LapseForCalculation 
+} from 'core/evaluations';
 import { updateStudentGrades, UpdateStudentEvaluationGrade } from 'services/course-school-year/update-student-grades';
 import { useDispatch } from 'react-redux';
 import { setSuccessMessage, setErrorMessage } from 'store/customizationSlice';
@@ -88,6 +96,92 @@ const StudentGradesDetail: FunctionComponent<StudentGradesDetailProps> = ({ clas
       default:
         return 'default';
     }
+  };
+
+  // Agrupar y ordenar evaluaciones por lapso y corte
+  const organizedEvaluations = useMemo(() => {
+    if (!data?.evaluations) return {};
+    
+    // Primero ordenar todas las evaluaciones por lapso, corte, correlativo
+    const sortedEvaluations = [...data.evaluations].sort((a, b) => {
+      // Ordenar por lapso
+      if (a.schoolCourt.lapseNumber !== b.schoolCourt.lapseNumber) {
+        return a.schoolCourt.lapseNumber - b.schoolCourt.lapseNumber;
+      }
+      // Luego por corte (id del corte)
+      if (a.schoolCourt.id !== b.schoolCourt.id) {
+        return a.schoolCourt.id - b.schoolCourt.id;
+      }
+      // Finalmente por correlativo
+      return (a.correlative || 0) - (b.correlative || 0);
+    });
+
+    // Agrupar por lapso, luego por corte
+    const grouped = sortedEvaluations.reduce((acc, evaluation) => {
+      const lapseNumber = evaluation.schoolCourt.lapseNumber;
+      const courtId = evaluation.schoolCourt.id;
+      
+      if (!acc[lapseNumber]) {
+        acc[lapseNumber] = {};
+      }
+      if (!acc[lapseNumber][courtId]) {
+        acc[lapseNumber][courtId] = {
+          courtInfo: evaluation.schoolCourt,
+          evaluations: []
+        };
+      }
+      acc[lapseNumber][courtId].evaluations.push(evaluation);
+      return acc;
+    }, {} as Record<number, Record<number, { courtInfo: any; evaluations: any[] }>>);
+
+    return grouped;
+  }, [data]);
+
+  // Helper: Convertir evaluación del API al formato del algoritmo
+  const convertToEvaluationForCalculation = (evaluation: any): EvaluationForCalculation => {
+    let didNotPresent = evaluation.didNotPresent;
+    let qualification = evaluation.qualification;
+    
+    // Si estamos editando, usar los valores editados
+    if (isEditing && editedGrades[evaluation.evaluationId]) {
+      const edited = editedGrades[evaluation.evaluationId];
+      didNotPresent = edited.didNotPresent;
+      qualification = edited.qualification !== '' ? parseFloat(edited.qualification) : null;
+    }
+    
+    return {
+      evaluationId: evaluation.evaluationId,
+      percentage: parseFloat(evaluation.percentage),
+      qualification: qualification !== null ? parseFloat(qualification) : null,
+      didNotPresent,
+    };
+  };
+
+  // Helper: Calcular nota de corte usando el algoritmo centralizado
+  const calculateCourtGradeFromEvaluations = (evaluations: any[]): number | null => {
+    const courtData: CourtForCalculation = {
+      courtId: 0, // No importa para el cálculo
+      evaluations: evaluations.map(convertToEvaluationForCalculation),
+    };
+    
+    const result = calculateCourtGrade(courtData);
+    return result.grade;
+  };
+
+  // Helper: Calcular nota de lapso usando el algoritmo centralizado
+  const calculateLapseGradeFromEvaluations = (lapseEvaluations: Record<number, { courtInfo: any; evaluations: any[] }>): number | null => {
+    const courts: CourtForCalculation[] = Object.entries(lapseEvaluations).map(([courtId, courtData]) => ({
+      courtId: parseInt(courtId),
+      evaluations: courtData.evaluations.map(convertToEvaluationForCalculation),
+    }));
+    
+    const lapseData: LapseForCalculation = {
+      lapseNumber: 0, // No importa para el cálculo
+      courts,
+    };
+    
+    const result = calculateLapseGrade(lapseData);
+    return result.grade;
   };
 
   // Inicializar las notas editables cuando se cargan los datos
@@ -181,7 +275,7 @@ const StudentGradesDetail: FunctionComponent<StudentGradesDetailProps> = ({ clas
       };
 
       // Llamar al servicio de actualización
-      const response = await updateStudentGrades(
+      await updateStudentGrades(
         Number(courseSchoolYearId), 
         Number(studentId), 
         updateData
@@ -257,85 +351,137 @@ const StudentGradesDetail: FunctionComponent<StudentGradesDetailProps> = ({ clas
     );
   }
 
-  // Funciones para renderizar celdas editables
-  const renderQualificationCell = (evaluation: any) => {
-    const editedData = editedGrades[evaluation.evaluationId] || {
-      qualification: evaluation.qualification !== null ? evaluation.qualification.toString() : '',
-      didNotPresent: evaluation.didNotPresent
-    };
-
-    if (!isEditing) {
-      // Modo visualización
-      return (
-        <Chip
-          label={getQualificationLabel(evaluation.qualification, evaluation.didNotPresent)}
-          color={getQualificationColor(evaluation.qualification, evaluation.didNotPresent)}
-          size="small"
-        />
-      );
-    }
-
-    // Modo edición
-    if (editedData.didNotPresent) {
-      return (
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Typography variant="body2" color="textSecondary" sx={{ fontStyle: 'italic' }}>
-            No presentó
-          </Typography>
-        </Box>
-      );
-    }
-
+  // Renderizar tabla de evaluaciones
+  const renderEvaluationsTable = (evaluations: any[]) => {
     return (
-      <TextField
-        size="small"
-        value={editedData.qualification}
-        onChange={(e) => handleQualificationChange(evaluation.evaluationId, e.target.value)}
-        type="number"
-        inputProps={{ min: 0, max: 20, step: 0.5 }}
-        sx={{ width: '100px' }}
-        placeholder="0-20"
-      />
+      <TableContainer>
+        <Table>
+          <TableHead>
+            <TableRow sx={{ backgroundColor: 'rgba(0, 0, 0, 0.02)' }}>
+              <TableCell sx={{ fontWeight: 'bold', py: 2.5 }}>Evaluación</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', py: 2.5 }} align="center">Tipo</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', py: 2.5 }} align="center">Peso</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', py: 2.5 }} align="center">Fecha</TableCell>
+              <TableCell sx={{ fontWeight: 'bold', py: 2.5 }} align="center">Calificación</TableCell>
+              {isEditing && <TableCell sx={{ fontWeight: 'bold', py: 2.5 }} align="center">No Presentó</TableCell>}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {evaluations.map((evaluation) => {
+              const editedData = editedGrades[evaluation.evaluationId] || {
+                qualification: evaluation.qualification !== null ? evaluation.qualification.toString() : '',
+                didNotPresent: evaluation.didNotPresent
+              };
+
+              return (
+                <TableRow key={evaluation.evaluationId} hover sx={{ '& > *': { py: 2.5 } }}>
+                  {/* Nombre de la evaluación */}
+                  <TableCell>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                        {evaluation.evaluationName}
+                      </Typography>
+                      {evaluation.correlative && (
+                        <Typography variant="caption" color="primary" sx={{ fontWeight: 'bold' }}>
+                          #{evaluation.correlative}
+                        </Typography>
+                      )}
+                    </Box>
+                  </TableCell>
+
+                  {/* Tipo de evaluación */}
+                  <TableCell align="center">
+                    <Chip 
+                      label={evaluation.evaluationType}
+                      size="small"
+                      variant="outlined"
+                      color={getEvaluationTypeColor(evaluation.evaluationType)}
+                    />
+                  </TableCell>
+
+                  {/* Porcentaje */}
+                  <TableCell align="center">
+                    <Typography variant="body1">
+                      {evaluation.percentage}%
+                    </Typography>
+                  </TableCell>
+
+                  {/* Fecha proyectada */}
+                  <TableCell align="center">
+                    {evaluation.projectedDate ? (
+                      <Box display="flex" alignItems="center" justifyContent="center" gap={0.5}>
+                        <IconCalendar size="0.9rem" />
+                        <Typography variant="body2">
+                          {new Date(evaluation.projectedDate).toLocaleDateString()}
+                        </Typography>
+                      </Box>
+                    ) : (
+                      <Typography variant="caption" color="textSecondary">
+                        -
+                      </Typography>
+                    )}
+                  </TableCell>
+
+                  {/* Calificación */}
+                  <TableCell align="center">
+                    {!isEditing ? (
+                      <Chip
+                        label={getQualificationLabel(evaluation.qualification, evaluation.didNotPresent)}
+                        color={getQualificationColor(evaluation.qualification, evaluation.didNotPresent)}
+                        size="small"
+                      />
+                    ) : (
+                      <Box display="flex" alignItems="center" justifyContent="center">
+                        {editedData.didNotPresent ? (
+                          <Typography variant="body2" color="textSecondary" sx={{ fontStyle: 'italic' }}>
+                            No presentó
+                          </Typography>
+                        ) : (
+                          <TextField
+                            size="small"
+                            value={editedData.qualification}
+                            onChange={(e) => handleQualificationChange(evaluation.evaluationId, e.target.value)}
+                            type="number"
+                            inputProps={{ min: 0, max: 20, step: 0.5 }}
+                            sx={{ 
+                              width: '80px', 
+                              '& .MuiInputBase-input': { 
+                                fontSize: '0.8rem', 
+                                py: '6px',
+                                textAlign: 'center'
+                              } 
+                            }}
+                            placeholder="0-20"
+                          />
+                        )}
+                      </Box>
+                    )}
+                  </TableCell>
+
+                  {/* No Presentó checkbox (solo en modo edición) */}
+                  {isEditing && (
+                    <TableCell align="center">
+                      <Stack alignItems="center" spacing={0.5}>
+                        <Checkbox
+                          checked={editedData.didNotPresent}
+                          onChange={(e) => handleDidNotPresentChange(evaluation.evaluationId, e.target.checked)}
+                          size="small"
+                          sx={{ p: 0.5 }}
+                        />
+                        <Typography variant="caption" color="textSecondary">
+                          No presentó
+                        </Typography>
+                      </Stack>
+                    </TableCell>
+                  )}
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
     );
   };
-
-  const renderDidNotPresentCell = (evaluation: any) => {
-    const editedData = editedGrades[evaluation.evaluationId] || {
-      qualification: evaluation.qualification !== null ? evaluation.qualification.toString() : '',
-      didNotPresent: evaluation.didNotPresent
-    };
-
-    if (!isEditing) {
-      // Modo visualización - no mostrar nada o mostrar un icono si no presentó
-      return null;
-    }
-
-    // Modo edición
-    return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.2 }}>
-        <Checkbox
-          checked={editedData.didNotPresent}
-          onChange={(e) => handleDidNotPresentChange(evaluation.evaluationId, e.target.checked)}
-          color="primary"
-          size="small"
-          sx={{ padding: '2px' }}
-        />
-        <Typography variant="caption" color="textSecondary" sx={{ fontSize: '0.65rem', textAlign: 'center', lineHeight: 1 }}>
-          No presentó
-        </Typography>
-      </Box>
-    );
-  };
-
-  // Agrupar evaluaciones por lapso
-  const evaluationsByLapse = data.evaluations.reduce((acc, evaluation) => {
-    const lapseNumber = evaluation.schoolCourt.lapseNumber;
-    if (!acc[lapseNumber]) {
-      acc[lapseNumber] = [];
-    }
-    acc[lapseNumber].push(evaluation);
-    return acc;
-  }, {} as Record<number, typeof data.evaluations>);
 
   return (
     <div className={className}>
@@ -344,65 +490,54 @@ const StudentGradesDetail: FunctionComponent<StudentGradesDetailProps> = ({ clas
         <BreadcrumbsNav items={breadcrumbItems} />
       </Box>
 
-      <Grid container spacing={3}>
+      <Grid container spacing={2}>
         {/* Información del estudiante y curso */}
         <Grid item xs={12}>
-          <MainCard>
-            <Grid container spacing={3}>
+          <Paper variant="outlined" sx={{ p: 2, mb: 1 }}>
+            <Grid container spacing={3} alignItems="center">
               {/* Información del estudiante */}
-              <Grid item xs={12} md={6}>
-                <Card variant="outlined">
-                  <CardContent>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                      <IconUser size="1.5rem" />
-                      <Typography variant="h6" sx={{ ml: 1 }}>
-                        Información del Estudiante
-                      </Typography>
-                    </Box>
-                    <Typography variant="body1" sx={{ mb: 1 }}>
-                      <strong>Nombre:</strong> {data.studentName} {data.studentLastName}
-                    </Typography>
-                    <Typography variant="body1" sx={{ mb: 1 }}>
-                      <strong>Cédula:</strong> {data.studentDni}
-                    </Typography>
-                    <Box sx={{ mt: 2 }}>
-                      <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
-                        Calificación Final:
-                      </Typography>
-                      <Chip
-                        label={data.finalGrade !== null ? data.finalGrade : 'Sin Calificar'}
-                        color={getQualificationColor(data.finalGrade, false)}
-                        size="medium"
-                      />
-                    </Box>
-                  </CardContent>
-                </Card>
+              <Grid item xs={12} md={4}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <IconUser size="1.2rem" />
+                  <Typography variant="subtitle1" sx={{ ml: 1, fontWeight: 600 }}>
+                    {data.studentName} {data.studentLastName}
+                  </Typography>
+                </Box>
+                <Typography variant="body2" color="textSecondary">
+                  Cédula: {data.studentDni}
+                </Typography>
               </Grid>
 
               {/* Información del curso */}
-              <Grid item xs={12} md={6}>
-                <Card variant="outlined">
-                  <CardContent>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                      <IconSchool size="1.5rem" />
-                      <Typography variant="h6" sx={{ ml: 1 }}>
-                        Información del Curso
-                      </Typography>
-                    </Box>
-                    <Typography variant="body1" sx={{ mb: 1 }}>
-                      <strong>Asignatura:</strong> {data.course.name}
-                    </Typography>
-                    <Typography variant="body1" sx={{ mb: 1 }}>
-                      <strong>Grado:</strong> {data.course.grade}
-                    </Typography>
-                    <Typography variant="body1" sx={{ mb: 1 }}>
-                      <strong>Año Escolar:</strong> {data.schoolYear.code}
-                    </Typography>
-                  </CardContent>
-                </Card>
+              <Grid item xs={12} md={4}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <IconSchool size="1.2rem" />
+                  <Typography variant="subtitle1" sx={{ ml: 1, fontWeight: 600 }}>
+                    {data.course.name}
+                  </Typography>
+                </Box>
+                <Typography variant="body2" color="textSecondary">
+                  {data.course.grade} - {data.schoolYear.code}
+                </Typography>
+              </Grid>
+
+              {/* Calificación final */}
+              <Grid item xs={12} md={4}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <IconAward size="1.2rem" />
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                    Calificación Final:
+                  </Typography>
+                  <Chip
+                    label={data.finalGrade !== null ? data.finalGrade : 'Sin Calificar'}
+                    color={getQualificationColor(data.finalGrade, false)}
+                    size="medium"
+                    sx={{ fontWeight: 600 }}
+                  />
+                </Box>
               </Grid>
             </Grid>
-          </MainCard>
+          </Paper>
         </Grid>
 
         {/* Evaluaciones por lapso */}
@@ -452,84 +587,126 @@ const StudentGradesDetail: FunctionComponent<StudentGradesDetailProps> = ({ clas
               </Box>
             </Box>
           }>
-            {Object.keys(evaluationsByLapse).length === 0 ? (
+            {Object.keys(organizedEvaluations).length === 0 ? (
               <Alert severity="info">
                 No hay evaluaciones registradas para este curso
               </Alert>
             ) : (
-              Object.keys(evaluationsByLapse)
+              Object.keys(organizedEvaluations)
                 .sort((a, b) => Number(a) - Number(b))
-                .map((lapseNumber) => (
-                  <Box key={lapseNumber} sx={{ mb: 4 }}>
-                    <Typography variant="h6" sx={{ mb: 2, color: 'primary.main' }}>
-                      {evaluationsByLapse[Number(lapseNumber)][0].schoolCourt.lapseName}
-                    </Typography>
-                    <TableContainer component={Paper} variant="outlined">
-                      <Table>
-                        <TableHead>
-                          <TableRow>
-                            <TableCell>Evaluación</TableCell>
-                            <TableCell>Tipo</TableCell>
-                            <TableCell align="center">Porcentaje</TableCell>
-                            <TableCell align="center">Fecha Proyectada</TableCell>
-                            <TableCell align="center">Calificación</TableCell>
-                            {isEditing && <TableCell align="center">No Presentó</TableCell>}
-                            <TableCell align="center">Fecha Calificación</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {evaluationsByLapse[Number(lapseNumber)].map((evaluation) => (
-                            <TableRow key={evaluation.evaluationId}>
-                              <TableCell>
-                                <Box>
-                                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                                    {evaluation.evaluationName}
+                .map((lapseNumber) => {
+                  const lapseData = organizedEvaluations[Number(lapseNumber)];
+                  const lapseGrade = calculateLapseGradeFromEvaluations(lapseData);
+                  
+                  return (
+                    <Accordion key={lapseNumber} defaultExpanded sx={{ mb: 2, boxShadow: 'none', border: '1px solid', borderColor: 'divider' }}>
+                      <AccordionSummary
+                        expandIcon={<IconChevronDown />}
+                        sx={{ 
+                          backgroundColor: 'primary.light',
+                          color: 'primary.contrastText',
+                          minHeight: 48,
+                          '&.Mui-expanded': {
+                            minHeight: 48,
+                          }
+                        }}
+                      >
+                        <Box display="flex" justifyContent="space-between" alignItems="center" width="100%">
+                          <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1.1rem' }}>
+                            Lapso {lapseNumber}
+                          </Typography>
+                          {lapseGrade !== null && (
+                            <Box display="flex" alignItems="center" gap={1} mr={2}>
+                              <Typography variant="body1" sx={{ color: '#000000', fontWeight: 500 }}>
+                                Nota del Lapso:
+                              </Typography>
+                              <Chip
+                                label={lapseGrade.toFixed(2)}
+                                size="medium"
+                                sx={{ 
+                                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                                  color: 'primary.main',
+                                  fontWeight: 600,
+                                  borderColor: 'rgba(255, 255, 255, 1)',
+                                  '&:hover': {
+                                    backgroundColor: 'rgba(255, 255, 255, 1)'
+                                  }
+                                }}
+                                variant="outlined"
+                              />
+                            </Box>
+                          )}
+                        </Box>
+                      </AccordionSummary>
+                    <AccordionDetails sx={{ p: 0 }}>
+                      {Object.keys(organizedEvaluations[Number(lapseNumber)])
+                        .sort((a, b) => Number(a) - Number(b))
+                        .map((courtId) => {
+                          const courtData = organizedEvaluations[Number(lapseNumber)][Number(courtId)];
+                          const courtGrade = calculateCourtGradeFromEvaluations(courtData.evaluations);
+                          
+                          return (
+                            <Accordion 
+                              key={courtId} 
+                              defaultExpanded 
+                              sx={{ 
+                                boxShadow: 'none', 
+                                border: 'none',
+                                '&:before': { display: 'none' },
+                                '& .MuiAccordionSummary-root': {
+                                  backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                                  borderTop: '1px solid',
+                                  borderColor: 'divider',
+                                  minHeight: 40
+                                }
+                              }}
+                            >
+                              <AccordionSummary
+                                expandIcon={<IconChevronDown />}
+                                sx={{ py: 1 }}
+                              >
+                                <Box display="flex" justifyContent="space-between" alignItems="center" width="100%">
+                                  <Typography variant="subtitle1" sx={{ fontWeight: 500, fontSize: '1rem' }}>
+                                    Corte {courtData.courtInfo.id}
+                                    {courtData.courtInfo.startDate && courtData.courtInfo.endDate && (
+                                      <>: {new Date(courtData.courtInfo.startDate).toLocaleDateString()} - {new Date(courtData.courtInfo.endDate).toLocaleDateString()}</>
+                                    )}
                                   </Typography>
-                                  {evaluation.correlative && (
-                                    <Typography variant="caption" color="textSecondary">
-                                      #{evaluation.correlative}
+                                  <Box display="flex" alignItems="center" gap={2} mr={2}>
+                                    <Typography variant="body2" color="textSecondary">
+                                      {courtData.evaluations.length} evaluación(es)
                                     </Typography>
-                                  )}
+                                    {courtGrade !== null && (
+                                      <Box display="flex" alignItems="center" gap={1}>
+                                        <Typography variant="body2" color="textSecondary">
+                                          Acumulado:
+                                        </Typography>
+                                        <Chip
+                                          label={courtGrade.toFixed(2)}
+                                          size="small"
+                                          variant="filled"
+                                          sx={{ 
+                                            color: 'text.disabled',
+                                            backgroundColor: 'rgba(0, 0, 0, 0.08)',
+                                            fontWeight: 500
+                                          }}
+                                        />
+                                      </Box>
+                                    )}
+                                  </Box>
                                 </Box>
-                              </TableCell>
-                              <TableCell>
-                                <Chip 
-                                  label={evaluation.evaluationType}
-                                  size="small"
-                                  variant="outlined"
-                                  color={getEvaluationTypeColor(evaluation.evaluationType)}
-                                />
-                              </TableCell>
-                              <TableCell align="center">
-                                {evaluation.percentage}%
-                              </TableCell>
-                              <TableCell align="center">
-                                {evaluation.projectedDate ? 
-                                  new Date(evaluation.projectedDate).toLocaleDateString() : 
-                                  '-'
-                                }
-                              </TableCell>
-                              <TableCell align="center">
-                                {renderQualificationCell(evaluation)}
-                              </TableCell>
-                              {isEditing && (
-                                <TableCell align="center">
-                                  {renderDidNotPresentCell(evaluation)}
-                                </TableCell>
-                              )}
-                              <TableCell align="center">
-                                {evaluation.qualificationDate ? 
-                                  new Date(evaluation.qualificationDate).toLocaleDateString() : 
-                                  '-'
-                                }
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  </Box>
-                ))
+                              </AccordionSummary>
+                              <AccordionDetails sx={{ p: 0, pb: 2 }}>
+                                {renderEvaluationsTable(courtData.evaluations)}
+                              </AccordionDetails>
+                            </Accordion>
+                          );
+                        })
+                      }
+                    </AccordionDetails>
+                  </Accordion>
+                  );
+                })
             )}
           </MainCard>
         </Grid>
