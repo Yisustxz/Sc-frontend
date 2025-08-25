@@ -10,6 +10,7 @@ const Students: FunctionComponent<StudentsProps & { className?: string }> = ({
   students: initialStudents = [],
   loading: initialLoading = false,
   onViewStudentDetails,
+  onViewStudentGrades,
   className
 }) => {
   // Estado de la tabla y paginación
@@ -62,6 +63,7 @@ const Students: FunctionComponent<StudentsProps & { className?: string }> = ({
         students={paginatedStudents}
         loading={loading}
         onViewStudentDetails={onViewStudentDetails}
+        onViewStudentGrades={onViewStudentGrades}
         page={currentPage - 1} // Para compatibilidad con interfaces existentes
         totalPages={totalPages}
         rowsPerPage={rowsPerPage}

@@ -14,6 +14,7 @@ const StudentsTable: FunctionComponent<StudentsTableProps> = ({
   students,
   loading,
   onViewStudentDetails,
+  onViewStudentGrades,
   page,
   totalPages,
   rowsPerPage,
@@ -88,7 +89,7 @@ const StudentsTable: FunctionComponent<StudentsTableProps> = ({
           size="small"
           variant="outlined"
           color="primary"
-          onClick={() => {}}
+          onClick={() => onViewStudentGrades && onViewStudentGrades(row.id)}
           startIcon={<IconNotes size="1rem" />}
         >
           Notas

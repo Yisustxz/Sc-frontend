@@ -31,6 +31,7 @@ import CourseSchoolYearPage from 'views/course-school-year'
 import CreateCourseSchoolYear from 'views/course-school-year/create'
 import EditCourseSchoolYear from 'views/course-school-year/edit'
 import DetailCourseSchoolYear from 'views/course-school-year/detail'
+import StudentGradesDetail from 'views/course-school-year/student-grades-detail/StudentGradesDetail'
 
 //Inscriptions
 import InscriptionsPage from 'views/inscriptions'
@@ -139,11 +140,10 @@ const GeneralRoutes: RouteObject[] = [
     path: 'course-school-year/detail/:id',
     element: <DetailCourseSchoolYear />
   },
-  // Detalle de una evaluacion
-  /*{
-    path: 'evaluation/:id',
-    element: <EvaluationDetail />
-  },*/
+  {
+    path: 'course-school-year/detail/:courseSchoolYearId/student/:studentId/grades',
+    element: <StudentGradesDetail />
+  },
   // Inscripciones
   {
     path: 'inscriptions',

@@ -85,6 +85,13 @@ const CourseSchoolYearDetail: FunctionComponent<CourseSchoolYearDetailProps> = (
     setDetailsDialogOpen(true);
   }, [students]);
 
+  // Manejar la navegación a las notas del estudiante
+  const handleViewStudentGrades = useCallback((studentId: number) => {
+    if (courseSchoolYear) {
+      navigate(`/course-school-year/detail/${courseSchoolYear.id}/student/${studentId}/grades`);
+    }
+  }, [navigate, courseSchoolYear]);
+
   // Manejar la navegación al detalle de evaluación
   const handleViewEvaluation = useCallback((evaluationId: number) => {
     navigate(`/evaluations/${evaluationId}`);
@@ -203,6 +210,7 @@ const CourseSchoolYearDetail: FunctionComponent<CourseSchoolYearDetailProps> = (
               students={students}
               loading={isLoadingStudents}
               onViewStudentDetails={handleViewStudentDetails}
+              onViewStudentGrades={handleViewStudentGrades}
             />
           </MainCard>
         </Grid>

@@ -5,12 +5,14 @@ export interface StudentsProps {
   students: StudentOfCourse[];
   loading?: boolean;
   onViewStudentDetails?: (studentId: number) => void;
+  onViewStudentGrades?: (studentId: number) => void;
 }
 
 export interface StudentsTableProps {
   students: StudentOfCourse[];
   loading: boolean;
   onViewStudentDetails?: (studentId: number) => void;
+  onViewStudentGrades?: (studentId: number) => void;
   page: number;
   totalPages: number;
   rowsPerPage: number;
