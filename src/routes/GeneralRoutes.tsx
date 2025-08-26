@@ -141,7 +141,7 @@ const GeneralRoutes: RouteObject[] = [
     element: <DetailCourseSchoolYear />
   },
   {
-    path: 'course-school-year/detail/:courseSchoolYearId/student/:studentId/grades',
+    path: 'course-school-year/detail/:courseSchoolYearId/student/:studentId/qualifications',
     element: <StudentGradesDetail />
   },
   // Inscripciones

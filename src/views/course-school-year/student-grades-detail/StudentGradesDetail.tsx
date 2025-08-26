@@ -25,7 +25,7 @@ import {
 import { IconUser, IconSchool, IconAward, IconEdit, IconDeviceFloppy, IconX, IconChevronDown, IconCalendar } from '@tabler/icons';
 import MainCard from 'components/cards/MainCard';
 import BreadcrumbsNav from 'components/BreadcrumbsNav';
-import { useStudentGradesDetail } from 'hooks/use-student-grades-detail';
+import { useStudentQualificationsDetail } from 'hooks/use-student-qualifications-detail';
 import { 
   calculateCourtGrade, 
   calculateLapseGrade, 
@@ -33,7 +33,8 @@ import {
   CourtForCalculation,
   LapseForCalculation 
 } from 'core/evaluations';
-import { updateStudentGrades, UpdateStudentEvaluationGrade } from 'services/course-school-year/update-student-grades';
+import { updateStudentQualifications, UpdateStudentEvaluationQualification } from 'services/course-school-year/update-student-qualifications';
+import { updateStudentFinalQualification } from 'services/course-school-year/update-student-final-qualification';
 import { useDispatch } from 'react-redux';
 import { setSuccessMessage, setErrorMessage } from 'store/customizationSlice';
 import BackendError from 'exceptions/backend-error';
@@ -49,7 +50,7 @@ const StudentGradesDetail: FunctionComponent<StudentGradesDetailProps> = ({ clas
     studentId: string;
   }>();
 
-  const { data, loading, error, refetch } = useStudentGradesDetail(
+  const { data, loading, error, refetch } = useStudentQualificationsDetail(
     Number(courseSchoolYearId),
     Number(studentId)
   );
@@ -61,6 +62,11 @@ const StudentGradesDetail: FunctionComponent<StudentGradesDetailProps> = ({ clas
     qualification: string;
     didNotPresent: boolean;
   }>>({});
+
+  // Estado para edición de calificación final
+  const [isEditingFinalGrade, setIsEditingFinalGrade] = useState(false);
+  const [editedFinalGrade, setEditedFinalGrade] = useState<string>('');
+  const [isSavingFinalGrade, setIsSavingFinalGrade] = useState(false);
 
   const getQualificationColor = (qualification: number | null, didNotPresent: boolean): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' => {
     if (didNotPresent) return 'error';
@@ -116,7 +122,7 @@ const StudentGradesDetail: FunctionComponent<StudentGradesDetailProps> = ({ clas
       return (a.correlative || 0) - (b.correlative || 0);
     });
 
-    // Agrupar por lapso, luego por corte
+    // Agrupar por lapso, luego por corte y asignar números relativos
     const grouped = sortedEvaluations.reduce((acc, evaluation) => {
       const lapseNumber = evaluation.schoolCourt.lapseNumber;
       const courtId = evaluation.schoolCourt.id;
@@ -133,6 +139,20 @@ const StudentGradesDetail: FunctionComponent<StudentGradesDetailProps> = ({ clas
       acc[lapseNumber][courtId].evaluations.push(evaluation);
       return acc;
     }, {} as Record<number, Record<number, { courtInfo: any; evaluations: any[] }>>);
+
+    // Asignar números relativos a los cortes dentro de cada lapso
+    Object.keys(grouped).forEach(lapseKey => {
+      const lapseNumber = parseInt(lapseKey);
+      const courts = grouped[lapseNumber];
+      
+      // Obtener los IDs de cortes ordenados
+      const courtIds = Object.keys(courts).map(id => parseInt(id)).sort((a, b) => a - b);
+      
+      // Asignar número relativo (1, 2, 3...) a cada corte
+      courtIds.forEach((courtId, index) => {
+        courts[courtId].courtInfo.relativeNumber = index + 1;
+      });
+    });
 
     return grouped;
   }, [data]);
@@ -264,7 +284,7 @@ const StudentGradesDetail: FunctionComponent<StudentGradesDetailProps> = ({ clas
       setIsSaving(true);
 
       // Preparar datos para la actualización
-      const evaluationsToUpdate: UpdateStudentEvaluationGrade[] = Object.entries(editedGrades).map(([evaluationId, gradeData]) => ({
+      const evaluationsToUpdate: UpdateStudentEvaluationQualification[] = Object.entries(editedGrades).map(([evaluationId, gradeData]) => ({
         evaluationId: parseInt(evaluationId),
         qualification: gradeData.didNotPresent ? null : (gradeData.qualification ? parseFloat(gradeData.qualification) : null),
         didNotPresent: gradeData.didNotPresent
@@ -275,7 +295,7 @@ const StudentGradesDetail: FunctionComponent<StudentGradesDetailProps> = ({ clas
       };
 
       // Llamar al servicio de actualización
-      await updateStudentGrades(
+      await updateStudentQualifications(
         Number(courseSchoolYearId), 
         Number(studentId), 
         updateData
@@ -297,6 +317,49 @@ const StudentGradesDetail: FunctionComponent<StudentGradesDetailProps> = ({ clas
       }
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  // Manejar edición de calificación final
+  const handleEditFinalGrade = () => {
+    setEditedFinalGrade(data?.finalGrade?.toString() || '');
+    setIsEditingFinalGrade(true);
+  };
+
+  const handleCancelFinalGradeEdit = () => {
+    setIsEditingFinalGrade(false);
+    setEditedFinalGrade('');
+  };
+
+  const handleSaveFinalGrade = async () => {
+    if (!courseSchoolYearId || !studentId) return;
+
+    setIsSavingFinalGrade(true);
+    try {
+      const finalGradeValue = editedFinalGrade === '' ? null : parseFloat(editedFinalGrade);
+      
+      await updateStudentFinalQualification(
+        Number(courseSchoolYearId),
+        Number(studentId),
+        { finalQualification: finalGradeValue }
+      );
+
+      dispatch(setSuccessMessage('Calificación final actualizada correctamente'));
+      
+      // Refrescar los datos
+      refetch();
+      
+      // Salir del modo de edición
+      setIsEditingFinalGrade(false);
+    } catch (error) {
+      console.error('Error saving final grade:', error);
+      if (error instanceof BackendError) {
+        dispatch(setErrorMessage(`Error al guardar calificación final: ${error.message}`));
+      } else {
+        dispatch(setErrorMessage('Error inesperado al guardar calificación final'));
+      }
+    } finally {
+      setIsSavingFinalGrade(false);
     }
   };
 
@@ -528,12 +591,62 @@ const StudentGradesDetail: FunctionComponent<StudentGradesDetailProps> = ({ clas
                   <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                     Calificación Final:
                   </Typography>
-                  <Chip
-                    label={data.finalGrade !== null ? data.finalGrade : 'Sin Calificar'}
-                    color={getQualificationColor(data.finalGrade, false)}
-                    size="medium"
-                    sx={{ fontWeight: 600 }}
-                  />
+                  
+                  {isEditingFinalGrade ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <TextField
+                        size="small"
+                        type="number"
+                        value={editedFinalGrade}
+                        onChange={(e) => setEditedFinalGrade(e.target.value)}
+                        inputProps={{ 
+                          min: 0, 
+                          max: 20, 
+                          step: 0.01,
+                          style: { textAlign: 'center' }
+                        }}
+                        sx={{ width: '80px' }}
+                        placeholder="0-20"
+                      />
+                      <Button
+                        size="small"
+                        variant="contained"
+                        color="primary"
+                        onClick={handleSaveFinalGrade}
+                        disabled={isSavingFinalGrade}
+                        startIcon={<IconDeviceFloppy size="1rem" />}
+                      >
+                        {isSavingFinalGrade ? 'Guardando...' : 'Guardar'}
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        onClick={handleCancelFinalGradeEdit}
+                        disabled={isSavingFinalGrade}
+                        startIcon={<IconX size="1rem" />}
+                      >
+                        Cancelar
+                      </Button>
+                    </Box>
+                  ) : (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Chip
+                        label={data.finalGrade !== null ? data.finalGrade : 'Sin Calificar'}
+                        color={getQualificationColor(data.finalGrade, false)}
+                        size="medium"
+                        sx={{ fontWeight: 600 }}
+                      />
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        onClick={handleEditFinalGrade}
+                        startIcon={<IconEdit size="1rem" />}
+                        disabled={isEditing}
+                      >
+                        Editar
+                      </Button>
+                    </Box>
+                  )}
                 </Box>
               </Grid>
             </Grid>
@@ -667,7 +780,7 @@ const StudentGradesDetail: FunctionComponent<StudentGradesDetailProps> = ({ clas
                               >
                                 <Box display="flex" justifyContent="space-between" alignItems="center" width="100%">
                                   <Typography variant="subtitle1" sx={{ fontWeight: 500, fontSize: '1rem' }}>
-                                    Corte {courtData.courtInfo.id}
+                                    Corte {courtData.courtInfo.relativeNumber}
                                     {courtData.courtInfo.startDate && courtData.courtInfo.endDate && (
                                       <>: {new Date(courtData.courtInfo.startDate).toLocaleDateString()} - {new Date(courtData.courtInfo.endDate).toLocaleDateString()}</>
                                     )}

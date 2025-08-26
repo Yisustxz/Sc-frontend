@@ -3,8 +3,8 @@ import { API_BASE_URL } from 'config/constants';
 import BackendError from 'exceptions/backend-error';
 import store from 'store';
 
-// Types para la respuesta de notas del estudiante
-export interface StudentEvaluationGrade {
+// Types para la respuesta de calificaciones del estudiante
+export interface StudentEvaluationQualification {
   evaluationId: number;
   evaluationName: string;
   evaluationType: string;
@@ -21,7 +21,7 @@ export interface StudentEvaluationGrade {
   };
 }
 
-export interface StudentGradesDetailResponse {
+export interface StudentQualificationsDetailResponse {
   studentId: number;
   studentName: string;
   studentLastName: string;
@@ -36,23 +36,23 @@ export interface StudentGradesDetailResponse {
     id: number;
     code: string;
   };
-  evaluations: StudentEvaluationGrade[];
+  evaluations: StudentEvaluationQualification[];
 }
 
-export const getStudentGradesDetail = async (
+export const getStudentQualificationsDetail = async (
   courseSchoolYearId: number,
   studentId: number
-): Promise<StudentGradesDetailResponse> => {
+): Promise<StudentQualificationsDetailResponse> => {
   try {
-    const url = `${API_BASE_URL}/course-school-year/${courseSchoolYearId}/student/${studentId}/grades`;
-    const response = await axios.get<StudentGradesDetailResponse>(url, {
+    const url = `${API_BASE_URL}/course-school-year/${courseSchoolYearId}/student/${studentId}/qualifications`;
+    const response = await axios.get<StudentQualificationsDetailResponse>(url, {
       headers: {
         Authorization: `Bearer ${store.getState().auth.token}`,
       }
     });
     return response.data;
   } catch (error: unknown) {
-    console.error('Error fetching student grades detail:', error);
+    console.error('Error fetching student qualifications detail:', error);
     throw new BackendError(error);
   }
 };

@@ -88,7 +88,7 @@ const CourseSchoolYearDetail: FunctionComponent<CourseSchoolYearDetailProps> = (
   // Manejar la navegación a las notas del estudiante
   const handleViewStudentGrades = useCallback((studentId: number) => {
     if (courseSchoolYear) {
-      navigate(`/course-school-year/detail/${courseSchoolYear.id}/student/${studentId}/grades`);
+      navigate(`/course-school-year/detail/${courseSchoolYear.id}/student/${studentId}/qualifications`);
     }
   }, [navigate, courseSchoolYear]);
 
