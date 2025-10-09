@@ -12,7 +12,7 @@ import {
 import BackendError from 'exceptions/backend-error'
 import { FunctionComponent, useCallback, useState } from 'react'
 import { PaginateData } from 'services/types'
-import { IconEdit, IconTrash } from '@tabler/icons'
+import { IconCreditCard, IconEdit, IconTrash } from '@tabler/icons'
 import { useNavigate } from 'react-router'
 import DialogDelete from 'components/dialogDelete'
 import deleteEmployee from 'services/employees/delete-employee'
@@ -28,7 +28,6 @@ const Table: FunctionComponent<Prop> = ({
   const dispatch = useAppDispatch()
   const [open, setOpen] = useState<boolean>(false)
   const [employeeId, setemployeeId] = useState<number>(0)
-
   const handleOpen = useCallback((employeeId: number) => {
     setOpen(true)
     setemployeeId(employeeId)
@@ -77,7 +76,6 @@ const Table: FunctionComponent<Prop> = ({
         item.employeeType ||
         item.fullName.trim()
     )
-
   return (
     <div className={className}>
       <DynamicTable
@@ -115,6 +113,16 @@ const Table: FunctionComponent<Prop> = ({
         ]}
         rows={formattedItems}
         components={[
+          (row: Employees) => (
+            <Button
+              color='info'
+              disabled={!row?.dni}
+              onClick={() => navigate(`/employees/nomina/${row.dni}`)}
+              startIcon={<IconCreditCard />}
+            >
+              Ver nómina
+            </Button>
+          ),
           (row: Employees) => (
             <Button
               color='primary'

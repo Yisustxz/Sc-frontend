@@ -38,6 +38,8 @@ import CreateInscription from 'views/inscriptions/create'
 import EditInscription from 'views/inscriptions/edit'
 import DetailInscription from 'views/inscriptions/detail'
 
+import ContractsPage from 'views/employees/contracts/index'
+
 const GeneralRoutes: RouteObject[] = [
   //aqui se van a añadir las rutas de cada modulo
 
@@ -152,6 +154,10 @@ const GeneralRoutes: RouteObject[] = [
   {
     path: 'inscriptions/detail/:id',
     element: <DetailInscription />
+  },
+  {
+    path: '/employees/nomina/:dni',
+    element: <ContractsPage />
   }
 ]
 
