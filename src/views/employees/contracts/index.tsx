@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import { Box, Typography, Card } from '@mui/material'
+import { Box, Typography, Card, Button } from '@mui/material'
 import { styled } from 'styled-components'
 import { useParams } from 'react-router'
 import getEmployee from 'services/employees/get-employee'
+import getAllEmployees from 'services/employees/get-all-employees'
 import { Employees } from 'core/employees/types'
 import CreateContract from './CreateContract'
+import EditContract from './EditContract'
+import { API_BASE_URL } from 'config/constants'
+import store from 'store'
+// Delete contract UI removed per request; keeping only edit functionality
 
 const contractFields = [
   { key: 'dni', label: 'DNI' },
@@ -38,11 +43,17 @@ const ContractsPage = ({ className }: { className?: string }) => {
   const [loading, setLoading] = useState(true)
   const [employee, setEmployee] = useState<Employees | null>(null)
   const [notFound, setNotFound] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  // delete flow removed
   useEffect(() => {
     if (!dni) return
+    // Resetear el empleado para evitar mostrar un nombre anterior mientras carga el nuevo
+    setEmployee(null)
     setLoading(true)
     axios
-      .get(`http://localhost:3001/api/v1/contracts/${dni}`)
+      .get(`${API_BASE_URL}/contracts/${dni}`, {
+        headers: { Authorization: `Bearer ${store.getState().auth.token}` }
+      })
       .then((res) => {
         setData(res.data)
         setNotFound(false)
@@ -55,15 +66,39 @@ const ContractsPage = ({ className }: { className?: string }) => {
       })
       .finally(() => setLoading(false))
   }, [dni])
+  // Cargar nombre/apellido por DNI para header (útil cuando no hay contrato)
+  useEffect(() => {
+    if (!dni) return
+    let active = true
+    ;(async () => {
+      try {
+        const list = await getAllEmployees({ dni })
+        if (active) {
+          const exact = Array.isArray(list)
+            ? list.find((e) => String(e.dni) === String(dni)) || null
+            : null
+          setEmployee(exact)
+        }
+      } catch {
+        if (active) setEmployee(null)
+      }
+    })()
+    return () => {
+      active = false
+    }
+  }, [dni])
   // Cargar datos de la persona (nombre/apellido) usando el id del empleado
   useEffect(() => {
     const employeeId = data?.employee?.id
+
     if (!employeeId) return
     let active = true
     ;(async () => {
       try {
         const emp = await getEmployee(employeeId)
-        if (active) setEmployee(emp)
+        if (active) {
+          setEmployee(emp)
+        }
       } catch (e) {
         if (active) setEmployee(null)
       }
@@ -72,13 +107,15 @@ const ContractsPage = ({ className }: { className?: string }) => {
       active = false
     }
   }, [data?.employee?.id])
+
   if (loading) return <Typography>Cargando datos de nómina...</Typography>
   if (notFound || !data) {
     return (
       <div className={className}>
         <div className='page-header'>
           <Typography variant='h3' className='title-header'>
-            Crear contrato {dni ? `(DNI: ${dni})` : ''}
+            Crear contrato de{' '}
+            {employee ? `${employee.name} ${employee.lastName}` : ''}{' '}
           </Typography>
         </div>
         <CreateContract
@@ -88,7 +125,11 @@ const ContractsPage = ({ className }: { className?: string }) => {
             setNotFound(false)
             setLoading(true)
             axios
-              .get(`http://localhost:3001/api/v1/contracts/${dni}`)
+              .get(`${API_BASE_URL}/contracts/${dni}`, {
+                headers: {
+                  Authorization: `Bearer ${store.getState().auth.token}`
+                }
+              })
               .then((res) => setData(res.data))
               .finally(() => setLoading(false))
           }}
@@ -96,6 +137,18 @@ const ContractsPage = ({ className }: { className?: string }) => {
       </div>
     )
   }
+
+  const refetch = () => {
+    if (!dni) return
+    setLoading(true)
+    axios
+      .get(`${API_BASE_URL}/contracts/${dni}`, {
+        headers: { Authorization: `Bearer ${store.getState().auth.token}` }
+      })
+      .then((res) => setData(res.data))
+      .finally(() => setLoading(false))
+  }
+  // delete flow removed
 
   const knownKeys = new Set(contractFields.map((f) => f.key))
   const skipKeys = new Set(['uuid', 'employee'])
@@ -124,28 +177,67 @@ const ContractsPage = ({ className }: { className?: string }) => {
     rows.push(items.slice(i, i + 3))
   }
   return (
-    <div className={className}>
+    <div key={dni} className={className}>
       <div className='page-header'>
         <Typography variant='h3' className='title-header'>
-          {employee?.name || employee?.lastName
-            ? `Nómina de ${employee?.name ?? ''} ${
-                employee?.lastName ?? ''
-              }`.trim()
-            : `Nómina del empleado`}{' '}
+          {(() => {
+            const empName = data?.employee?.name || employee?.name
+            const empLast = data?.employee?.lastName || employee?.lastName
+            return empName || empLast
+              ? `Nómina de ${empName ?? ''} ${empLast ?? ''}`.trim()
+              : 'Nómina del empleado'
+          })()}{' '}
         </Typography>
+        <div className='actions'>
+          {!isEditing ? (
+            <>
+              <Button
+                variant='outlined'
+                color='primary'
+                onClick={() => setIsEditing(true)}
+                disabled={!data?.uuid}
+              >
+                Editar contrato
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant='outlined'
+              color='secondary'
+              onClick={() => setIsEditing(false)}
+            >
+              Cancelar edición
+            </Button>
+          )}
+        </div>
       </div>
-      <Box sx={{ p: 3 }}>
-        {rows.map((row, idx) => (
-          <div key={idx} className='row-container'>
-            {row.map((item, j) => (
-              <Card key={j} className='contract-card'>
-                <Typography variant='subtitle2'>{item.label}</Typography>
-                <Typography>{item.value}</Typography>
-              </Card>
-            ))}
-          </div>
-        ))}
-      </Box>
+      {isEditing ? (
+        <EditContract
+          dni={dni || ''}
+          contract={data}
+          onSaved={(updated) => {
+            setIsEditing(false)
+            setData(updated)
+            // optional: refetch to ensure consistency
+            refetch()
+          }}
+          onCancel={() => setIsEditing(false)}
+        />
+      ) : (
+        <Box sx={{ p: 3 }}>
+          {rows.map((row, idx) => (
+            <div key={idx} className='row-container'>
+              {row.map((item, j) => (
+                <Card key={j} className='contract-card'>
+                  <Typography variant='subtitle2'>{item.label}</Typography>
+                  <Typography>{item.value}</Typography>
+                </Card>
+              ))}
+            </div>
+          ))}
+        </Box>
+      )}
+      {/* Delete dialog removed */}
     </div>
   )
 }
@@ -166,6 +258,12 @@ export default styled(ContractsPage)`
 
   .title-header {
     font-weight: 600;
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
   .row-container {

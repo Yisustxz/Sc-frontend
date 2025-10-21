@@ -9,8 +9,7 @@ import {
   MenuItem,
   Select,
   Switch,
-  TextField,
-  Typography
+  TextField
 } from '@mui/material'
 import { useAppDispatch } from 'store'
 import {
@@ -18,87 +17,60 @@ import {
   setIsLoading,
   setSuccessMessage
 } from 'store/customizationSlice'
-import createContract, {
-  ContractType
-} from 'services/contracts/create-contract'
-import getAllEmployees from 'services/employees/get-all-employees'
+import updateContract from 'services/contracts/update-contract'
 import { Employees, TypeEmployee } from 'core/employees/types'
+
+type ContractType = 'worker' | 'professor'
 
 type Props = {
   dni: string
-  onCreated?: (contract: any) => void
+  contract: any
+  onSaved?: (contract: any) => void
+  onCancel?: () => void
 }
 
-const CreateContract = ({ dni, onCreated }: Props) => {
+const EditContract = ({ dni, contract, onSaved, onCancel }: Props) => {
   const dispatch = useAppDispatch()
-  const [contractType, setContractType] = useState<ContractType>('worker')
-  const [employee, setEmployee] = useState<Employees | null>(null)
+  const employee: Employees | undefined = contract?.employee
+  const initialType: ContractType =
+    employee?.employeeType === TypeEmployee.Worker ? 'worker' : 'professor'
+  const [contractType] = useState<ContractType>(initialType)
   const [values, setValues] = useState({
-    dni: dni || '',
-    position: '',
+    dni: String(contract?.dni ?? dni ?? ''),
+    position: String(contract?.position ?? ''),
     // worker only
-    qualification: '',
-    grade: '',
-    level: '',
-    workingHours: '',
-    hoursWorked: '',
-    hourlyCost: '',
+    qualification: String(contract?.qualification ?? ''),
+    grade: String(contract?.grade ?? ''),
+    level: String(contract?.level ?? ''),
+    workingHours: String(contract?.workingHours ?? ''),
+    hoursWorked: String(contract?.hoursWorked ?? ''),
+    hourlyCost: String(contract?.hourlyCost ?? ''),
     // worker
-    yearsOfServiceAvec: 0 as number | string,
-    yearsOfServiceExternal: 0 as number | string,
-    yearsOfServiceOtherAvec: 0 as number | string,
+    yearsOfServiceAvec: contract?.yearsOfServiceAvec ?? 0,
+    yearsOfServiceExternal: contract?.yearsOfServiceExternal ?? 0,
+    yearsOfServiceOtherAvec: contract?.yearsOfServiceOtherAvec ?? 0,
     // professor
-    yearsOfService: 0 as number | string,
-    monthlySalary: '',
-    totalSalary: '',
-    nightBonus: '', // worker opt
-    transport: false,
-    antique: '',
-    bonusAcademic: '', // worker
-    nroOfChildren: 0 as number | string,
-    bonusCompensatory: '', // worker
-    bonusForChildren: '', // shared
-    geography: '',
-    homeCareAssistance: '',
-    bonusDisability: '',
+    yearsOfService: contract?.yearsOfService ?? 0,
+    monthlySalary: String(contract?.monthlySalary ?? ''),
+    totalSalary: String(contract?.totalSalary ?? ''),
+    nightBonus: String(contract?.nightBonus ?? ''),
+    transport: Boolean(contract?.transport ?? false),
+    antique: String(contract?.antique ?? ''),
+    bonusAcademic: String(contract?.bonusAcademic ?? ''),
+    nroOfChildren: contract?.nroOfChildren ?? 0,
+    bonusCompensatory: String(contract?.bonusCompensatory ?? ''),
+    bonusForChildren: String(contract?.bonusForChildren ?? ''),
+    geography: String(contract?.geography ?? ''),
+    homeCareAssistance: String(contract?.homeCareAssistance ?? ''),
+    bonusDisability: String(contract?.bonusDisability ?? ''),
     // professor only
-    category: '',
-    hierarchy: '',
-    teachingExercise: '',
-    postgraduate: ''
+    category: String(contract?.category ?? ''),
+    hierarchy: String(contract?.hierarchy ?? ''),
+    teachingExercise: String(contract?.teachingExercise ?? ''),
+    postgraduate: String(contract?.postgraduate ?? '')
   })
 
-  // Cargar datos del empleado por DNI para mostrar el nombre y fijar el tipo de contrato deshabilitado
-  useEffect(() => {
-    let active = true
-    ;(async () => {
-      try {
-        if (!dni) return
-        // Reset previo al cambio de DNI para no arrastrar estado
-        if (active) {
-          setEmployee(null)
-          setContractType('worker')
-          setValues((prev) => ({ ...prev, dni }))
-        }
-        const list = await getAllEmployees({ dni })
-        if (!active) return
-        const exact = Array.isArray(list)
-          ? list.find((e) => String(e.dni) === String(dni)) || null
-          : null
-        setEmployee(exact)
-        if (exact?.employeeType) {
-          const mapped: 'worker' | 'professor' =
-            exact.employeeType === TypeEmployee.Worker ? 'worker' : 'professor'
-          setContractType(mapped)
-        }
-      } catch {
-        if (active) setEmployee(null)
-      }
-    })()
-    return () => {
-      active = false
-    }
-  }, [dni])
+  // Debug logs removed
 
   const onChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -133,8 +105,8 @@ const CreateContract = ({ dni, onCreated }: Props) => {
   const onSubmit = useCallback(async () => {
     try {
       dispatch(setIsLoading(true))
-      const payload = {
-        dni,
+      const payload: any = {
+        dni: values.dni,
         position: values.position,
         level: values.level,
         workingHours: values.workingHours,
@@ -152,8 +124,7 @@ const CreateContract = ({ dni, onCreated }: Props) => {
       }
       let saved
       if (contractType === 'worker') {
-        const workerPayload = {
-          ...payload,
+        Object.assign(payload, {
           qualification: values.qualification,
           grade: values.grade,
           nightBonus: values.nightBonus,
@@ -162,31 +133,29 @@ const CreateContract = ({ dni, onCreated }: Props) => {
           yearsOfServiceAvec: Number(values.yearsOfServiceAvec) || 0,
           yearsOfServiceExternal: Number(values.yearsOfServiceExternal) || 0,
           yearsOfServiceOtherAvec: Number(values.yearsOfServiceOtherAvec) || 0
-        }
-        saved = await createContract('worker', workerPayload)
+        })
       } else {
-        const professorPayload = {
-          ...payload,
+        Object.assign(payload, {
           category: values.category,
           hierarchy: values.hierarchy,
           teachingExercise: values.teachingExercise,
           postgraduate: values.postgraduate,
           yearsOfService: Number(values.yearsOfService) || 0
-        }
-        saved = await createContract('professor', professorPayload)
+        })
       }
-      dispatch(setSuccessMessage('Contrato creado correctamente'))
-      onCreated?.(saved)
+      saved = await updateContract(contract.uuid, payload)
+      dispatch(setSuccessMessage('Contrato actualizado correctamente'))
+      onSaved?.(saved)
     } catch (err: any) {
       dispatch(
         setErrorMessage(
-          err?.response?.data?.message || 'Error al crear el contrato'
+          err?.response?.data?.message || 'Error al actualizar el contrato'
         )
       )
     } finally {
       dispatch(setIsLoading(false))
     }
-  }, [dispatch, onCreated, dni, values, contractType])
+  }, [dispatch, onSaved, contract.uuid, values, contractType])
 
   return (
     <Box sx={{ p: 3 }}>
@@ -194,12 +163,7 @@ const CreateContract = ({ dni, onCreated }: Props) => {
         <Grid item xs={12} md={4}>
           <FormControl fullWidth>
             <InputLabel>Tipo de contrato</InputLabel>
-            <Select
-              label='Tipo de contrato'
-              value={contractType}
-              onChange={(e) => setContractType(e.target.value as ContractType)}
-              disabled
-            >
+            <Select label='Tipo de contrato' value={contractType} disabled>
               <MenuItem value={'worker'}>Worker</MenuItem>
               <MenuItem value={'professor'}>Professor</MenuItem>
             </Select>
@@ -210,9 +174,8 @@ const CreateContract = ({ dni, onCreated }: Props) => {
             label='DNI'
             name='dni'
             value={values.dni}
-            onChange={onChange}
+            disabled
             fullWidth
-            disabled={!!dni}
           />
         </Grid>
         <Grid item xs={12} md={4}>
@@ -492,18 +455,21 @@ const CreateContract = ({ dni, onCreated }: Props) => {
           </>
         )}
       </Grid>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3, gap: 1 }}>
+        <Button variant='outlined' color='secondary' onClick={onCancel}>
+          Cancelar
+        </Button>
         <Button
           variant='contained'
           color='primary'
           onClick={onSubmit}
           disabled={!isValid}
         >
-          Guardar contrato
+          Guardar cambios
         </Button>
       </Box>
     </Box>
   )
 }
 
-export default CreateContract
+export default EditContract
