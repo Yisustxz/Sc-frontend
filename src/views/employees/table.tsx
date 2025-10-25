@@ -1,21 +1,21 @@
-import { Button, Pagination } from '@mui/material'
-import DynamicTable from 'components/DynamicTable'
-import { Employees } from 'core/employees/types'
-import styled from 'styled-components'
+import { Button, Pagination } from "@mui/material"
+import DynamicTable from "components/DynamicTable"
+import { Employees } from "core/employees/types"
+import styled from "styled-components"
 // Own
-import { useAppDispatch } from 'store/index'
+import { useAppDispatch } from "store/index"
 import {
   setIsLoading,
   setSuccessMessage,
   setErrorMessage
-} from 'store/customizationSlice'
-import BackendError from 'exceptions/backend-error'
-import { FunctionComponent, useCallback, useState } from 'react'
-import { PaginateData } from 'services/types'
-import { IconCreditCard, IconEdit, IconTrash } from '@tabler/icons'
-import { useNavigate } from 'react-router'
-import DialogDelete from 'components/dialogDelete'
-import deleteEmployee from 'services/employees/delete-employee'
+} from "store/customizationSlice"
+import BackendError from "exceptions/backend-error"
+import { FunctionComponent, useCallback, useState } from "react"
+import { PaginateData } from "services/types"
+import { IconCreditCard, IconEdit, IconTrash } from "@tabler/icons"
+import { useNavigate } from "react-router"
+import DialogDelete from "components/dialogDelete"
+import deleteEmployee from "services/employees/delete-employee"
 
 const Table: FunctionComponent<Prop> = ({
   items,
@@ -64,8 +64,13 @@ const Table: FunctionComponent<Prop> = ({
       phone: item.phone,
       direction: item.direction,
       birthDate: item.birthDate,
-      employeeType: item.employeeType,
-      fullName: `${item.name ?? ''} ${item.lastName ?? ''}`
+      employeeType:
+        {
+          professor: "Profesor",
+          substitute: "Suplente",
+          worker: "Trabajador"
+        }[String(item.employeeType)] || item.employeeType,
+      fullName: `${item.name ?? ""} ${item.lastName ?? ""}`
     }))
     .filter(
       (item) =>
@@ -81,41 +86,41 @@ const Table: FunctionComponent<Prop> = ({
       <DynamicTable
         headers={[
           {
-            columnLabel: 'Cedula',
-            fieldName: 'dni',
-            cellAlignment: 'left'
+            columnLabel: "Cedula",
+            fieldName: "dni",
+            cellAlignment: "left"
           },
           {
-            columnLabel: 'Nombre',
-            fieldName: 'fullName',
-            cellAlignment: 'left'
+            columnLabel: "Nombre",
+            fieldName: "fullName",
+            cellAlignment: "left"
           },
           {
-            columnLabel: 'telefono',
-            fieldName: 'phone',
-            cellAlignment: 'left'
+            columnLabel: "telefono",
+            fieldName: "phone",
+            cellAlignment: "left"
           },
           {
-            columnLabel: 'Dirección',
-            fieldName: 'direction',
-            cellAlignment: 'left'
+            columnLabel: "Dirección",
+            fieldName: "direction",
+            cellAlignment: "left"
           },
           {
-            columnLabel: 'Fecha de nacimiento',
-            fieldName: 'birthDate',
-            cellAlignment: 'left'
+            columnLabel: "Fecha de nacimiento",
+            fieldName: "birthDate",
+            cellAlignment: "left"
           },
           {
-            columnLabel: 'Tipo de empleado',
-            fieldName: 'employeeType',
-            cellAlignment: 'left'
+            columnLabel: "Tipo de empleado",
+            fieldName: "employeeType",
+            cellAlignment: "left"
           }
         ]}
         rows={formattedItems}
         components={[
           (row: Employees) => (
             <Button
-              color='info'
+              color="info"
               disabled={!row?.dni}
               onClick={() => navigate(`/employees/nomina/${row.dni}`)}
               startIcon={<IconCreditCard />}
@@ -125,9 +130,9 @@ const Table: FunctionComponent<Prop> = ({
           ),
           (row: Employees) => (
             <Button
-              color='primary'
+              color="primary"
               onClick={() => {
-                navigate('/Employees/edit/' + row.id)
+                navigate("/Employees/edit/" + row.id)
               }}
               startIcon={<IconEdit />}
             >
@@ -136,7 +141,7 @@ const Table: FunctionComponent<Prop> = ({
           ),
           (row: Employees) => (
             <Button
-              color='secondary'
+              color="secondary"
               onClick={() => handleOpen(row.id)}
               startIcon={<IconTrash />}
             >
@@ -153,13 +158,13 @@ const Table: FunctionComponent<Prop> = ({
         open={open}
       />
 
-      <div className={'paginator-container'}>
+      <div className={"paginator-container"}>
         <Pagination
           count={paginate.totalPages}
           page={paginate.page}
-          variant='outlined'
-          shape='rounded'
-          color='primary'
+          variant="outlined"
+          shape="rounded"
+          color="primary"
           onChange={(event, page) => {
             onChange(page)
           }}

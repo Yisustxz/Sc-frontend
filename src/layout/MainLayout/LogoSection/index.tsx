@@ -1,31 +1,41 @@
-import { Link } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from 'store';
-import { openMenu } from 'store/customizationSlice';
+import { Link } from "react-router-dom"
+import { useAppDispatch, useAppSelector } from "store"
+import { openMenu } from "store/customizationSlice"
 
 // material-ui
-import { ButtonBase } from '@mui/material';
+import { ButtonBase } from "@mui/material"
 
 // project imports
-import config from 'config';
-import Logo from 'components/Logo';
+import config from "config"
+import logo from "assets/images/martin-logo.png"
 
 // ==============================|| MAIN LOGO ||============================== //
 
 const LogoSection = () => {
-  const defaultId = useAppSelector((state) => state.customization.defaultId);
-  const dispatch = useAppDispatch();
+  const defaultId = useAppSelector((state) => state.customization.defaultId)
+  const dispatch = useAppDispatch()
 
-  const onClick = () => dispatch(openMenu(defaultId));
+  const onClick = () => dispatch(openMenu(defaultId))
 
   return (
-    <ButtonBase disableRipple
+    <ButtonBase
+      disableRipple
       onClick={onClick}
       component={Link}
       to={config.defaultPath}
     >
-      <Logo />
+      <img
+        src={logo}
+        alt="Logo"
+        style={{
+          width: "100px",
+          height: "70px",
+          display: "block",
+          marginLeft: "30px"
+        }}
+      />
     </ButtonBase>
-  );
-};
+  )
+}
 
-export default LogoSection;
+export default LogoSection
