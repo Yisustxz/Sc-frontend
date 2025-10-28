@@ -23,6 +23,8 @@ export interface LoginBody {
 
 export interface LoginResponse {
   accessToken: string;
-  name:string;
-  email:string;
+  name: string;
+  email: string;
+  role: string;
+  professors: number[];
 }

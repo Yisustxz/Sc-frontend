@@ -9,7 +9,7 @@ import Breadcrumbs from 'components/extended/Breadcrumbs';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import Customization from '../Customization';
-import navigation from 'menu-items';
+import { getMenuItemsByRole } from 'menu-items';
 import { setErrorMessage, setSuccessMessage, setMenu } from 'store/customizationSlice';
 
 // assets
@@ -25,7 +25,6 @@ const showCustomization = false;
 const MainLayout = () => {
   const theme = useTheme<CustomedTheme>();
   const matchDownMd = useMediaQuery(theme.breakpoints.down('md'));
-  // Handle left drawer
   const leftDrawerOpened = useAppSelector((state) => state.customization.opened);
   const dispatch = useAppDispatch();
   const handleLeftDrawerToggle = () => {
@@ -33,6 +32,8 @@ const MainLayout = () => {
   };
 
   const isAuthenticated = useAppSelector((state) => state.auth.isAuth);
+  const userRole = useAppSelector((state) => state.auth.user?.role);
+  const navigation = getMenuItemsByRole(userRole);
   const { isLoading, errorMessage, successMessage } = useAppSelector((state) => ({
     isLoading: state.customization.isLoading,
     errorMessage: state.customization.errorMessage,

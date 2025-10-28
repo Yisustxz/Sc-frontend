@@ -3,11 +3,13 @@ import { Typography } from '@mui/material';
 
 // project imports
 import NavGroup from './NavGroup';
-import menuItem from 'menu-items';
-
-// ==============================|| SIDEBAR MENU LIST ||============================== //
+import { getMenuItemsByRole } from 'menu-items';
+import { useAppSelector } from 'store';
 
 const MenuList = () => {
+  const userRole = useAppSelector((state) => state.auth.user?.role);
+  const menuItem = getMenuItemsByRole(userRole);
+
   const navItems = menuItem.items.map((item) => {
     switch (item.type) {
       case 'group':

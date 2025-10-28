@@ -18,7 +18,7 @@ import {
   SelectChangeEvent
 } from '@mui/material';
 import { IconCirclePlus, IconSearch, IconCalendar } from '@tabler/icons';
-import { useAppDispatch } from 'store';
+import { useAppDispatch, useAppSelector } from 'store';
 import { setIsLoading, setErrorMessage } from 'store/customizationSlice';
 import BackendError from 'exceptions/backend-error';
 import { gradeMapping, EducationLevels } from 'core/courses/use-education-levels';
@@ -26,6 +26,7 @@ import useGetSchoolYears from 'services/hooks/use-get-school-years';
 import useGetEmployees from 'services/hooks/use-get-employees';
 import { TypeEmployee, Employees } from 'core/employees/types';
 import { SchoolYearSelect } from 'core/school-year/types';
+import { Role } from 'constants/roles';
 
 // Constantes
 const PROFESSOR_SEARCH_LIMIT = 10;
@@ -41,6 +42,9 @@ interface Props {
 const CourseSchoolYearPage = ({ className }: Props) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const userRole = useAppSelector((state) => state.auth.user?.role);
+  const userProfessors = useAppSelector((state) => state.auth.user?.professors || []);
+
   const { 
     courseSchoolYears, 
     paginate, 
@@ -62,6 +66,12 @@ const CourseSchoolYearPage = ({ className }: Props) => {
   const [schoolYearSearchTerm, setSchoolYearSearchTerm] = useState('');
   const [selectedSchoolYear, setSelectedSchoolYear] = useState<SchoolYearSelect | null>(null);
 
+  const professorIdsFilter = useMemo(() => {
+    return userRole === Role.TEACHER && userProfessors.length > 0
+      ? userProfessors
+      : EMPTY_ARRAY_REFERENCE;
+  }, [userRole, userProfessors]);
+
   // Obtener años escolares
   const { data: schoolYears = [], isLoading: isLoadingSchoolYears } = useGetSchoolYears(EMPTY_ARRAY_REFERENCE, schoolYearSearchTerm);
 
@@ -70,7 +80,7 @@ const CourseSchoolYearPage = ({ className }: Props) => {
     data: professors = [], 
     isLoading: isLoadingProfessors 
   } = useGetEmployees(
-    EMPTY_ARRAY_REFERENCE, 
+    professorIdsFilter, 
     professorSearchTerm, 
     PROFESSOR_SEARCH_LIMIT, 
     TypeEmployee.Professor
@@ -127,6 +137,16 @@ const CourseSchoolYearPage = ({ className }: Props) => {
     },
     [setProfessorId]
   );
+
+  useEffect(() => {
+    if (userRole === Role.TEACHER && userProfessors.length > 0 && professors.length > 0 && !selectedProfessor) {
+      const firstProfessor = professors.find(p => p.id === userProfessors[0]);
+      if (firstProfessor) {
+        setSelectedProfessor(firstProfessor);
+        setProfessorId(firstProfessor.id);
+      }
+    }
+  }, [userRole, userProfessors, professors, selectedProfessor, setProfessorId]);
 
   // Navegar a la página de creación
   const handleNavigateToCreate = useCallback(() => {
@@ -225,12 +245,14 @@ const CourseSchoolYearPage = ({ className }: Props) => {
             getOptionLabel={(option: Employees) => 
               `${option.name || ''} ${option.lastName || ''}`
             }
+            value={selectedProfessor}
             inputValue={professorInputValue}
             onInputChange={handleProfessorInputChange}
             onChange={handleProfessorChange}
             loading={isLoadingProfessors}
             loadingText="Cargando profesores..."
             noOptionsText="No se encontraron profesores"
+            disabled={userRole === Role.TEACHER}
             renderInput={(params) => (
               <TextField
                 {...params}

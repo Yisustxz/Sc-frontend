@@ -1,8 +1,15 @@
 
 export interface User {
-  id: string;
+  id: number;
   name: string;
   email: string;
   role: string;
-  password: string;
+  password?: string;
+}
+
+export interface UserTeacher {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
 }

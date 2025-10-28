@@ -26,7 +26,9 @@ const authSlice = createSlice({
     authUser(state, action: PayloadAction<LoginPayload>) {
       state.user = {
         email: action.payload.email,
-        name: action.payload.name
+        name: action.payload.name,
+        role: action.payload.role,
+        professors: action.payload.professors
       };
       state.token = action.payload.accessToken;
       state.isAuth = true;
@@ -34,7 +36,9 @@ const authSlice = createSlice({
         setStorageData({
           user: {
             email: action.payload.email,
-            name: action.payload.name
+            name: action.payload.name,
+            role: action.payload.role,
+            professors: action.payload.professors
           },
           token: action.payload.accessToken
         });

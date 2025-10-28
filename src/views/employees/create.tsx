@@ -13,6 +13,7 @@ import { useAppDispatch } from '../../store/index'
 import Form, { FormValues } from './form'
 import { FormikHelpers } from 'formik'
 import BreadcrumbsNav from 'components/BreadcrumbsNav'
+import { TypeEmployee } from 'core/employees/types'
 
 const CreateEmployee: FunctionComponent<Props> = ({ className }) => {
   const navigate = useNavigate()
@@ -23,6 +24,9 @@ const CreateEmployee: FunctionComponent<Props> = ({ className }) => {
       values: any,
       { setErrors, setStatus, setSubmitting }: FormikHelpers<FormValues>
     ) => {
+
+      console.log('submit attemp create', values);
+
       try {
         dispatch(setIsLoading(true))
         setErrors({})
@@ -75,6 +79,7 @@ const CreateEmployee: FunctionComponent<Props> = ({ className }) => {
           direction: '',
           birthDate: '',
           employeeType: TypeEmployee.Professor,
+          userId: null,
           submit: null
         }}
         title={'Crear Empleado'}
@@ -86,12 +91,6 @@ const CreateEmployee: FunctionComponent<Props> = ({ className }) => {
 
 interface Props {
   className?: string
-}
-
-export enum TypeEmployee {
-  Professor = 'professor',
-  Substitute = 'substitute',
-  Worker = 'worker'
 }
 
 export default styled(CreateEmployee)`

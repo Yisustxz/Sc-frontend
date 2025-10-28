@@ -2,18 +2,18 @@ import { Button, Pagination } from '@mui/material';
 import DynamicTable from 'components/DynamicTable';
 import { CourseSchoolYear } from 'core/course-school-year/types';
 import styled from 'styled-components';
-// Own
-import { useAppDispatch } from 'store/index';
+import { useAppDispatch, useAppSelector } from 'store/index';
 import { setIsLoading, setSuccessMessage, setErrorMessage } from 'store/customizationSlice';
 import BackendError from 'exceptions/backend-error';
-import { FunctionComponent, useCallback, useState } from 'react';
+import { FunctionComponent, useCallback, useState, useMemo } from 'react';
 import { PaginateData } from 'services/types';
 import { IconEdit, IconTrash, IconCalendar, IconBook, IconUser, IconEye } from '@tabler/icons';
 import deleteCourseSchoolYear from 'services/course-school-year/delete-course-school-year';
 import DialogDelete from 'components/dialogDelete';
-import { Box, IconButton, Tooltip } from '@mui/material';
+import { Box } from '@mui/material';
 import { gradeMapping, EducationLevels } from 'core/courses/use-education-levels';
 import { useNavigate } from 'react-router-dom';
+import { Role } from 'constants/roles';
 
 interface Props {
     items: CourseSchoolYear[];
@@ -26,6 +26,7 @@ interface Props {
 const Table: FunctionComponent<Props> = ({ items, paginate, className, onChange, fetchItems }) => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
+    const userRole = useAppSelector((state) => state.auth.user?.role);
     const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
     const [selectedItem, setSelectedItem] = useState<CourseSchoolYear | null>(null);
 
@@ -78,6 +79,42 @@ const Table: FunctionComponent<Props> = ({ items, paginate, className, onChange,
         return `Grado ${grade}`;
     };
 
+    const tableComponents = useMemo(() => {
+        const components: Array<(row: CourseSchoolYear) => JSX.Element> = [
+            (row: CourseSchoolYear) =>
+                <Button
+                    color="info"
+                    onClick={() => handleDetail(row)}
+                    startIcon={<IconEye />}
+                >
+                    Detalle
+                </Button>
+        ];
+
+        if (!userRole || userRole === Role.ADMIN) {
+            components.push(
+                (row: CourseSchoolYear) =>
+                    <Button
+                        color="primary"
+                        onClick={() => handleEdit(row)}
+                        startIcon={<IconEdit />}
+                    >
+                        Editar
+                    </Button>,
+                (row: CourseSchoolYear) =>
+                    <Button 
+                        color="secondary" 
+                        onClick={() => handleOpenDelete(row)}
+                        startIcon={<IconTrash />}
+                    >
+                        Eliminar
+                    </Button>
+            );
+        }
+
+        return components;
+    }, [userRole, handleDetail, handleEdit, handleOpenDelete]);
+
     return (
         <div className={className}>
             <DynamicTable
@@ -106,32 +143,8 @@ const Table: FunctionComponent<Props> = ({ items, paginate, className, onChange,
                     ) },
                     { columnLabel: 'Horas Semanales', fieldName: 'weeklyHours', cellAlignment: 'center' },
                 ]}
-                rows={items} components={[
-                    (row: CourseSchoolYear) =>
-                        <Button
-                            color="info"
-                            onClick={() => handleDetail(row)}
-                            startIcon={<IconEye />}
-                        >
-                            Detalle
-                        </Button>,
-                    (row: CourseSchoolYear) =>
-                        <Button
-                            color="primary"
-                            onClick={() => handleEdit(row)}
-                            startIcon={<IconEdit />}
-                        >
-                            Editar
-                        </Button>,
-                    (row: CourseSchoolYear) =>
-                        <Button 
-                            color="secondary" 
-                            onClick={() => handleOpenDelete(row)}
-                            startIcon={<IconTrash />}
-                        >
-                            Eliminar
-                        </Button>
-                ]}
+                rows={items}
+                components={tableComponents}
             />
 
             {/* Diálogo de confirmación para eliminar */}

@@ -29,6 +29,8 @@ const EditEmployee: FunctionComponent<Props> = ({ className }) => {
       { setErrors, setStatus, setSubmitting }: FormikHelpers<FormValues>
     ) => {
       try {
+        console.log('submit attemp eit', values);
+
         dispatch(setIsLoading(true))
         setErrors({})
         setStatus({})
@@ -82,6 +84,7 @@ const EditEmployee: FunctionComponent<Props> = ({ className }) => {
             direction: employee.direction,
             birthDate: employee.birthDate,
             employeeType: employee.employeeType,
+            userId: employee.userId || null,
             submit: null
           }}
           title={'Editar Empleado'}

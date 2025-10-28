@@ -27,23 +27,23 @@ const Table: FunctionComponent<Prop> = ({
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const [open, setOpen] = useState<boolean>(false)
-  const [id, setUserDni] = useState<string>('')
+  const [id, setUserId] = useState<number | null>(null)
 
-  const handleOpen = useCallback((id: string) => {
+  const handleOpen = useCallback((id: number) => {
     setOpen(true)
-    setUserDni(id)
+    setUserId(id)
   }, [])
 
   const handleClose = useCallback(() => {
     setOpen(false)
-    setUserDni('')
+    setUserId(null)
   }, [])
 
   const onDelete = useCallback(
-    async (id: string) => {
+    async (id: number) => {
       try {
         dispatch(setIsLoading(true))
-        await deleteUser(id!)
+        await deleteUser(id)
         navigate('/Users')
         dispatch(setSuccessMessage(`Usuario eliminado correctamente`))
       } catch (error) {
@@ -99,7 +99,9 @@ const Table: FunctionComponent<Prop> = ({
       <DialogDelete
         handleClose={handleClose}
         onDelete={() => {
-          onDelete(id)
+          if (id !== null) {
+            onDelete(id)
+          }
         }}
         open={open}
       />

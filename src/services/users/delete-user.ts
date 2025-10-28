@@ -6,7 +6,7 @@ import store from 'store';
 
 const URL = `${API_BASE_URL}/users`;
 
-export default async function deleteUser(id: string): Promise<void> {
+export default async function deleteUser(id: number): Promise<void> {
   try {
     await axios.delete(
         `${URL}/${id}`, {

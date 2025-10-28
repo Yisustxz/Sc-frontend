@@ -2,7 +2,7 @@ import { SelectOption } from "components/SelectField";
 
 enum Roles {
   ADMIN = 'ADMIN',
-  MODERATOR = 'MODERATOR',
+  TEACHER = 'TEACHER',
 }
 
 export function getRolesAsOptions(): SelectOption[] {

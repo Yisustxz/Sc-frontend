@@ -1,4 +1,4 @@
-import { FunctionComponent } from 'react'
+import { FunctionComponent, useMemo, useState } from 'react'
 import * as Yup from 'yup'
 import { Formik, FormikHelpers } from 'formik'
 // material-ui
@@ -13,11 +13,12 @@ import {
   InputLabel
 } from '@mui/material'
 import styled from 'styled-components'
-import { ro } from 'date-fns/locale'
-import { Margin } from '@mui/icons-material'
 import { TypeEmployee } from 'core/employees/types'
+import { UserTeacher } from 'core/users/types'
+import OnlineAutocomplete from 'components/OnlineAutocomplete'
+import useGetTeacherUsers from 'services/hooks/use-get-teacher-users'
 
-const USE_AUTOCOMPLETES = false
+const TEACHER_SEARCH_LIMIT = 10
 
 const Form: FunctionComponent<Props> = ({
   className,
@@ -28,8 +29,34 @@ const Form: FunctionComponent<Props> = ({
 }) => {
   const isCreated = !isUpdate
 
+  // Estado para el selector de usuarios teachers
+  const [teacherSearchTerm, setTeacherSearchTerm] = useState<string | null>(null);
+  const forceTeacherIds = useMemo(() => initialValues.userId ? [initialValues.userId] : [], [initialValues.userId]);
+
+  console.log('Tombs Scare', forceTeacherIds, initialValues.userId);
+
+  const { data: teacherUsers = [], isLoading: isLoadingTeachers } = 
+    useGetTeacherUsers(forceTeacherIds, teacherSearchTerm, TEACHER_SEARCH_LIMIT);
+
+  // Funciones para manejar la selección de teacher
+  const handleTeacherChange = (teacher: UserTeacher | null, setFieldValue: any) => {
+    if (teacher) {
+      setFieldValue('userId', teacher.id);
+    } else {
+      setFieldValue('userId', null);
+    }
+  };
+
+  const getTeacherOptionLabel = (teacher: UserTeacher): string => {
+    return `${teacher.name} (${teacher.email})`;
+  };
+
   const extraValidations: any = isCreated
-    ? {}
+    ? {
+          dni: Yup.string()
+      .max(8, 'La cédula del Empleado no puede tener más de 8 numeros')
+      .required('La cedula del Empleado es requerida'),
+    }
     : {}
 
   return (
@@ -37,13 +64,10 @@ const Form: FunctionComponent<Props> = ({
       <Formik
         validateOnChange={true}
         validateOnBlur={false}
-        validateOnMount={false}
+        validateOnMount={isUpdate}
         initialValues={initialValues}
         validationSchema={Yup.object().shape({
           ...extraValidations,
-          dni: Yup.string()
-          .max(8, 'La cédula del Empleado no puede tener más de 8 numeros')
-          .required('La cedula del Empleado es requerida'),
           name: Yup.string()
             .max(
               30,
@@ -64,7 +88,13 @@ const Form: FunctionComponent<Props> = ({
             .required('El teléfono del Empleado es requerido'),
           direction: Yup.string().required(
             'La dirección del Empleado es requerido'
-          )
+          ),
+          employeeType: Yup.string().required(
+            'El tipo de empleado es requerido'
+          ),
+          userId: Yup.number()
+            .nullable()
+            .notRequired()
         })}
         onSubmit={onSubmit as any}
       >
@@ -75,16 +105,34 @@ const Form: FunctionComponent<Props> = ({
           handleSubmit,
           isSubmitting,
           touched,
-          values
+          values,
+          setFieldValue
         }) => (
           <form noValidate onSubmit={handleSubmit}>
             <MainCard className={'form-data'} title={title}>
               <div className='form-grid'>
-                {isCreated && (
+                {isCreated ? (
                   <FormControl className='field-form' fullWidth>
                     <TextField
                       id='dni'
                       label='Cédula'
+                      variant='outlined'
+                      onBlur={handleBlur}
+                      onChange={handleChange}
+                      value={values.dni}
+                      helperText={touched.dni ? errors.dni : ''}
+                      error={touched.dni && !!errors.dni}
+                      name='dni'
+                      inputProps={{
+                        maxLength: 8
+                      }}
+                    />
+                  </FormControl>
+                ) : (
+                  <FormControl className='field-form' fullWidth>
+                    <TextField
+                      id='id'
+                      label='ID'
                       variant='outlined'
                       onBlur={handleBlur}
                       onChange={handleChange}
@@ -193,6 +241,42 @@ const Form: FunctionComponent<Props> = ({
                     <FormHelperText error>{errors.employeeType}</FormHelperText>
                   )}
                 </FormControl>
+                {/* Selector de Usuario (solo para profesores) */}
+                {values.employeeType === TypeEmployee.Professor && (
+                  <FormControl className='field-form' fullWidth>
+                    <OnlineAutocomplete
+                      showSelection={false}
+                      options={teacherUsers}
+                      onChange={(teacher: UserTeacher | null) => handleTeacherChange(teacher, setFieldValue)}
+                      getOptionLabel={getTeacherOptionLabel}
+                      label="Usuario Asignado (Opcional)"
+                      required={false}
+                      loading={isLoadingTeachers}
+                      searchFn={setTeacherSearchTerm}
+                      error={touched.userId && errors.userId ? String(errors.userId) : undefined}
+                      noOptionsText="No se encontraron usuarios teachers"
+                      loadingText="Buscando usuarios..."
+                      originalValue={initialValues.userId}
+                      currentValue={values.userId}
+                    />
+                    {values.userId && (
+                      <FormHelperText>
+                        <Button 
+                          size="small" 
+                          variant="text" 
+                          color="secondary"
+                          onClick={() => handleTeacherChange(null, setFieldValue)}
+                          sx={{ textTransform: 'none', fontSize: '0.75rem', padding: '2px 4px', minWidth: 'auto' }}
+                        >
+                          ✕ Quitar usuario asignado
+                        </Button>
+                      </FormHelperText>
+                    )}
+                    { errors.userId && (
+                    <FormHelperText error>{errors.userId}</FormHelperText>
+                  )}
+                  </FormControl>
+                )}
               </div>
             </MainCard>
 
@@ -227,6 +311,7 @@ export type FormValues = {
   direction: string
   birthDate: string
   employeeType: TypeEmployee
+  userId?: number | null
   submit: string | null
 }
 
@@ -243,6 +328,18 @@ export default styled(Form)`
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 16px; /* Espacio entre columnas */
+  }
+
+  .form-grid .field-form {
+    margin: 0; /* Remover margin en grid, usar gap del grid */
+  }
+
+  @media screen and (max-width: 768px) {
+    /* Media query para dispositivos móviles */
+    .form-grid {
+      grid-template-columns: 1fr; /* Una sola columna */
+      gap: 12px; /* Espacio entre filas en móvil */
+    }
   }
 
   .form-data {

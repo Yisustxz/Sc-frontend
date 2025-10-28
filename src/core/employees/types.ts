@@ -1,3 +1,5 @@
+import { User } from 'core/users/types';
+
 export enum TypeEmployee {
   Professor = 'professor',
   Substitute = 'substitute',
@@ -13,4 +15,6 @@ export interface Employees {
   direction: string;
   birthDate: string;
   employeeType: TypeEmployee;
+  userId?: number;
+  assignedUser?: User;
 }
